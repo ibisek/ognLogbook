@@ -11,9 +11,10 @@ bp = BeaconProcessor()
 
 def process_beacon(raw_message):
     # print("RAW:", raw_message)
-    # if raw_message[0] == '#':
-    #     print('Server Status: {}'.format(raw_message))
-    #     return
+
+    # throw away other types of messages to increase performance:
+    if raw_message[:3] not in ['OGN', 'FLR', 'ICA']:
+        return
 
     beacon = None
     try:
@@ -23,15 +24,22 @@ def process_beacon(raw_message):
             bp.enqueueForProcessing(beacon)
 
     except ParseError as e:
-        print('Error, {}'.format(e.message))
+        print('[ERROR] {}'.format(e.message))
         if beacon:
             print("Failed BEACON:", beacon)
 
+    except Exception as e:
+        # print('[ERROR] {}'.format(e))
+        # if beacon:
+        #     print("Failed BEACON:", beacon)
+        pass
+
 
 if __name__ == '__main__':
-    aprsFilter = 'r/+49.3678/+16.1145/300'
+    aprsFilter = 'r/+49.3678/+16.1145/200'
+    # aprsFilter = None
 
-    client = AprsClient(aprs_user='ibisek', aprs_filter=aprsFilter)   #N0CALL
+    client = AprsClient(aprs_user='ibisek', aprs_filter=aprsFilter)
     client.connect()
 
     doRun = True

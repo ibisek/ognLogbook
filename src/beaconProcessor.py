@@ -5,7 +5,7 @@ import datetime
 from redis import StrictRedis
 from rq import Queue
 
-from configuration import SPEED_THRESHOLD, redisConfig, dbConnectionInfo
+from configuration import SPEED_THRESHOLD, redisConfig, dbConnectionInfo, REDIS_RECORD_EXPIRATION
 from db.DbThread import DbThread
 from db.DbSource import DbSource
 
@@ -39,12 +39,12 @@ class BeaconProcessor(object):
 
         if not prevStatus:  # we have no prior information
             self.redis.set(statusKey, currentStatus)
+            self.redis.expire(statusKey, REDIS_RECORD_EXPIRATION)
             return
 
-        prevStatus = int(prevStatus)
-
-        if currentStatus != prevStatus:
+        if currentStatus != int(prevStatus):
             self.redis.set(statusKey, currentStatus)
+            self.redis.expire(statusKey, REDIS_RECORD_EXPIRATION)
 
             ts = round(beacon['timestamp'].timestamp())     # [s]
             addressType = beacon['address_type']
@@ -54,21 +54,26 @@ class BeaconProcessor(object):
 
             event = 'L' if currentStatus == 0 else 'T'  # L = landing, T = take-off
 
-            strSql = f"INSERT INTO logbook_events (ts, address, address_type, aircraft_type, event, lat, lon) " \
-                     f"VALUES (%(ts)s, %(address)s, %(address_type)s, %(aircraft_type)s, %(event)s, %(lat)s, %(lon)s);"
+            # strSql = f"INSERT INTO logbook_events (ts, address, address_type, aircraft_type, event, lat, lon) " \
+            #          f"VALUES (%(ts)s, %(address)s, %(address_type)s, %(aircraft_type)s, %(event)s, %(lat)s, %(lon)s);"
+            #
+            # data = dict()
+            # data['ts'] = ts
+            # data['address'] = address
+            # data['address_type'] = addressType
+            # data['aircraft_type'] = aircraftType
+            # data['event'] = event
+            # data['lat'] = float(f"{lat:.5f}")
+            # data['lon'] = float(f"{lon:.5f}")
 
-            data = dict()
-            data['ts'] = ts
-            data['address'] = address
-            data['address_type'] = addressType
-            data['aircraft_type'] = aircraftType
-            data['event'] = event
-            data['lat'] = float(f"{lat:.5f}")
-            data['lon'] = float(f"{lon:.5f}")
+            strSql = f"INSERT INTO logbook_events (ts, address, address_type, aircraft_type, event, lat, lon) " \
+                     f"VALUES (%s, %s, %s, %s, %s, %s, %s);"
+
+            data = (ts, address, addressType, aircraftType, event, float(f"{lat:.5f}"), float(f"{lon:.5f}"))
 
             with DbSource(dbConnectionInfo).getConnection() as cur:
-                query = cur.mogrify(strSql, data)
-                print('query:', query)
+                # query = cur.mogrify(strSql, data)
+                # print('query:', query)
                 # self.dbThread.addStatement(query)
                 cur.execute(strSql, data)
 
@@ -82,7 +87,14 @@ class BeaconProcessor(object):
         now = time.time()
         tDiff = now - self.startTime
         if tDiff >= 60:
-            print('Throughput: {:.0f}/min'.format(self.numEnquedTasks/tDiff*60))
+            numTasksPerMin = self.numEnquedTasks/tDiff*60
+            numQueuedTasks = len(self.queue)
+
+            if numQueuedTasks > 666:
+                print('Throughput: {:.0f}/min. We are {:.1f} min behind.'.format(numTasksPerMin, numQueuedTasks / numTasksPerMin))
+            else:
+                print('Throughput: {:.0f}/min'.format(numTasksPerMin))
+
             self.numEnquedTasks = 0
             self.startTime = now
 
