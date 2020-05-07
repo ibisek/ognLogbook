@@ -63,7 +63,7 @@ class BeaconProcessor(object):
 
             event = 'L' if currentStatus == 0 else 'T'  # L = landing, T = take-off
 
-            print(f"[INFO] {address} {event} {icaoLocation}")
+            print(f"[INFO] {icaoLocation} {address} {event}")
 
             strSql = f"INSERT INTO logbook_events " \
                      f"(ts, address, address_type, aircraft_type, event, lat, lon, location_icao) " \
@@ -92,9 +92,9 @@ class BeaconProcessor(object):
             numQueuedTasks = len(self.queue)
 
             if numQueuedTasks > 666:
-                print('Throughput: {:.0f}/min. We are {:.1f} min behind.'.format(numTasksPerMin, numQueuedTasks / numTasksPerMin))
+                print('Beacon rate: {:.0f}/min. We are {:.1f} min behind.'.format(numTasksPerMin, numQueuedTasks / numTasksPerMin))
             else:
-                print('Throughput: {:.0f}/min'.format(numTasksPerMin))
+                print('Beacon rate: {:.0f}/min'.format(numTasksPerMin))
 
             self.numEnquedTasks = 0
             self.startTime = now
