@@ -1,5 +1,5 @@
 
-SPEED_THRESHOLD = 30    # [km/h]
+SPEED_THRESHOLD = 40    # [km/h]
 
 redisConfig = {"host": "127.0.0.1", "password": "", "port": 6379}
 

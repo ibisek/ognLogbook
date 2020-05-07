@@ -10,7 +10,7 @@ bp = BeaconParser()
 
 
 def process_beacon(raw_message):
-    print("   RAW:", raw_message)
+    print("RAW:", raw_message)
     # if raw_message[0] == '#':
     #     print('Server Status: {}'.format(raw_message))
     #     return
@@ -19,7 +19,8 @@ def process_beacon(raw_message):
     try:
         beacon = parse(raw_message)
         if 'beacon_type' in beacon.keys() and beacon['beacon_type'] == 'aprs_aircraft':
-            print("BEACON: ", beacon)
+            # print("BEACON: ", beacon)
+            bp.enqueueForProcessing(beacon)
 
     except ParseError as e:
         print('Error, {}'.format(e.message))
@@ -28,7 +29,7 @@ def process_beacon(raw_message):
 
 
 if __name__ == '__main__':
-    aprsFilter = 'r/+49.3678/+16.1145/200'  # distance from coords; 40 km je az do brna aby to bralo OGN cube
+    aprsFilter = 'r/+49.3678/+16.1145/300'
 
     client = AprsClient(aprs_user='ibisek', aprs_filter=aprsFilter)   #N0CALL
     client.connect()
