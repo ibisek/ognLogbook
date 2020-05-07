@@ -9,7 +9,7 @@ from db.DbThread import DbThread
 from db.DbSource import DbSource
 
 
-class BeaconParser(object):
+class BeaconProcessor(object):
 
     redis = StrictRedis(**redisConfig)
     queue = Queue('beacons', is_async=True, connection=redis)

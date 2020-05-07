@@ -4,13 +4,13 @@ from ogn.client import AprsClient
 from ogn.parser import parse
 from ogn.parser.exceptions import ParseError
 
-from beaconParser import BeaconParser
+from beaconProcessor import BeaconProcessor
 
-bp = BeaconParser()
+bp = BeaconProcessor()
 
 
 def process_beacon(raw_message):
-    print("RAW:", raw_message)
+    # print("RAW:", raw_message)
     # if raw_message[0] == '#':
     #     print('Server Status: {}'.format(raw_message))
     #     return

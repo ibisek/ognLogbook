@@ -1,7 +1,7 @@
 
 from enum import Enum
 
-from beaconParser import BeaconParser
+from beaconProcessor import BeaconProcessor
 
 
 class AircraftStatus(Enum):
@@ -16,7 +16,7 @@ class BeaconParsingException(Exception):
 
 if __name__ == '__main__':
 
-    bp = BeaconParser()
+    bp = BeaconProcessor()
 
     fn = '../data/1.line'
 
