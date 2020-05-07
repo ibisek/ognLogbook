@@ -63,17 +63,7 @@ class BeaconProcessor(object):
 
             event = 'L' if currentStatus == 0 else 'T'  # L = landing, T = take-off
 
-            # strSql = f"INSERT INTO logbook_events (ts, address, address_type, aircraft_type, event, lat, lon) " \
-            #          f"VALUES (%(ts)s, %(address)s, %(address_type)s, %(aircraft_type)s, %(event)s, %(lat)s, %(lon)s);"
-            #
-            # data = dict()
-            # data['ts'] = ts
-            # data['address'] = address
-            # data['address_type'] = addressType
-            # data['aircraft_type'] = aircraftType
-            # data['event'] = event
-            # data['lat'] = float(f"{lat:.5f}")
-            # data['lon'] = float(f"{lon:.5f}")
+            print(f"[INFO] {address} {event} {icaoLocation}")
 
             strSql = f"INSERT INTO logbook_events " \
                      f"(ts, address, address_type, aircraft_type, event, lat, lon, location_icao) " \
