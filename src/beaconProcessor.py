@@ -1,4 +1,5 @@
 import re
+import time
 import datetime
 
 from redis import StrictRedis
@@ -31,6 +32,7 @@ class BeaconProcessor(object):
         print(f"[INFO] {address} gs: {groundSpeed:.0f}")
 
         currentStatus = 0 if groundSpeed < SPEED_THRESHOLD else 1    # 0 = on ground, 1 = airborne, -1 = unknown
+        # TODO add AGL check (?)
 
         statusKey = f"{address}-status"
         prevStatus = self.redis.get(statusKey)
@@ -70,10 +72,18 @@ class BeaconProcessor(object):
                 # self.dbThread.addStatement(query)
                 cur.execute(strSql, data)
 
+    startTime = time.time()
+    numEnquedTasks = 0
+
     def enqueueForProcessing(self, beacon: dict):
         self.queue.enqueue(self._processBeacon, beacon)
-        # print("Qlen:", len(self.queue))
-        # jid = self.queue.job_ids[0]
-        # job = self.queue.fetch_job(jid)
-        # print(job)
+        self.numEnquedTasks += 1
+
+        now = time.time()
+        tDiff = now - self.startTime
+        if tDiff >= 60:
+            print('Throughput: {:.0f}/min'.format(self.numEnquedTasks/tDiff*60))
+            self.numEnquedTasks = 0
+            self.startTime = now
+
 
