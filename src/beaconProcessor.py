@@ -83,10 +83,10 @@ class BeaconProcessor(object):
             data = (ts, address, addressType, aircraftType, event, float(f"{lat:.5f}"), float(f"{lon:.5f}"), icaoLocation)
 
             with DbSource(dbConnectionInfo).getConnection() as cur:
-                query = cur.mogrify(strSql, data)
-                print('query:', query)
+                # query = cur.mogrify(strSql, data)
+                # print('query:', query)
                 # self.dbThread.addStatement(query)
-                # cur.execute(strSql, data)
+                cur.execute(strSql, data)
 
     startTime = time.time()
     numEnquedTasks = 0
