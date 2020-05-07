@@ -1,0 +1,8 @@
+
+Spusteni workera:
+    ve stejnem adresari, kde jsou zdrojaky (/src/) s aktivnim venvem
+        rq worker beacons
+
+Info o stavu zpracovani:
+    rqinfo
+
