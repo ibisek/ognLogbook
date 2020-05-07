@@ -2,7 +2,7 @@
 --create database ogn-logbook;
 --grant all on ogn_logbook.* to '**'@'localhost' identified by '**';
 
---DROP TABLE IF EXISTS logbook_events ;
+--DROP TABLE IF EXISTS logbook_events;
 CREATE TABLE logbook_events (
     id BIGINT PRIMARY KEY auto_increment,
     ts BIGINT,
@@ -12,8 +12,10 @@ CREATE TABLE logbook_events (
     event VARCHAR(1),
     lat DECIMAL(8,5),
     lon DECIMAL(8,5),
-    location_icao VARCHAR(4)
+    location_icao VARCHAR(4) DEFAULT 'tbd',
     --location_name VARCHAR(30)
+    aircraft_registration VARCHAR(4) DEFAULT 'tbd',
+    aircraft_cn VARCHAR(3)   
 );
 
 --
