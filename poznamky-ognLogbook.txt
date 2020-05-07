@@ -6,3 +6,7 @@ Spusteni workera:
 Info o stavu zpracovani:
     rqinfo
 
+
+--
+
+https://python-rq.org/docs/
