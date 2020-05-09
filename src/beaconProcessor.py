@@ -5,6 +5,9 @@ import datetime
 from redis import StrictRedis
 from rq import Queue
 
+from ogn.parser import parse
+from ogn.parser.exceptions import ParseError
+
 from configuration import SPEED_THRESHOLD, redisConfig, dbConnectionInfo, REDIS_RECORD_EXPIRATION
 from db.DbThread import DbThread
 from db.DbSource import DbSource
@@ -24,8 +27,24 @@ class BeaconProcessor(object):
     # def __del__(self):
     #     self.dbThread.stop()
 
-    def _processBeacon(self, beacon: dict):
-        if beacon['beacon_type'] != 'aprs_aircraft':
+    def _processMessage(self, raw_message: str):
+
+        beacon = None
+        try:
+            beacon = parse(raw_message)
+            if 'beacon_type' not in beacon.keys() or beacon['beacon_type'] != 'aprs_aircraft':
+                return
+
+        except ParseError as e:
+            print('[ERROR] {}'.format(e.message))
+            if beacon:
+                print("Failed BEACON:", beacon)
+                return
+
+        except Exception as e:
+            # print('[ERROR] {}'.format(e))
+            # if beacon:
+            #     print("Failed BEACON:", beacon)
             return
 
         # we are not interested in para, baloons, uavs, static stuff and others:
@@ -81,8 +100,8 @@ class BeaconProcessor(object):
     startTime = time.time()
     numEnquedTasks = 0
 
-    def enqueueForProcessing(self, beacon: dict):
-        self.queue.enqueue(self._processBeacon, beacon)
+    def enqueueForProcessing(self, raw_message: str):
+        self.queue.enqueue(self._processMessage, raw_message)
         self.numEnquedTasks += 1
 
         now = time.time()
