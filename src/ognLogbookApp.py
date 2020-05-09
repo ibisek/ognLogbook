@@ -36,7 +36,7 @@ def process_beacon(raw_message):
 
 
 if __name__ == '__main__':
-    aprsFilter = 'r/+49.3678/+16.1145/300'
+    aprsFilter = 'r/+49.3678/+16.1145/250'
     # aprsFilter = None
 
     client = AprsClient(aprs_user='ibisek', aprs_filter=aprsFilter)

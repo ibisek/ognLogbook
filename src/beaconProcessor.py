@@ -92,7 +92,7 @@ class BeaconProcessor(object):
             numQueuedTasks = len(self.queue)
 
             if numQueuedTasks > 666:
-                print('Beacon rate: {:.0f}/min. We are {:.1f} min behind.'.format(numTasksPerMin, numQueuedTasks / numTasksPerMin))
+                print(f"Beacon rate: {numTasksPerMin:.0f}/min. {numQueuedTasks} queued.")
             else:
                 print('Beacon rate: {:.0f}/min'.format(numTasksPerMin))
 
