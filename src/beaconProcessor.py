@@ -1,9 +1,10 @@
 import re
 import time
-import datetime
+from datetime import datetime
 
 from redis import StrictRedis
 from rq import Queue
+# from queue import Queue
 
 from ogn.parser import parse
 from ogn.parser.exceptions import ParseError
@@ -12,12 +13,15 @@ from configuration import SPEED_THRESHOLD, redisConfig, dbConnectionInfo, REDIS_
 from db.DbThread import DbThread
 from db.DbSource import DbSource
 from airfieldManager import AirfieldManager
+from dataStructures import ProcessedBeacon
+
 
 
 class BeaconProcessor(object):
 
     redis = StrictRedis(**redisConfig)
-    queue = Queue('beacons', is_async=False, connection=redis)
+    rawQueue = Queue('raw', is_async=True, connection=redis)
+    eventsQueue = Queue('events', is_async=True, connection=redis)
 
     def __init__(self):
         # self.dbThread = DbThread(dbConnectionInfo)
@@ -28,7 +32,6 @@ class BeaconProcessor(object):
     #     self.dbThread.stop()
 
     def _processMessage(self, raw_message: str):
-
         beacon = None
         try:
             beacon = parse(raw_message)
@@ -76,39 +79,61 @@ class BeaconProcessor(object):
             lat = beacon['latitude']
             lon = beacon['longitude']
 
-            icaoLocation = AirfieldManager().getNearest(lat, lon)
-            if not icaoLocation:
-                return
+            # icaoLocation = AirfieldManager().getNearest(lat, lon)
+            # if not icaoLocation:
+            #     return
 
             event = 'L' if currentStatus == 0 else 'T'  # L = landing, T = take-off
 
-            print(f"[INFO] {icaoLocation} {address} {event}")
+            dt = datetime.fromtimestamp(ts)
+            dtStr = dt.strftime('%H:%M:%S')
+            print(f"[INFO] {dtStr} {address} {event}")
+
+            data: ProcessedBeacon = ProcessedBeacon(
+                ts=ts,
+                address=address,
+                addressType=addressType,
+                aircraftType=aircraftType,
+                event=event,
+                lat=float(f"{lat:.5f}"),
+                lon=float(f"{lon:.5f}"),
+                location_icao=None
+            )
+
+            self.eventsQueue.enqueue(self._lookupIcaoLocation, data)
+
+    def _lookupIcaoLocation(self, beacon: ProcessedBeacon):
+        location_icao = AirfieldManager().getNearest(beacon.lat, beacon.lon)
+
+        if location_icao:
+            dt = datetime.fromtimestamp(beacon.ts)
+            dtStr = dt.strftime('%H:%M:%S')
+
+            print(f"[INFO] {dtStr} {location_icao} {beacon.address} {beacon.event}")
 
             strSql = f"INSERT INTO logbook_events " \
                      f"(ts, address, address_type, aircraft_type, event, lat, lon, location_icao) " \
                      f"VALUES " \
                      f"(%s, %s, %s, %s, %s, %s, %s, %s);"
 
-            data = (ts, address, addressType, aircraftType, event, float(f"{lat:.5f}"), float(f"{lon:.5f}"), icaoLocation)
+            data = (beacon.ts, beacon.address, beacon.addressType, beacon.aircraftType, beacon.event,
+                    beacon.lat, beacon.lon, location_icao)
 
             with DbSource(dbConnectionInfo).getConnection() as cur:
-                # query = cur.mogrify(strSql, data)
-                # print('query:', query)
-                # self.dbThread.addStatement(query)
                 cur.execute(strSql, data)
 
     startTime = time.time()
     numEnquedTasks = 0
 
     def enqueueForProcessing(self, raw_message: str):
-        self.queue.enqueue(self._processMessage, raw_message)
+        self.rawQueue.enqueue(self._processMessage, raw_message)
         self.numEnquedTasks += 1
 
         now = time.time()
         tDiff = now - self.startTime
         if tDiff >= 60:
             numTasksPerMin = self.numEnquedTasks/tDiff*60
-            numQueuedTasks = len(self.queue)
+            numQueuedTasks = len(self.rawQueue)
 
             if numQueuedTasks > 666:
                 print(f"Beacon rate: {numTasksPerMin:.0f}/min. {numQueuedTasks} queued.")

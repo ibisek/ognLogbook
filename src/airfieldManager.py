@@ -45,6 +45,11 @@ class AirfieldManager(object, metaclass=Singleton):
         return dist
 
     def getNearest(self, lat, lon):
+        """
+        :param lat: in degrees
+        :param lon: in degrees
+        :return: nearest ICAO code or None
+        """
         minDist = 99999999999999
         code = None
 
