@@ -1,5 +1,4 @@
 redis==3.5.0
-rq==1.3.0
 PyMySQL==0.9.3
 aprs==7.0.0
 ogn-client==0.9.6

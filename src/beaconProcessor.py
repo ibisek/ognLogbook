@@ -1,48 +1,60 @@
-import re
 import time
 from datetime import datetime
+from threading import Thread
 
 from redis import StrictRedis
-from rq import Queue
-# from queue import Queue
+from queue import Queue, Empty
 
 from ogn.parser import parse
 from ogn.parser.exceptions import ParseError
 
-from configuration import SPEED_THRESHOLD, redisConfig, dbConnectionInfo, REDIS_RECORD_EXPIRATION
+from configuration import SPEED_THRESHOLD, redisConfig, dbConnectionInfo, REDIS_RECORD_EXPIRATION, NUM_RAW_WORKERS
 from db.DbThread import DbThread
-from db.DbSource import DbSource
 from airfieldManager import AirfieldManager
-from dataStructures import ProcessedBeacon
 
 
-
-class BeaconProcessor(object):
+class RawWorker(Thread):
 
     redis = StrictRedis(**redisConfig)
-    rawQueue = Queue('raw', is_async=True, connection=redis)
-    eventsQueue = Queue('events', is_async=True, connection=redis)
 
-    def __init__(self):
-        # self.dbThread = DbThread(dbConnectionInfo)
-        # self.dbThread.start()
-        pass
+    def __init__(self, index: int, dbThread: DbThread, rawQueue: Queue):
+        super(RawWorker, self).__init__()
 
-    # def __del__(self):
-    #     self.dbThread.stop()
+        self.index = index
+        self.dbThread = dbThread
+        self.rawQueue = rawQueue
+
+        self.doRun = True
+
+    def __del__(self):
+        self.doRun = False
+
+    def stop(self):
+        self.doRun = False
+
+    def run(self):
+        print(f"[INFO] Starting worker #{self.index}")
+        while self.doRun:
+            try:
+                raw_message = self.rawQueue.get(block=False)
+                if raw_message:
+                    self._processMessage(raw_message)
+            except Empty:
+                time.sleep(1)   # ~ thread.yield()
+
+        print(f"[INFO] Worker #{self.index} terminated.")
 
     def _processMessage(self, raw_message: str):
         beacon = None
         try:
             beacon = parse(raw_message)
-            if 'beacon_type' not in beacon.keys() or beacon['beacon_type'] != 'aprs_aircraft':
+            if not beacon or 'beacon_type' not in beacon.keys() or beacon['beacon_type'] != 'aprs_aircraft':
                 return
 
         except ParseError as e:
-            print('[ERROR] {}'.format(e.message))
-            if beacon:
-                print("Failed BEACON:", beacon)
-                return
+            # print('[ERROR] when parsing a beacon: {}'.format(e.message))
+            # print("Failed BEACON:", raw_message)
+            return
 
         except Exception as e:
             # print('[ERROR] {}'.format(e))
@@ -79,68 +91,84 @@ class BeaconProcessor(object):
             lat = beacon['latitude']
             lon = beacon['longitude']
 
-            # icaoLocation = AirfieldManager().getNearest(lat, lon)
-            # if not icaoLocation:
-            #     return
+            icaoLocation = AirfieldManager().getNearest(lat, lon)
+            if not icaoLocation:
+                return
 
             event = 'L' if currentStatus == 0 else 'T'  # L = landing, T = take-off
 
             dt = datetime.fromtimestamp(ts)
             dtStr = dt.strftime('%H:%M:%S')
-            print(f"[INFO] {dtStr} {address} {event}")
-
-            data: ProcessedBeacon = ProcessedBeacon(
-                ts=ts,
-                address=address,
-                addressType=addressType,
-                aircraftType=aircraftType,
-                event=event,
-                lat=float(f"{lat:.5f}"),
-                lon=float(f"{lon:.5f}"),
-                location_icao=None
-            )
-
-            self.eventsQueue.enqueue(self._lookupIcaoLocation, data)
-
-    def _lookupIcaoLocation(self, beacon: ProcessedBeacon):
-        location_icao = AirfieldManager().getNearest(beacon.lat, beacon.lon)
-
-        if location_icao:
-            dt = datetime.fromtimestamp(beacon.ts)
-            dtStr = dt.strftime('%H:%M:%S')
-
-            print(f"[INFO] {dtStr} {location_icao} {beacon.address} {beacon.event}")
+            print(f"[INFO] {dtStr} {icaoLocation} {address} {event}")
 
             strSql = f"INSERT INTO logbook_events " \
-                     f"(ts, address, address_type, aircraft_type, event, lat, lon, location_icao) " \
-                     f"VALUES " \
-                     f"(%s, %s, %s, %s, %s, %s, %s, %s);"
+                f"(ts, address, address_type, aircraft_type, event, lat, lon, location_icao) " \
+                f"VALUES " \
+                f"({ts}, '{address}', {addressType}, '{aircraftType}', " \
+                f"'{event}', {lat:.5f}, {lon:.5f}, '{icaoLocation}');"
 
-            data = (beacon.ts, beacon.address, beacon.addressType, beacon.aircraftType, beacon.event,
-                    beacon.lat, beacon.lon, location_icao)
+            # print('strSql:', strSql)
 
-            with DbSource(dbConnectionInfo).getConnection() as cur:
-                cur.execute(strSql, data)
+            self.dbThread.addStatement(strSql)
+
+
+class BeaconProcessor(object):
+
+    redis = StrictRedis(**redisConfig)
+
+    rawQueue = Queue()
+    workers = list()
+
+    def __init__(self):
+
+        # restore unprocessed data from redis:
+        numRead = 0
+        while True:
+            item = self.redis.lpop('rawQueue')
+            if not item:
+                break
+            self.rawQueue.put(item)
+            numRead += 1
+        print(f"[INFO] Loaded {numRead} raw messages from redis.")
+
+        self.dbThread = DbThread(dbConnectionInfo)
+        self.dbThread.start()
+
+        for i in range(NUM_RAW_WORKERS):
+            rawWorker = RawWorker(index=i, dbThread=self.dbThread, rawQueue=self.rawQueue)
+            rawWorker.start()
+            self.workers.append(rawWorker)
+
+    def stop(self):
+        for worker in self.workers:
+            worker.stop()
+
+        # store all unprocessed data into redis:
+        print('[INFO] Flushing rawQueue into redis..', end='')
+        for item in list(self.rawQueue.queue):
+            self.redis.rpush('rawQueue', item)
+        print('done.')
+
+        self.dbThread.stop()
+
+        print('[INFO] BeaconProcessor terminated.')
 
     startTime = time.time()
     numEnquedTasks = 0
 
     def enqueueForProcessing(self, raw_message: str):
-        self.rawQueue.enqueue(self._processMessage, raw_message)
+        self.rawQueue.put(raw_message)
+
         self.numEnquedTasks += 1
 
         now = time.time()
         tDiff = now - self.startTime
         if tDiff >= 60:
             numTasksPerMin = self.numEnquedTasks/tDiff*60
-            numQueuedTasks = len(self.rawQueue)
+            numQueuedTasks = self.rawQueue.qsize()
 
-            if numQueuedTasks > 666:
-                print(f"Beacon rate: {numTasksPerMin:.0f}/min. {numQueuedTasks} queued.")
-            else:
-                print('Beacon rate: {:.0f}/min'.format(numTasksPerMin))
+            print(f"Beacon rate: {numTasksPerMin:.0f}/min. {numQueuedTasks} queued.")
 
             self.numEnquedTasks = 0
             self.startTime = now
-
 
