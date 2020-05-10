@@ -1,11 +1,12 @@
 from collections import namedtuple
 
-ProcessedBeacon = namedtuple('ProcessedBeacon', ['ts', 'address', 'addressType', 'aircraftType', 'event', 'lat', 'lon', 'location_icao'])
+Event = namedtuple('Event', ['ts', 'address', 'addressType', 'aircraftType', 'event',
+                                                 'lat', 'lon', 'location_icao'])
 
 
 if __name__ == '__main__':
 
-    data: ProcessedBeacon = ProcessedBeacon(
+    data: Event = Event(
         ts='ts',
         address='address',
         addressType='addressType',
@@ -17,7 +18,3 @@ if __name__ == '__main__':
     )
 
     print(data)
-
-
-
-
