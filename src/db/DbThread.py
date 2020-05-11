@@ -48,18 +48,26 @@ class DbThread(threading.Thread):
         while self.doRun or len(self.toDoStatements) > 0:
             if len(self.toDoStatements) > 0:
                 with self.toDoStatementsLock:
-                    cur = self.connection.cursor()
-                    while len(self.toDoStatements) > 0:
-                        sql = self.toDoStatements.pop()
-                        try:
-                            cur.execute(sql)
-                        except Exception as ex:
-                            sys.stderr.write("error in statement: %s\n" % sql)
-                            sys.stderr.write(str(type(ex))+"\n")
-                            sys.stderr.write(str(ex)+"\n")
-                    self.connection.commit()
-                    cur.close()
+
+                    try:
+                        cur = self.connection.cursor()
+                        while len(self.toDoStatements) > 0:
+                            sql = self.toDoStatements.pop()
+                            try:
+                                cur.execute(sql)
+                            except Exception as ex:
+                                sys.stderr.write("error in statement: %s\n" % sql)
+                                sys.stderr.write(str(type(ex))+"\n")
+                                sys.stderr.write(str(ex)+"\n")
+                        self.connection.commit()
+                        cur.close()
+
+                    except Exception as e:
+                        print('[ERROR] in DbThread:', e)
+                        self.connection = DbSource().getConnection()
+
             else:
                 time.sleep(1)
+
         
         print("DbThread terminated")
