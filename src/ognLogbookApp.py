@@ -1,7 +1,9 @@
 
+import os
 import sys
 import signal
 import time
+from socket import SHUT_RDWR
 
 from ogn.client import AprsClient
 
@@ -33,14 +35,17 @@ def signal_handler(sig, frame):
 
     if client:
         print("XX killing the client")
+        client._kill = True
+        client.autoreconnect = False
+        client.sock.setblocking(False)
         client.disconnect()
-        client.sock.shutdown(0)     # force the client to stop!
+        client.sock.shutdown(SHUT_RDWR)     # force the client to stop!
         client.sock.close()         # force the client to stop!
 
-    print('[INFO] Shutdown initiated.')
-    time.sleep(4000)
-    sys.exit(1)
-    quit(-1)
+    print('[INFO] Shutdown initiated')
+    time.sleep(4)
+    sys.exit(0)
+    print('KOHEU.')
 
 
 if __name__ == '__main__':
