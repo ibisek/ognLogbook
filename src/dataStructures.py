@@ -1,20 +1,25 @@
-from collections import namedtuple
 
-Event = namedtuple('Event', ['ts', 'address', 'addressType', 'aircraftType', 'event',
-                                                 'lat', 'lon', 'location_icao'])
+class Status(object):
 
+    def __init__(self, s=-1, ts=0):
+        """
+        :param s: 0 = on ground, 1 = airborne, -1 = unknown
+        :param ts: [s]
+        """
+        self.s = int(s)
+        self.ts = int(ts)
 
-if __name__ == '__main__':
+    def __str__(self):
+        return f"{self.s};{self.ts}"
 
-    data: Event = Event(
-        ts='ts',
-        address='address',
-        addressType='addressType',
-        aircraftType='aircraftType',
-        event='event',
-        lat='LAT',
-        lon='lon',
-        location_icao=None
-    )
+    @staticmethod
+    def parse(s):
+        s = s.decode('utf-8')
+        items = s.split(';')
 
-    print(data)
+        if len(items) != 2:
+            raise ValueError(s)
+
+        s: Status = Status(items[0], items[1])
+
+        return s
