@@ -12,8 +12,9 @@ CREATE TABLE logbook_events (
     event VARCHAR(1),
     lat DECIMAL(8,5),
     lon DECIMAL(8,5),
-    location_icao VARCHAR(4) DEFAULT 'tbd'
+    location_icao VARCHAR(4) DEFAULT 'tbd',
     --location_name VARCHAR(30)
+    flight_time BIGINT DEFAULT 0
 );
 
 CREATE INDEX logbook_events_address ON logbook_events(address);
