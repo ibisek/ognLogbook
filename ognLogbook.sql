@@ -13,7 +13,6 @@ CREATE TABLE logbook_events (
     lat DECIMAL(8,5),
     lon DECIMAL(8,5),
     location_icao VARCHAR(4) DEFAULT 'tbd',
-    --location_name VARCHAR(30)
     flight_time BIGINT DEFAULT 0
 );
 
@@ -28,7 +27,7 @@ CREATE TABLE ddb (
 	device_type VARCHAR(1),
 	device_id VARCHAR(6),
 	aircraft_type VARCHAR(32),
-	aircraft_registration VARCHAR(4) DEFAULT 'tbd',
+	aircraft_registration VARCHAR(8),
 	aircraft_cn VARCHAR(3),
 	tracked BOOL,
 	identified BOOL

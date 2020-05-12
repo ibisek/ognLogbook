@@ -92,9 +92,6 @@ class RawWorker(Thread):
             return
 
         if currentStatus.s != int(prevStatus.s):
-            self.redis.set(statusKey, str(currentStatus))
-            self.redis.expire(statusKey, REDIS_RECORD_EXPIRATION)
-
             addressType = beacon['address_type']
             aircraftType = beacon['aircraft_type']
             lat = beacon['latitude']
@@ -105,20 +102,25 @@ class RawWorker(Thread):
                 return
 
             event = 'L' if currentStatus.s == 0 else 'T'  # L = landing, T = take-off
-            flightTime = None
+            flightTime = 0
             if event == 'L':
                 flightTime = currentStatus.ts - prevStatus.ts   # [s]
 
+            if flightTime < 30:
+                return
+
+            self.redis.set(statusKey, str(currentStatus))
+            self.redis.expire(statusKey, REDIS_RECORD_EXPIRATION)
+
             dt = datetime.fromtimestamp(ts)
             dtStr = dt.strftime('%H:%M:%S')
-            ftStr = 0 if not flightTime else flightTime
-            print(f"[INFO] {dtStr}; {icaoLocation}; {address}; {event}; {ftStr}")
+            print(f"[INFO] {dtStr}; {icaoLocation}; {address}; {event}; {flightTime}")
 
             strSql = f"INSERT INTO logbook_events " \
-                f"(ts, address, address_type, aircraft_type, event, lat, lon, location_icao) " \
+                f"(ts, address, address_type, aircraft_type, event, lat, lon, location_icao, flight_time) " \
                 f"VALUES " \
                 f"({ts}, '{address}', {addressType}, '{aircraftType}', " \
-                f"'{event}', {lat:.5f}, {lon:.5f}, '{icaoLocation}');"
+                f"'{event}', {lat:.5f}, {lon:.5f}, '{icaoLocation}', {flightTime});"
 
             # print('strSql:', strSql)
 
