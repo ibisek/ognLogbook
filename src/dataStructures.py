@@ -20,6 +20,6 @@ class Status(object):
         if len(items) != 2:
             raise ValueError(s)
 
-        s: Status = Status(items[0], items[1])
+        s: Status = Status(s=items[0], ts=items[1])
 
         return s
