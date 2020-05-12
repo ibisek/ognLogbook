@@ -18,7 +18,7 @@ class DbSource(object):
 
     connection = None
     
-    def __init__(self, dbConnectionInfo = None):
+    def __init__(self, dbConnectionInfo=None):
 
         if dbConnectionInfo:
             self.setDbConnectionInfo(dbConnectionInfo)
