@@ -11,7 +11,7 @@ from ogn.parser.exceptions import ParseError
 from configuration import SPEED_THRESHOLD, redisConfig, dbConnectionInfo, REDIS_RECORD_EXPIRATION, NUM_RAW_WORKERS
 from db.DbThread import DbThread
 from airfieldManager import AirfieldManager
-
+from dataStructures import Status
 
 class RawWorker(Thread):
 
@@ -63,29 +63,38 @@ class RawWorker(Thread):
             return
 
         # we are not interested in para, baloons, uavs, static stuff and others:
-        if beacon['aircraft_type'] in [4, 6, 7, 13, 11, 15, 16]:
+        aircraftType = beacon['aircraft_type']
+        if aircraftType in [4, 6, 7, 13, 11, 15, 16]:
             return
 
         address = beacon['address']
         groundSpeed = beacon['ground_speed']
+        ts = round(beacon['timestamp'].timestamp())  # [s]
         # print(f"[INFO] {address} gs: {groundSpeed:.0f}")
 
-        currentStatus = 0 if groundSpeed < SPEED_THRESHOLD else 1    # 0 = on ground, 1 = airborne, -1 = unknown
+        currentStatus: Status = Status(ts=ts)
+        currentStatus.s = 0 if groundSpeed < SPEED_THRESHOLD else 1    # 0 = on ground, 1 = airborne, -1 = unknown
         # TODO add AGL check (?)
+        # TODO threshold by aircraftType
 
+        prevStatus: Status = None
         statusKey = f"{address}-status"
-        prevStatus = self.redis.get(statusKey)
+        ps = self.redis.get(statusKey)
+        if ps:
+            try:
+                prevStatus = Status.parse(ps)
+            except ValueError as e:
+                print('[ERROR] when parsing prev. status: ', e)
 
         if not prevStatus:  # we have no prior information
-            self.redis.set(statusKey, currentStatus)
+            self.redis.set(statusKey, str(currentStatus))
             self.redis.expire(statusKey, REDIS_RECORD_EXPIRATION)
             return
 
-        if currentStatus != int(prevStatus):
-            self.redis.set(statusKey, currentStatus)
+        if currentStatus.s != int(prevStatus.s):
+            self.redis.set(statusKey, str(currentStatus))
             self.redis.expire(statusKey, REDIS_RECORD_EXPIRATION)
 
-            ts = round(beacon['timestamp'].timestamp())     # [s]
             addressType = beacon['address_type']
             aircraftType = beacon['aircraft_type']
             lat = beacon['latitude']
@@ -95,11 +104,15 @@ class RawWorker(Thread):
             if not icaoLocation:
                 return
 
-            event = 'L' if currentStatus == 0 else 'T'  # L = landing, T = take-off
+            event = 'L' if currentStatus.s == 0 else 'T'  # L = landing, T = take-off
+            flightTime = None
+            if event == 'L':
+                flightTime = currentStatus.ts - prevStatus.ts   # [s]
 
             dt = datetime.fromtimestamp(ts)
             dtStr = dt.strftime('%H:%M:%S')
-            print(f"[INFO] {dtStr} {icaoLocation} {address} {event}")
+            ftStr = 0 if not flightTime else flightTime
+            print(f"[INFO] {dtStr}; {icaoLocation}; {address}; {event}; {ftStr}")
 
             strSql = f"INSERT INTO logbook_events " \
                 f"(ts, address, address_type, aircraft_type, event, lat, lon, location_icao) " \
