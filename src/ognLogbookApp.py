@@ -34,11 +34,13 @@ def signal_handler(sig, frame):
     doRun = False
 
     if client:
+        client.disconnect()
+
+        # the client doesn't want to quit..
         print("XX killing the client")
         client._kill = True
         client.autoreconnect = False
         client.sock.setblocking(False)
-        client.disconnect()
         client.sock.shutdown(SHUT_RDWR)     # force the client to stop!
         client.sock.close()         # force the client to stop!
 
