@@ -37,17 +37,16 @@ def signal_handler(sig, frame):
         client.disconnect()
 
         # the client doesn't want to quit..
-        print("XX killing the client")
         client._kill = True
         client.autoreconnect = False
         client.sock.setblocking(False)
         client.sock.shutdown(SHUT_RDWR)     # force the client to stop!
         client.sock.close()         # force the client to stop!
+        # .. all this doesn't help anyway.
 
-    print('[INFO] Shutdown initiated')
     time.sleep(4)
     sys.exit(0)
-    print('KOHEU.')
+    print('[INFO] Application terminated.')
 
 
 if __name__ == '__main__':
@@ -58,7 +57,6 @@ if __name__ == '__main__':
         try:
             client.connect()
             client.run(callback=process_beacon, autoreconnect=True)
-            print("XX CLIENT 2")
         except KeyboardInterrupt:
             print('\nApp interrupted.')
             client.disconnect()
