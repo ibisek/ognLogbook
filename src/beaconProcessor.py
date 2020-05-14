@@ -1,3 +1,8 @@
+"""
+Notes:
+    * multiple workers cannot work on a single queue as flight-states need to be processed in order.
+    * hence multiple queues exist to paralelise processing a bit using queue-specific workers
+"""
 import time
 from datetime import datetime
 from threading import Thread
@@ -8,10 +13,11 @@ from queue import Queue, Empty
 from ogn.parser import parse
 from ogn.parser.exceptions import ParseError
 
-from configuration import SPEED_THRESHOLD, redisConfig, dbConnectionInfo, REDIS_RECORD_EXPIRATION, NUM_RAW_WORKERS
+from configuration import SPEED_THRESHOLD, redisConfig, dbConnectionInfo, REDIS_RECORD_EXPIRATION
 from db.DbThread import DbThread
 from airfieldManager import AirfieldManager
 from dataStructures import Status
+
 
 class RawWorker(Thread):
 
@@ -44,6 +50,10 @@ class RawWorker(Thread):
 
         print(f"[INFO] Worker #{self.index} terminated.")
 
+    def _saveToRedis(self, statusKey: str, status: Status):
+        self.redis.set(statusKey, str(status))
+        self.redis.expire(statusKey, REDIS_RECORD_EXPIRATION)
+
     def _processMessage(self, raw_message: str):
         beacon = None
         try:
@@ -72,6 +82,8 @@ class RawWorker(Thread):
         ts = round(beacon['timestamp'].timestamp())  # [s]
         # print(f"[INFO] {address} gs: {groundSpeed:.0f}")
 
+        # print('[DEBUG] Gps H:', beacon['gps_quality']['horizontal'])
+
         currentStatus: Status = Status(ts=ts)
         currentStatus.s = 0 if groundSpeed < SPEED_THRESHOLD else 1    # 0 = on ground, 1 = airborne, -1 = unknown
         # TODO add AGL check (?)
@@ -87,11 +99,10 @@ class RawWorker(Thread):
                 print('[ERROR] when parsing prev. status: ', e)
 
         if not prevStatus:  # we have no prior information
-            self.redis.set(statusKey, str(currentStatus))
-            self.redis.expire(statusKey, REDIS_RECORD_EXPIRATION)
+            self._saveToRedis(statusKey, currentStatus)
             return
 
-        if currentStatus.s != int(prevStatus.s):
+        if currentStatus.s != prevStatus.s:
             addressType = beacon['address_type']
             aircraftType = beacon['aircraft_type']
             lat = beacon['latitude']
@@ -105,12 +116,10 @@ class RawWorker(Thread):
             flightTime = 0
             if event == 'L':
                 flightTime = currentStatus.ts - prevStatus.ts   # [s]
+                if flightTime < 60:
+                    return
 
-            if flightTime < 30:
-                return
-
-            self.redis.set(statusKey, str(currentStatus))
-            self.redis.expire(statusKey, REDIS_RECORD_EXPIRATION)
+            self._saveToRedis(statusKey, currentStatus)
 
             dt = datetime.fromtimestamp(ts)
             dtStr = dt.strftime('%H:%M:%S')
@@ -131,26 +140,32 @@ class BeaconProcessor(object):
 
     redis = StrictRedis(**redisConfig)
 
-    rawQueue = Queue()
+    rawQueueOGN = Queue()
+    rawQueueFLR = Queue()
+    rawQueueICA = Queue()
+    queues = (rawQueueOGN, rawQueueFLR, rawQueueICA)
+    queueKeys = ('rawQueueOGN', 'rawQueueFLR', 'rawQueueICA')
+
     workers = list()
 
     def __init__(self):
 
         # restore unprocessed data from redis:
         numRead = 0
-        while True:
-            item = self.redis.lpop('rawQueue')
-            if not item:
-                break
-            self.rawQueue.put(item)
-            numRead += 1
-        print(f"[INFO] Loaded {numRead} raw messages from redis.")
+        for key, queue in zip(self.queueKeys, self.queues):
+            while True:
+                item = self.redis.lpop(key)
+                if not item:
+                    break
+                queue.put(item)
+                numRead += 1
+        print(f"[INFO] Loaded {numRead} raw message(s) from redis.")
 
         self.dbThread = DbThread(dbConnectionInfo)
         self.dbThread.start()
 
-        for i in range(NUM_RAW_WORKERS):
-            rawWorker = RawWorker(index=i, dbThread=self.dbThread, rawQueue=self.rawQueue)
+        for i, queue in enumerate(self.queues):
+            rawWorker = RawWorker(index=i, dbThread=self.dbThread, rawQueue=queue)
             rawWorker.start()
             self.workers.append(rawWorker)
 
@@ -159,10 +174,12 @@ class BeaconProcessor(object):
             worker.stop()
 
         # store all unprocessed data into redis:
-        print('[INFO] Flushing rawQueue into redis..', end='')
-        for item in list(self.rawQueue.queue):
-            self.redis.rpush('rawQueue', item)
-        print('done.')
+        n = 0
+        for key, queue in zip(self.queueKeys, self.queues):
+            n += queue.qsize()
+            for item in list(queue.queue):
+                self.redis.rpush(key, item)
+        print(f"[INFO] Flushed {n} rawQueueX items into redis.")
 
         self.dbThread.stop()
 
@@ -171,19 +188,29 @@ class BeaconProcessor(object):
     startTime = time.time()
     numEnquedTasks = 0
 
-    def enqueueForProcessing(self, raw_message: str):
-        self.rawQueue.put(raw_message)
-
-        self.numEnquedTasks += 1
-
+    def _printStats(self):
         now = time.time()
         tDiff = now - self.startTime
         if tDiff >= 60:
             numTasksPerMin = self.numEnquedTasks/tDiff*60
-            numQueuedTasks = self.rawQueue.qsize()
+            numQueuedTasks = self.rawQueueOGN.qsize() + self.rawQueueFLR.qsize() + self.rawQueueICA.qsize()
 
             print(f"Beacon rate: {numTasksPerMin:.0f}/min. {numQueuedTasks} queued.")
 
             self.numEnquedTasks = 0
             self.startTime = now
+
+    def enqueueForProcessing(self, raw_message: str):
+        self._printStats()
+
+        prefix = raw_message[:3]
+        if prefix == 'OGN':
+            self.rawQueueOGN.put(raw_message)
+        elif prefix == 'FLR':
+            self.rawQueueFLR.put(raw_message)
+        else:   # 'ICA'
+            self.rawQueueICA.put(raw_message)
+
+        self.numEnquedTasks += 1
+
 
