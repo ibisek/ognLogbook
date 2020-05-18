@@ -1,4 +1,6 @@
 
+import os
+
 APRS_FILTER = 'r/+49.3678/+16.1145/250'
 # APRS_FILTER = None
 
@@ -15,4 +17,8 @@ DB_NAME = 'ogn_logbook'
 DB_USER = '**'
 DB_PASSWORD = '**'
 dbConnectionInfo = (DB_URL, DB_PORT, DB_NAME, DB_USER, DB_PASSWORD)
+
+# this en forces the SQLITE to be used:
+SQLITE_DB_FILENAME = '/home/ibisek/wqz/prog/python/ognLogbook/data/ognLogbook.sqlite'
+os.environ.setdefault('SQLITE_DB_FILENAME', SQLITE_DB_FILENAME)
 
