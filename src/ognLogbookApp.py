@@ -25,9 +25,7 @@ def process_beacon(raw_message):
     bp.enqueueForProcessing(raw_message)
 
 
-def signal_handler(sig, frame):
-    print('SIGINT / Ctrl+C detected!')
-
+def _cleanup():
     bp.stop()
 
     global doRun
@@ -45,24 +43,32 @@ def signal_handler(sig, frame):
         # .. all this doesn't help anyway.
 
     time.sleep(4)
-    sys.exit(0)
-    print('[INFO] Application terminated.')
+
+
+# def signal_handler(sig, frame):
+#     print('SIGINT / Ctrl+C detected!')
+#     _cleanup()
+#     sys.exit(0)
 
 
 if __name__ == '__main__':
 
-    signal.signal(signal.SIGINT, signal_handler)
+    # disabled as this obviously prevents the client to be terminated:
+    # signal.signal(signal.SIGINT, signal_handler)
 
     while doRun:
         try:
             client.connect()
-            client.run(callback=process_beacon, autoreconnect=True)
+            client.run(callback=process_beacon, autoreconnect=False)
         except KeyboardInterrupt:
             print('\nApp interrupted.')
             client.disconnect()
             doRun = False
         except TimeoutError as ex:
-            print("ERROR:", str(ex))
+            print('ERROR:', str(ex))
+        except Exception as ex:
+            print('ANOTHER ERROR:', str(ex))
 
     print('[INFO] Quitting the APP.')
+    _cleanup()
     sys.exit(0)
