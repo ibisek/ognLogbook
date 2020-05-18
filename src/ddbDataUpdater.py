@@ -21,6 +21,7 @@ def _dropAllDdbRecords():
 
 if __name__ == '__main__':
 
+    print(f"Downloading data from {DDB_URL}")
     resp = requests.get(DDB_URL)
 
     if resp.status_code != 200:
@@ -32,7 +33,7 @@ if __name__ == '__main__':
     if len(lines) < 10000:
         sys.exit(1)
 
-    _dropAllDdbRecords();
+    _dropAllDdbRecords()
     keys = lines[0].strip().replace('#', '').split(',')
 
     for i in range(1, len(lines)):
@@ -50,19 +51,32 @@ if __name__ == '__main__':
         tracked = True if items[keys.index('TRACKED')] == 'Y' else False
         identified = True if items[keys.index('IDENTIFIED')] == 'Y' else False
 
-        strSql = f"INSERT INTO ddb " \
-                 f"(device_type, device_id, aircraft_type, aircraft_registration, aircraft_cn, tracked, identified)" \
-                 f"VALUES " \
-                 f"(%(device_type)s, %(device_id)s, %(aircraft_type)s, %(aircraft_registration)s, %(aircraft_cn)s, %(tracked)s, %(identified)s);"
+        # MYSQL:
+        # strSql = f"INSERT INTO ddb " \
+        #          f"(device_type, device_id, aircraft_type, aircraft_registration, aircraft_cn, tracked, identified)" \
+        #          f"VALUES " \
+        #          f"(%(device_type)s, %(device_id)s, %(aircraft_type)s, %(aircraft_registration)s, %(aircraft_cn)s, %(tracked)s, %(identified)s);"
+        #
+        # data = dict()
+        # data['device_type'] = deviceType
+        # data['device_id'] = deviceId
+        # data['aircraft_type'] = aircraftType
+        # data['aircraft_registration'] = registration
+        # data['aircraft_cn'] = cn
+        # data['tracked'] = tracked
+        # data['identified'] = identified
+        #
+        # with DbSource(dbConnectionInfo).getConnection() as cur:
+        #     cur.execute(strSql, data)
 
-        data = dict()
-        data['device_type'] = deviceType
-        data['device_id'] = deviceId
-        data['aircraft_type'] = aircraftType
-        data['aircraft_registration'] = registration
-        data['aircraft_cn'] = cn
-        data['tracked'] = tracked
-        data['identified'] = identified
+        # SQLITE:
+        strSql = f"INSERT INTO ddb " \
+            f"(device_type, device_id, aircraft_type, aircraft_registration, aircraft_cn, tracked, identified)" \
+            f"VALUES " \
+            f"('{deviceType}', '{deviceId}', '{aircraftType}', '{registration}', '{cn}', " \
+            f"{1 if tracked == 'Y' else 0}, {1 if identified == 'Y' else 0});"
 
         with DbSource(dbConnectionInfo).getConnection() as cur:
-            cur.execute(strSql, data)
+            cur.execute(strSql)
+
+
