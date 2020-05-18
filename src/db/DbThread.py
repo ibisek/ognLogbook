@@ -15,17 +15,12 @@ import sys
 class DbThread(threading.Thread):
 
     """
-    @param dbConnectionInfo (optional) tuple of (host, port, dbName, dbUser, dbPassword) 
+    @param dbConnectionInfo (optional) tuple of (host, port, dbName, dbUser, dbPassword)
     """
     def __init__(self, dbConnectionInfo: dict = None):
         super(DbThread, self).__init__()
-        
-        if not dbConnectionInfo:
-            self.connection = DbSource().getConnection()
-        else:
-            dbSource = DbSource(dbConnectionInfo)
-            #dbSource.setDbConnectionInfo(dbConnectionInfo)
-            self.connection = dbSource.getConnection()
+
+        self.dbConnectionInfo = dbConnectionInfo
         
         self.toDoStatements = []
         self.toDoStatementsLock = threading.Lock()
@@ -35,22 +30,19 @@ class DbThread(threading.Thread):
     def stop(self):
         self.doRun = False
         
-    def __del__(self):
-        if self.connection:
-            self.connection.commit()
-            self.connection.close()
-
     def addStatement(self, sql):
         with self.toDoStatementsLock:
             self.toDoStatements.append(sql)
             
     def run(self):
+        connection = DbSource(self.dbConnectionInfo).getConnection()
+
         while self.doRun or len(self.toDoStatements) > 0:
             if len(self.toDoStatements) > 0:
                 with self.toDoStatementsLock:
 
                     try:
-                        cur = self.connection.cursor()
+                        cur = connection.cursor()
                         while len(self.toDoStatements) > 0:
                             sql = self.toDoStatements.pop()
                             try:
@@ -59,15 +51,18 @@ class DbThread(threading.Thread):
                                 sys.stderr.write("error in statement: %s\n" % sql)
                                 sys.stderr.write(str(type(ex))+"\n")
                                 sys.stderr.write(str(ex)+"\n")
-                        self.connection.commit()
+                        connection.commit()
                         cur.close()
 
                     except Exception as e:
                         print('[ERROR] in DbThread:', e)
-                        self.connection = DbSource().getConnection()
+                        connection = DbSource(self.dbConnectionInfo).getConnection()
 
             else:
                 time.sleep(1)
 
-        
+        if connection:
+            connection.commit()
+            connection.close()
+
         print("DbThread terminated")

@@ -5,6 +5,8 @@ Created on Aug 15, 2014
 '''
 
 import os
+import sys
+import sqlite3
 
 # native (C) mysql lib:
 # import MySQLdb
@@ -24,13 +26,16 @@ class DbSource(object):
             self.setDbConnectionInfo(dbConnectionInfo)
 
         else:
-            self.HOST = os.environ.get('DB_HOST', None)
-            self.PORT = int(os.environ.get('DB_PORT', None))
-            self.DB_NAME = os.environ.get('DB_NAME', None)
-            self.DB_USER = os.environ.get('DB_USER', None)
-            self.DB_PASSWD = os.environ.get('DB_PASSWORD', None)
-
-            self.dbOpenConnection()
+            if 'DB_HOST' in os.environ:
+                self.HOST = os.environ.get('DB_HOST', None)
+            if 'DB_PORT' in os.environ:
+                self.PORT = int(os.environ.get('DB_PORT', None))
+            if 'DB_NAME' in os.environ:
+                self.DB_NAME = os.environ.get('DB_NAME', None)
+            if 'DB_USER' in os.environ:
+                self.DB_USER = os.environ.get('DB_USER', None)
+            if 'DB_PASSWORD' in os.environ:
+                self.DB_PASSWD = os.environ.get('DB_PASSWORD', None)
 
     '''
     @param dbConnectionInfo tuple of (host, port, dbName, dbUser, dbPassword) 
@@ -43,15 +48,37 @@ class DbSource(object):
         self.DB_USER = dbUser
         self.DB_PASSWD = dbPassword
         
-        if self.connection: self.connection.close()
-        self.dbOpenConnection()
+        if self.connection:
+            self.connection.close()
 
-    def dbOpenConnection(self):
+    def _getConnectionMysql(self):
         # self.connection = MySQLdb.connect(host=self.HOST, port=self.PORT, user=self.DB_USER, passwd=self.DB_PASSWD, db=self.DB_NAME)
-        self.connection = pymysql.connect(host=self.HOST, port=self.PORT, user=self.DB_USER, passwd=self.DB_PASSWD, database=self.DB_NAME, autocommit=True)
+        return pymysql.connect(host=self.HOST, port=self.PORT, user=self.DB_USER, passwd=self.DB_PASSWD, database=self.DB_NAME, autocommit=True)
         
     def getConnection(self):
-        return self.connection
-        
+        # return self.connection
+
+        if 'SQLITE_DB_FILENAME' in os.environ:
+            return DbSource._getConnectionSqlite()
+        else:
+            return self._getConnectionMysql()
+
     def dbCloseConnection(self):
         self.connection.close()
+
+    @staticmethod
+    def _getConnectionSqlite():
+        conn = None
+
+        if 'SQLITE_DB_FILENAME' not in os.environ:
+            raise ValueError('[ERROR] SQLITE_DB_FILENAME env variable not defined!')
+
+        dbFilename = os.environ.get('SQLITE_DB_FILENAME')
+
+        try:
+            conn = sqlite3.connect(dbFilename)
+        except sqlite3.OperationalError as e:
+            print("ARCHIVE_DB_FILENAME:", dbFilename)
+            sys.stderr.write("Error: {}\n".format(str(e)))
+
+        return conn
