@@ -45,6 +45,7 @@ class DbThread(threading.Thread):
                         cur = connection.cursor()
                         while len(self.toDoStatements) > 0:
                             sql = self.toDoStatements.pop()
+                            print(f"[INFO] dbThread sql: {sql}")
                             try:
                                 cur.execute(sql)
                             except Exception as ex:
