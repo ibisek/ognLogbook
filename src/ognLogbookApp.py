@@ -58,8 +58,9 @@ if __name__ == '__main__':
 
     while doRun:
         try:
+            print('[INFO] Connecting to OGN APRS server..')
             client.connect()
-            client.run(callback=process_beacon, autoreconnect=False)
+            client.run(callback=process_beacon, autoreconnect=True)
         except KeyboardInterrupt:
             print('\nApp interrupted.')
             client.disconnect()
