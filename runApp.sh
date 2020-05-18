@@ -5,7 +5,7 @@ cd /home/ibisek/wqz/prog/python/ognLogbook/
 source ./venv/bin/activate
 
 cd src
-python3 ./src/ognLogbookApp.py
+python3 ognLogbookApp.py
 cd -
 
 deactivate
