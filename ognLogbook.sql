@@ -57,21 +57,30 @@ SELECT count(*) FROM logbook_events;
 
 SELECT address, count(*) as n FROM logbook_events group by address order by n desc;
 
-select * from logbook_events where address = '26A74C';
+select * from logbook_events where address = '9792C4';
+
+SELECT location_icao, count(*) as n FROM logbook_events group by address order by n desc;
 
 --
 
 SELECT l.*, d.* FROM logbook_events as l JOIN ddb as d ON l.address = d.device_id;
 
-SELECT l.ts, l.event, l.address, l.location_icao, l.flight_time, d.aircraft_registration, d.aircraft_cn FROM logbook_events as l JOIN ddb as d ON l.address = d.device_id 
-	where location_icao = 'LKCH'
-	order by ts desc;
+SELECT l.ts, l.event, l.address, l.location_icao, l.flight_time, d.aircraft_registration, d.aircraft_cn FROM logbook_events as l 
+	LEFT JOIN ddb as d ON l.address = d.device_id 
+	WHERE location_icao = 'LZPT'
+	ORDER BY ts DESC;
 
 --
+
 -- LANDING TIME & LOC:
-SELECT l.ts, l.address, l.location_icao, l.flight_time, d.aircraft_registration, d.aircraft_cn FROM logbook_events as l JOIN ddb as d ON l.address = d.device_id where l.event='L';
+SELECT l.ts, l.address, l.location_icao, l.flight_time, d.aircraft_registration, d.aircraft_cn FROM logbook_events as l 
+	JOIN ddb as d ON l.address = d.device_id 
+	where l.event='L';
 -- TAKE OFF TIME & LOC:
-SELECT l.ts, l.address, l.location_icao FROM logbook_events as l WHERE l.address = 'DDA496' and l.event='T' and l.ts < 1589289037 ORDER BY l.ts DESC LIMIT 100;
+SELECT l.ts, l.address, l.location_icao FROM logbook_events as l 
+	WHERE l.address = 'DDA496' and l.event='T' and l.ts < 1589289037 
+	ORDER BY l.ts DESC LIMIT 1;
+
 --
 
 select count(id) as n , address from logbook_events group by address order by n desc;
