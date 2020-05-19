@@ -63,10 +63,13 @@ if __name__ == '__main__':
             client.run(callback=process_beacon, autoreconnect=True)
         except KeyboardInterrupt:
             print('\nApp interrupted.')
-            client.disconnect()
+            try:
+                client.disconnect()
+            except Exception as ex:
+                print('[ERROR] on client.disconnect():', str(ex))
             doRun = False
         except TimeoutError as ex:
-            print('ERROR:', str(ex))
+            print('[ERROR] Timeout:', str(ex))
         except Exception as ex:
             print('ANOTHER ERROR:', str(ex))
 
