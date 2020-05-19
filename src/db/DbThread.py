@@ -6,10 +6,14 @@ Created on Feb 5, 2015
 Speeds-up DB inserts by not opening and closing cursors after every statement.
 """
 
+
+import sys
 import time
 import threading
+import pymysql
+import sqlite3
+
 from db.DbSource import DbSource
-import sys
 
 
 class DbThread(threading.Thread):
@@ -40,7 +44,7 @@ class DbThread(threading.Thread):
         while self.doRun or len(self.toDoStatements) > 0:
             if len(self.toDoStatements) > 0:
                 with self.toDoStatementsLock:
-
+                    sql = None
                     try:
                         cur = connection.cursor()
                         while len(self.toDoStatements) > 0:
@@ -48,16 +52,19 @@ class DbThread(threading.Thread):
                             # print(f"[INFO] dbThread sql: {sql}")
                             try:
                                 cur.execute(sql)
-                            except Exception as ex:
+                                connection.commit()
+
+                            except (sqlite3.OperationalError, pymysql.err.OperationalError) as ex:
                                 sys.stderr.write("error in statement: %s\n" % sql)
-                                sys.stderr.write(str(type(ex))+"\n")
-                                sys.stderr.write(str(ex)+"\n")
-                        connection.commit()
+                                sys.stderr.write(str(type(ex)) + "\n")
+                                sys.stderr.write(str(ex) + "\n")
+
                         cur.close()
 
                     except Exception as e:
                         print('[ERROR] in DbThread:', e)
                         connection = DbSource(self.dbConnectionInfo).getConnection()
+                        self.toDoStatements.append(sql)  # requeue for retry
 
             else:
                 time.sleep(1)
