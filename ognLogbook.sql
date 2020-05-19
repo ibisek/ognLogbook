@@ -20,18 +20,37 @@ CREATE INDEX logbook_events_address ON logbook_events(address);
 CREATE INDEX logbook_events_location_icao ON logbook_events(location_icao);
 --SHOW INDEXES FROM logbook_events;
 
+
+-- (!) MYSQL ONLY (!)
+DELIMITER //
+CREATE TRIGGER IF NOT EXISTS logbook_events_after_insert 
+AFTER INSERT ON logbook_events FOR EACH ROW
+BEGIN
+IF (new.event = 'L') THEN
+SELECT e.ts , e.lat, e.lon, e.location_icao
+INTO @t_ts, @t_lat, @t_lon, @t_loc
+FROM logbook_events as e 
+WHERE e.address = new.address and e.event='T' and e.ts < new.ts 
+ORDER BY e.ts DESC LIMIT 1;
+INSERT INTO logbook_entries (address, takeoff_ts, takeoff_lat, takeoff_lon, takeoff_icao, landing_ts, landing_lat, landing_lon, landing_icao, flight_time) 
+VALUES (new.address, @t_ts, @t_lat, @t_lon, @t_loc, new.ts, new.lat, new.lon, new.location_icao, new.flight_time);
+END IF;
+END;//
+DELIMITER ;
+
+
 --DROP TABLE IF EXISTS logbook_entries;
 CREATE TABLE logbook_entries (
-  --id BIGINT PRIMARY KEY auto_increment,
   address VARCHAR(6),
   takeoff_ts BIGINT,
   takeoff_lat DECIMAL(8,5),
   takeoff_lon DECIMAL(8,5),
   takeoff_icao VARCHAR(4),
-  landing_ts BIGING,
+  landing_ts BIGINT,
   landing_lat DECIMAL(8,5),
   landing_lon DECIMAL(8,5),
-  landing_icao VARCHAR(4)
+  landing_icao VARCHAR(4),
+  flight_time BIGINT DEFAULT 0
 );
 
 --DROP TABLE IF EXISTS ddb;
