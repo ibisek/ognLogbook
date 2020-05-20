@@ -19,7 +19,7 @@ dbConnectionInfo = (DB_HOST, DB_PORT, DB_NAME, DB_USER, DB_PASSWORD)
 
 if DB_PASSWORD != '**':
     os.environ.setdefault('DB_HOST', DB_HOST)
-    os.environ.setdefault('DB_PORT', DB_PORT)
+    os.environ.setdefault('DB_PORT', str(DB_PORT))
     os.environ.setdefault('DB_NAME', DB_NAME)
     os.environ.setdefault('DB_USER', DB_USER)
     os.environ.setdefault('DB_PASSWORD', DB_PASSWORD)
