@@ -117,6 +117,7 @@ class RawWorker(Thread):
             if event == 'L':
                 flightTime = currentStatus.ts - prevStatus.ts   # [s]
                 if flightTime < 60:
+                    self.redis.delete(statusKey)
                     return
 
             self._saveToRedis(statusKey, currentStatus)
