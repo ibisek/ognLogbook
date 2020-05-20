@@ -87,6 +87,34 @@ a:hover {
     display: table-cell;
 }
 
+/* ------------------------------ site header --------------------------- */
+
+.siteheader {
+    height: 80px;
+    width: 100%;
+    background-color: #fff;
+    border-bottom: 1px solid #ebeaeb;
+    z-index: 1000;
+    top: 0;
+    position: fixed;
+}
+
+.topbar {
+    padding: 20px;
+    align: center
+}
+
+.logo {
+    float: left;
+    padding-left: 10px;
+}
+
+/* ------------------------------ site body --------------------------- */
+
+.sitebody {
+    margin-top: 80px;
+}
+
 /* ------------------------------ footer --------------------------- */
 
 .footer {

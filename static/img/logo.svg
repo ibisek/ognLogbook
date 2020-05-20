@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   viewBox="0 0 300 50"
+   version="1.1"
+   id="svg26"
+   sodipodi:docname="logo.svg"
+   inkscape:version="0.92.3 (2405546, 2018-03-11)">
+  <metadata
+     id="metadata32">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <defs
+     id="defs30" />
+  <sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="1280"
+     inkscape:window-height="965"
+     id="namedview28"
+     showgrid="false"
+     inkscape:zoom="2"
+     inkscape:cx="179.53483"
+     inkscape:cy="10.492118"
+     inkscape:window-x="1366"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg26" />
+  <style
+     type="text/css"
+     id="style2">
+                .st0 {
+                    fill: #BADEFD;
+                }
+
+                .st1 {
+                    fill: #2B2F42;
+                }
+
+                .st2 {
+                    fill: #9EBCE1;
+                }
+
+                .st3 {
+                    fill: #778DBA;
+                }
+
+                .st4 {
+                    fill: #4E5C92;
+                }
+            </style>
+  <path
+     class="st0"
+     d="M74 47.8H29.8c-0.9 0-1.6-0.7-1.6-1.6 0-0.9 0.7-1.6 1.6-1.6H74C79.5 44.5 84 40 84 34.5c0-5.3-4.2-9.7-9.5-10 -0.9-0.1-1.6-0.8-1.5-1.7 0.1-0.9 0.8-1.6 1.7-1.5 7 0.4 12.5 6.2 12.5 13.3C87.3 41.8 81.3 47.8 74 47.8z"
+     id="path4" />
+  <path
+     class="st2"
+     d="M74.7 24.4c-0.6 0-1.2-0.4-1.5-1 -2.4-5.4-7.8-8.9-13.7-8.9 -1.6 0-3.3 0.3-4.8 0.8 -0.9 0.3-1.8-0.2-2.1-1 -0.3-0.8 0.2-1.8 1-2.1 1.9-0.6 3.9-1 5.8-1 7.2 0 13.7 4.2 16.7 10.8 0.4 0.8 0 1.8-0.8 2.1C75.1 24.4 74.9 24.4 74.7 24.4z"
+     id="path8" />
+  <path
+     class="st3"
+     d="M15.9 18.9c-0.2 0-0.4 0-0.5-0.1 -0.8-0.3-1.3-1.2-1-2.1C17.6 7.7 26.2 1.6 35.9 1.6 44 1.6 51.5 5.9 55.6 13c0.4 0.8 0.2 1.8-0.6 2.2 -0.8 0.4-1.8 0.2-2.2-0.6 -3.5-6-10-9.8-16.9-9.8 -8.2 0-15.6 5.2-18.4 13C17.2 18.5 16.6 18.9 15.9 18.9z"
+     id="path10" />
+  <path
+     class="st4"
+     d="M16 47.8c-8.9 0-16.1-7.2-16.1-16.1 0-8.8 7.2-16 16-16.1 0 0 0 0 0 0 0.9 0 1.6 0.7 1.6 1.6 0 0.9-0.7 1.6-1.6 1.6 -7 0-12.8 5.8-12.8 12.8 0 7.1 5.7 12.8 12.8 12.8 2.8 0 7.4-1.1 13.2-6.5l0.1-0.1c0.7-0.6 1.7-0.6 2.3 0.1 0.6 0.7 0.6 1.7-0.1 2.3l-0.1 0.1C26.2 45.3 21 47.8 16 47.8z"
+     id="path12" />
+  <text
+     xml:space="preserve"
+     style="font-style:normal;font-weight:normal;font-size:40px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#464646;fill-opacity:1;stroke:none;"
+     x="102"
+     y="38.5"
+     id="text841"><tspan
+       sodipodi:role="line"
+       id="tspan839"
+       x="102"
+       y="38.5"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'Khmer OS System';-inkscape-font-specification:'Khmer OS System';fill:#464646;fill-opacity:1;">OGN logbook</tspan></text>
+  <text
+     xml:space="preserve"
+     style="font-style:normal;font-weight:normal;font-size:40px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"
+     x="112"
+     y="43"
+     id="text845"><tspan
+       sodipodi:role="line"
+       id="tspan843"
+       x="112"
+       y="78.390625"></tspan></text>
+</svg>
