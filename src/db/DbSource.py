@@ -29,7 +29,7 @@ class DbSource(object):
             if 'DB_HOST' in os.environ:
                 self.HOST = os.environ.get('DB_HOST', None)
             if 'DB_PORT' in os.environ:
-                self.PORT = int(os.environ.get('DB_PORT', None))
+                self.PORT = int(os.environ.get('DB_PORT', 3306))
             if 'DB_NAME' in os.environ:
                 self.DB_NAME = os.environ.get('DB_NAME', None)
             if 'DB_USER' in os.environ:
