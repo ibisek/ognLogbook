@@ -55,7 +55,7 @@ CREATE TABLE logbook_entries (
 
 --DROP TABLE IF EXISTS ddb;
 CREATE TABLE ddb (
-	--id BIGINT PRIMARY KEY auto_increment,
+	id BIGINT PRIMARY KEY auto_increment,
 	device_type VARCHAR(1),
 	device_id VARCHAR(6),
 	aircraft_type VARCHAR(32),
@@ -109,4 +109,3 @@ SELECT * FROM logbook_events where address='DD8220';
 --
 
 select count(*) from ddb;
-
