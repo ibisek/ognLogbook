@@ -98,7 +98,13 @@ def listArrivals(address=None, icaoCode=None, registration=None):
 
 def listFlights(address=None, icaoCode=None, registration=None):
 
-    cond = _prepareCondition(address=address, icaoCode=icaoCode, registration=registration)
+    c1 = c2 = ''
+    if icaoCode:
+        c1 = f" AND (l.takeoff_icao = '{icaoCode}' OR l.landing_icao = '{icaoCode}')"
+    if registration:
+        c2 = f" AND d.aircraft_registration = '{registration}'"
+    cond = c1 + c2
+
 
     records = list()
 
