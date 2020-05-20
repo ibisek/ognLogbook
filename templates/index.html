@@ -22,74 +22,77 @@
 
 {% macro formatDepartures(list) -%}
 	<h2>Departures</h2>
-	<table>
-		<tr>
-			<th>Date</th>
-			<th>Time</th>
-			<th>Loc</th>
-			<th>Reg</th>
-			<th>CN</th>
-		</tr>
+	<div class="table">
+		<div class="row header">
+			<div class="cell">Date</div>
+			<div class="cell">Time</div>
+			<div class="cell">Loc</div>
+			<div class="cell">Reg</div>
+			<div class="cell">CN</div>
+		</div>
 		{% for item in list %}
-		<tr>
-			<td>{{item.takeoff_dt.strftime('%Y-%m-%d')}}</td>
-			<td>{{item.takeoff_dt.strftime('%H:%M')}}</td>
-			<td>{{item.takeoff_icao}}</td>
-			<td>{{item.registration}}</td>
-			<td>{{item.cn}}</td>
-		</tr>
+		<div class="row">
+			<div class="cell">{{item.takeoff_dt.strftime('%Y-%m-%d')}}</div>
+			<div class="cell">{{item.takeoff_dt.strftime('%H:%M')}}</div>
+			<div class="cell">{{item.takeoff_icao}}</div>
+			<div class="cell">{{item.registration}}</div>
+			<div class="cell">{{item.cn}}</div>
+		</div>
 		{% endfor %}
-	</table>
+	</div>
 {%- endmacro %}
+
 
 {% macro formatArrivals(list) -%}
 	<h2>Arrivals</h2>
-	<table>
-		<tr>
-			<th>Date</th>
-			<th>Time</th>
-			<th>Loc</th>
-			<th>Reg</th>
-			<th>CN</th>
-		</tr>
+
+	<div class="table">
+		<div class="row header green">
+			<div class="cell">Date</div>
+			<div class="cell">Time</div>
+			<div class="cell">Loc</div>
+			<div class="cell">Reg</div>
+			<div class="cell">CN</div>
+		</div>
 		{% for item in list %}
-		<tr>
-			<td>{{item.landing_dt.strftime('%Y-%m-%d')}}</td>
-			<td>{{item.landing_dt.strftime('%H:%M')}}</td>
-			<td>{{item.landing_icao}}</td>
-			<td>{{item.registration}}</td>
-			<td>{{item.cn}}</td>
-		</tr>
+		<div class="row">
+			<div class="cell">{{item.landing_dt.strftime('%Y-%m-%d')}}</div>
+			<div class="cell">{{item.landing_dt.strftime('%H:%M')}}</div>
+			<div class="cell">{{item.landing_icao}}</div>
+			<div class="cell">{{item.registration}}</div>
+			<div class="cell">{{item.cn}}</div>
+		</div>
 		{% endfor %}
-	</table>
+	</div>
 {%- endmacro %}
 
 {% macro formatFlights(list) -%}
 	<h2>Flights</h2>
-	<table>
-		<tr>
-			<th>Date</th>
-			<th>Reg</th>
-			<th>CN</th>
-			<th>Take-off</th>
-			<th></th>
-			<th>Landing</th>
-			<th></th>
-			<th>Flight time</th>
-		</tr>
+
+	<div class="table">
+		<div class="row header blue">
+			<div class="cell">Date</div>
+			<div class="cell">Reg</div>
+			<div class="cell">CN</div>
+			<div class="cell">Take-off</div>
+			<div class="cell"></div>
+			<div class="cell">Landing</div>
+			<div class="cell"></div>
+			<div class="cell">Flight time</div>
+		</div>
 		{% for item in list %}
-		<tr>
-			<td>{% if item.takeoff_dt %} {{item.takeoff_dt.strftime('%Y-%m-%d')}} {% else %} {{item.landing_dt.strftime('%Y-%m-%d')}} {% endif %}</td>
-			<td>{{item.registration}}</td>
-			<td>{{item.cn}}</td>
-			<td>{% if item.takeoff_icao %} {{item.takeoff_icao}} {% else %} ? {% endif %}</td>
-			<td>{% if item.takeoff_dt %} {{item.takeoff_dt.strftime('%H:%M')}} {% else %} ? {% endif %}</td>
-			<td>{{item.landing_icao}}</td>
-			<td>{{item.landing_dt.strftime('%H:%M')}}</td>
-			<td>{{item.flight_time}}</td>
-		</tr>
+		<div class="row">
+			<div class="cell">{% if item.takeoff_dt %} {{item.takeoff_dt.strftime('%Y-%m-%d')}} {% else %} {{item.landing_dt.strftime('%Y-%m-%d')}} {% endif %}</div>
+			<div class="cell">{{item.registration}}</div>
+			<div class="cell">{{item.cn}}</div>
+			<div class="cell">{% if item.takeoff_icao %} {{item.takeoff_icao}} {% else %} ? {% endif %}</div>
+			<div class="cell">{% if item.takeoff_dt %} {{item.takeoff_dt.strftime('%H:%M')}} {% else %} ? {% endif %}</div>
+			<div class="cell">{{item.landing_icao}}</div>
+			<div class="cell">{{item.landing_dt.strftime('%H:%M')}}</div>
+			<div class="cell">{{item.flight_time}}</div>
+		</div>
 		{% endfor %}
-	</table>
+	</div>
 {%- endmacro %}
 
 </head>
