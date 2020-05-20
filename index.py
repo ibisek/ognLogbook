@@ -18,14 +18,35 @@ app = flask.Flask(__name__)
 
 @app.route('/')
 def index():
-    dbSource = DbSource(dbConnectionInfo=dbConnectionInfo)
-    # TODO ..
-
-    departures = listDepartures()
-    arrivals = listArrivals()
-    flights = listFlights()
-
+    departures, arrivals, flights = _prepareData()
     return flask.render_template('index.html', departures=departures, arrivals=arrivals, flights=flights)
+
+
+@app.route('/loc/<icaoCode>', methods=['GET'])
+def filterByIcaoCode(icaoCode):
+    departures, arrivals, flights = _prepareData(icaoCode=icaoCode)
+    return flask.render_template('index.html', departures=departures, arrivals=arrivals, flights=flights)
+
+
+@app.route('/reg/<registration>', methods=['GET'])
+def filterByRegistration(registration):
+    departures, arrivals, flights = _prepareData(registration=registration)
+    return flask.render_template('index.html', departures=departures, arrivals=arrivals, flights=flights)
+
+
+def _prepareData(icaoCode=None, registration=None):
+
+    if icaoCode:
+        icaoCode = _saninitise(icaoCode)
+
+    if registration:
+        registration = _saninitise(registration)
+
+    departures = listDepartures(icaoCode=icaoCode, registration=registration)
+    arrivals = listArrivals(icaoCode=icaoCode, registration=registration)
+    flights = listFlights(icaoCode=icaoCode, registration=registration)
+
+    return departures, arrivals, flights
 
 
 @app.errorhandler(400)
@@ -42,6 +63,9 @@ def handle_error(error):
 #     # logger.error(msg)
 #     # app.logger.error(msg)
 #     return flask.render_template('error40x.html', code=500), 500
+
+def _saninitise(s):
+    return s.replace('\\', '').replace(';', '').replace('\'', '').replace('--', '')
 
 
 if __name__ == '__main__':

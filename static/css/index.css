@@ -7,6 +7,8 @@ body {
     color: #3b3b3b;
 }
 
+/* ------------------------------ tables --------------------------- */
+
 h1 {
 	font-size: 2em;
 	margin-bottom: 10px;
@@ -20,7 +22,7 @@ h1 {
 
 .threeCols {
   display: grid;
-  grid-template-columns: 2fr 2fr 3fr;
+  grid-template-columns: 3fr 3fr 5fr;
   grid-column-gap: 5px;
 }
 
@@ -32,9 +34,24 @@ h1 {
   align: center;
 }
 
-table {
+.table {
     margin: auto;
     text-align: center;
+    border-collapse: collapse;
+    display: inline-block;
+}
+
+a:link {
+    text-decoration: none;
+    color: #3b3b3b;
+}
+
+a:visited {
+  color: #3b3b3b;
+}
+
+a:hover {
+    text-decoration: underline;
 }
 
 .row:nth-of-type(2n+1) {
@@ -48,6 +65,7 @@ table {
 .row.header {
     font-weight: 900;
     color: #ffffff;
+    border-radius: 20px 20px 0px 0px;
     background: #ea6153;
 }
 
@@ -68,6 +86,8 @@ table {
     padding: 6px 12px;
     display: table-cell;
 }
+
+/* ------------------------------ footer --------------------------- */
 
 .footer {
 	margin-top: 10px;

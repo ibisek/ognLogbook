@@ -34,8 +34,8 @@
 		<div class="row">
 			<div class="cell">{{item.takeoff_dt.strftime('%Y-%m-%d')}}</div>
 			<div class="cell">{{item.takeoff_dt.strftime('%H:%M')}}</div>
-			<div class="cell">{{item.takeoff_icao}}</div>
-			<div class="cell">{{item.registration}}</div>
+			<div class="cell"><a href="/loc/{{item.takeoff_icao}}">{{item.takeoff_icao}}</a></div>
+			<div class="cell"><a href="/reg/{{item.registration}}">{{item.registration}}</a></div>
 			<div class="cell">{{item.cn}}</div>
 		</div>
 		{% endfor %}
@@ -58,8 +58,8 @@
 		<div class="row">
 			<div class="cell">{{item.landing_dt.strftime('%Y-%m-%d')}}</div>
 			<div class="cell">{{item.landing_dt.strftime('%H:%M')}}</div>
-			<div class="cell">{{item.landing_icao}}</div>
-			<div class="cell">{{item.registration}}</div>
+			<div class="cell"><a href="/loc/{{item.landing_icao}}">{{item.landing_icao}}</a></div>
+			<div class="cell"><a href="/reg/{{item.registration}}">{{item.registration}}</a></div>
 			<div class="cell">{{item.cn}}</div>
 		</div>
 		{% endfor %}
@@ -83,11 +83,11 @@
 		{% for item in list %}
 		<div class="row">
 			<div class="cell">{% if item.takeoff_dt %} {{item.takeoff_dt.strftime('%Y-%m-%d')}} {% else %} {{item.landing_dt.strftime('%Y-%m-%d')}} {% endif %}</div>
-			<div class="cell">{{item.registration}}</div>
+			<div class="cell"><a href="/reg/{{item.registration}}">{{item.registration}}</a></div>
 			<div class="cell">{{item.cn}}</div>
-			<div class="cell">{% if item.takeoff_icao %} {{item.takeoff_icao}} {% else %} ? {% endif %}</div>
+			<div class="cell">{% if item.takeoff_icao %} <a href="/loc/{{item.takeoff_icao}}">{{item.takeoff_icao}} {% else %} ? {% endif %}</div>
 			<div class="cell">{% if item.takeoff_dt %} {{item.takeoff_dt.strftime('%H:%M')}} {% else %} ? {% endif %}</div>
-			<div class="cell">{{item.landing_icao}}</div>
+			<div class="cell"><a href="/loc/{{item.landing_icao}}">{{item.landing_icao}}</a></div>
 			<div class="cell">{{item.landing_dt.strftime('%H:%M')}}</div>
 			<div class="cell">{{item.flight_time}}</div>
 		</div>
@@ -104,6 +104,8 @@
 </script>
 
 <body onload="afterLoad()">
+
+	{% include 'header.html' %}
 
 	<div class="screenCentered">
 
