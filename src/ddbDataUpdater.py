@@ -74,7 +74,7 @@ if __name__ == '__main__':
             f"(device_type, device_id, aircraft_type, aircraft_registration, aircraft_cn, tracked, identified)" \
             f"VALUES " \
             f"('{deviceType}', '{deviceId}', '{aircraftType}', '{registration}', '{cn}', " \
-            f"{1 if tracked == 'Y' else 0}, {1 if identified == 'Y' else 0});"
+            f"{tracked}, {identified});"
 
         with DbSource(dbConnectionInfo).getConnection() as cur:
             cur.execute(strSql)
