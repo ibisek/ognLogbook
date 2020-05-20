@@ -1,0 +1,124 @@
+<!doctype html>
+
+<html>
+
+<head>
+<title>OGN Logbook</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<meta name="description"
+	content="OGN Logbook - Open Gliding Network Logbook">
+
+<link rel="stylesheet" href="/static/css/index.css"	type="text/css">
+<link href="/static/img/favicon.png" rel="shortcut icon">
+<link href="/static/img/favicon.png" rel="icon" type="image/png" />
+
+{#
+{% if not runningLocally %}
+<link rel="stylesheet"
+	href="http://count-for-me.appspot.com/logMe?location=ognLogbook"
+	type="text/css">
+{% endif %}
+#}
+
+{% macro formatDepartures(list) -%}
+	<h2>Departures</h2>
+	<table>
+		<tr>
+			<th>Date</th>
+			<th>Time</th>
+			<th>Loc</th>
+			<th>Reg</th>
+			<th>CN</th>
+		</tr>
+		{% for item in list %}
+		<tr>
+			<td>{{item.takeoff_dt.strftime('%Y-%m-%d')}}</td>
+			<td>{{item.takeoff_dt.strftime('%H:%M')}}</td>
+			<td>{{item.takeoff_icao}}</td>
+			<td>{{item.registration}}</td>
+			<td>{{item.cn}}</td>
+		</tr>
+		{% endfor %}
+	</table>
+{%- endmacro %}
+
+{% macro formatArrivals(list) -%}
+	<h2>Arrivals</h2>
+	<table>
+		<tr>
+			<th>Date</th>
+			<th>Time</th>
+			<th>Loc</th>
+			<th>Reg</th>
+			<th>CN</th>
+		</tr>
+		{% for item in list %}
+		<tr>
+			<td>{{item.landing_dt.strftime('%Y-%m-%d')}}</td>
+			<td>{{item.landing_dt.strftime('%H:%M')}}</td>
+			<td>{{item.landing_icao}}</td>
+			<td>{{item.registration}}</td>
+			<td>{{item.cn}}</td>
+		</tr>
+		{% endfor %}
+	</table>
+{%- endmacro %}
+
+{% macro formatFlights(list) -%}
+	<h2>Flights</h2>
+	<table>
+		<tr>
+			<th>Date</th>
+			<th>Reg</th>
+			<th>CN</th>
+			<th>Take-off</th>
+			<th></th>
+			<th>Landing</th>
+			<th></th>
+			<th>Flight time</th>
+		</tr>
+		{% for item in list %}
+		<tr>
+			<td>{% if item.takeoff_dt %} {{item.takeoff_dt.strftime('%Y-%m-%d')}} {% else %} {{item.landing_dt.strftime('%Y-%m-%d')}} {% endif %}</td>
+			<td>{{item.registration}}</td>
+			<td>{{item.cn}}</td>
+			<td>{% if item.takeoff_icao %} {{item.takeoff_icao}} {% else %} ? {% endif %}</td>
+			<td>{% if item.takeoff_dt %} {{item.takeoff_dt.strftime('%H:%M')}} {% else %} ? {% endif %}</td>
+			<td>{{item.landing_icao}}</td>
+			<td>{{item.landing_dt.strftime('%H:%M')}}</td>
+			<td>{{item.flight_time}}</td>
+		</tr>
+		{% endfor %}
+	</table>
+{%- endmacro %}
+
+</head>
+
+<script type="text/javascript">
+	function afterLoad() {
+		document.getElementById("search").focus();
+	}
+</script>
+
+<body onload="afterLoad()">
+
+	<div class="screenCentered">
+
+		<div class="threeCols">
+			<div>
+				{{ formatDepartures(departures) }}
+			</div>
+			<div>
+				{{ formatArrivals(arrivals) }}
+			</div>
+			<div>
+				{{ formatFlights(flights) }}
+			</div>
+		</div>
+
+	</div>
+
+	{% include 'footer.html' %}
+
+</body>
+</html>

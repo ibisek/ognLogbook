@@ -1,0 +1,15 @@
+<html>
+<body>
+
+{% if code %}
+  <h1>ERROR {{code}}!</h1>
+{% else %}
+  <h1>Some error occured :P</h1>
+{% endif %}
+
+{% if message %}
+  <p>{{message}}</p>
+{% endif %}
+
+</body>
+</html>

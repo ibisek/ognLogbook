@@ -1,4 +1,7 @@
 
+from datetime import datetime
+
+
 class Status(object):
 
     def __init__(self, s=-1, ts=0):
@@ -23,3 +26,46 @@ class Status(object):
         s: Status = Status(s=items[0], ts=items[1])
 
         return s
+
+
+class LogbookItem(object):
+
+    def __init__(self, address,
+                 takeoff_ts=0, takeoff_lat=0, takeoff_lon=0, takeoff_icao=None,
+                 landing_ts=0, landing_lat=0, landing_lon=0, landing_icao=None,
+                 flight_time=0,
+                 registration=None, cn=None, aircraft_type=None):
+        self.address = address
+
+        self.takeoff_ts = takeoff_ts
+        self.takeoff_lat = takeoff_lat
+        self.takeoff_lon = takeoff_lon
+        self.takeoff_icao = takeoff_icao
+
+        self.landing_ts = landing_ts
+        self.landing_lat = landing_lat
+        self.landing_lon = landing_lon
+        self.landing_icao = landing_icao
+
+        self.flight_time = flight_time
+
+        self.registration = registration
+        self.cn = cn
+        self.aircraft_type = aircraft_type
+
+        self.takeoff_dt = datetime.fromtimestamp(takeoff_ts) if self.takeoff_ts else None
+        self.landing_dt = datetime.fromtimestamp(landing_ts) if self.landing_ts else None
+
+        s = self.flight_time
+        h = s // 3600
+        s = s - h * 3600
+        m = s // 60
+        s = s - m * 60
+
+        if s > 30:
+            m += 1
+
+        if h > 0:
+            self.flight_time = f"{h}\N{DEGREE SIGN}{m}'"
+        else:
+            self.flight_time = f"{m}'"
