@@ -5,6 +5,7 @@
             <img src="/static/img/logo.png">
         </a>
 
+        {% if totNumFlights and totNumFlights > 0 %} {# .. display only if the statistical data is available #}
         <div class="stats">
             <div class="tooltip">
                 Registered flights: <b>{{totNumFlights}}</b>
@@ -23,6 +24,8 @@
                 <span class="tooltiptext">Location with the most dense traffic of the day (with number of take-offs + landings)</span>
             </div>
         </div>
+        {% endif %}
+
     </div>
 </div>
 
