@@ -3,10 +3,10 @@ from datetime import datetime, time
 
 
 def formatDuration(seconds):
-    h = seconds % 3600
-    s = seconds - h * 3600
-    m = s % 60
-    s = s - m * 60
+    h = seconds // 3600
+    s = seconds % 3600
+    m = s // 60
+    s = s % 60
 
     if s > 30:
         m += 1
