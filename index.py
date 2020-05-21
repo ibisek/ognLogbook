@@ -8,8 +8,6 @@ import sys
 import flask
 import getopt
 
-from configuration import dbConnectionInfo
-from db.DbSource import DbSource
 from dao.logbookDao import listDepartures, listArrivals,listFlights
 from dao.stats import getNumFlightsToday, getTotNumFlights, getLongestFlightTimeToday, getHighestTrafficToday
 
@@ -26,7 +24,8 @@ def index():
     longestFlightTime = getLongestFlightTimeToday()
     highestTrafficLocation, highestTrafficCount = getHighestTrafficToday()
 
-    return flask.render_template('index.html', departures=departures, arrivals=arrivals, flights=flights,
+    return flask.render_template('index.html', debugMode=debugMode,
+                                 departures=departures, arrivals=arrivals, flights=flights,
                                  numFlightsToday=numFlightsToday, totNumFlights=totNumFlights,
                                  longestFlightTime=longestFlightTime, highestTrafficLocation=highestTrafficLocation,
                                  highestTrafficCount=highestTrafficCount)
@@ -80,6 +79,7 @@ def _saninitise(s):
 
 if __name__ == '__main__':
 
+    global debugMode
     debugMode = False
 
     try:
