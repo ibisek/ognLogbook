@@ -120,7 +120,10 @@ class RawWorker(Thread):
                     self.redis.delete(statusKey)
                     return
 
-            self._saveToRedis(statusKey, currentStatus)
+            if event == 'T':
+                self._saveToRedis(statusKey, currentStatus)
+            elif event == 'L':
+                self.redis.delete(statusKey)    # landed, quit observing
 
             dt = datetime.fromtimestamp(ts)
             dtStr = dt.strftime('%H:%M:%S')
