@@ -19,7 +19,7 @@
                 <span class="tooltiptext">Longest time interval between take-off and landing</span>
             </div>
             <div class="tooltip">
-                Highest traffic: <b>{% if highestTrafficLocation %}{{highestTrafficLocation}} ({{highestTrafficCount}}){% else %}none{% endif %}</b>
+                Highest traffic: <b>{% if highestTrafficLocation %}<a href="/loc/{{highestTrafficLocation}}">{{highestTrafficLocation}}</a> ({{highestTrafficCount}}){% else %}none{% endif %}</b>
                 <span class="tooltiptext">Location with the most dense traffic of the day (with number of take-offs + landings)</span>
             </div>
         </div>
