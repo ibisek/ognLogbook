@@ -105,7 +105,6 @@ def listFlights(address=None, icaoCode=None, registration=None):
         c2 = f" AND d.aircraft_registration = '{registration}'"
     cond = c1 + c2
 
-
     records = list()
 
     with DbSource(dbConnectionInfo).getConnection() as c:
