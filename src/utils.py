@@ -9,7 +9,11 @@ def formatDuration(seconds):
     s = s % 60
 
     if s > 30:
-        m += 1
+        if m == 59:
+            h += 1
+            m = 0
+        else:
+            m += 1
 
     if h > 0:
         dur = f"{h}\N{DEGREE SIGN}{m}'"
