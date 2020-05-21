@@ -1,6 +1,8 @@
 
 from datetime import datetime
 
+from utils import formatDuration
+
 
 class Status(object):
 
@@ -56,16 +58,4 @@ class LogbookItem(object):
         self.takeoff_dt = datetime.fromtimestamp(takeoff_ts) if self.takeoff_ts else None
         self.landing_dt = datetime.fromtimestamp(landing_ts) if self.landing_ts else None
 
-        s = self.flight_time
-        h = s // 3600
-        s = s - h * 3600
-        m = s // 60
-        s = s - m * 60
-
-        if s > 30:
-            m += 1
-
-        if h > 0:
-            self.flight_time = f"{h}\N{DEGREE SIGN}{m}'"
-        else:
-            self.flight_time = f"{m}'"
+        self.flight_time = formatDuration(self.flight_time)

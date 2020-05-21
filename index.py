@@ -11,6 +11,7 @@ import getopt
 from configuration import dbConnectionInfo
 from db.DbSource import DbSource
 from dao.logbookDao import listDepartures, listArrivals,listFlights
+from dao.stats import getNumFlightsToday, getTotNumFlights, getLongestFlightTimeToday, getHighestTrafficToday
 
 
 app = flask.Flask(__name__)
@@ -19,7 +20,16 @@ app = flask.Flask(__name__)
 @app.route('/')
 def index():
     departures, arrivals, flights = _prepareData()
-    return flask.render_template('index.html', departures=departures, arrivals=arrivals, flights=flights)
+
+    totNumFlights = getTotNumFlights()
+    numFlightsToday = getNumFlightsToday()
+    longestFlightTime = getLongestFlightTimeToday()
+    highestTrafficLocation, highestTrafficCount = getHighestTrafficToday()
+
+    return flask.render_template('index.html', departures=departures, arrivals=arrivals, flights=flights,
+                                 numFlightsToday=numFlightsToday, totNumFlights=totNumFlights,
+                                 longestFlightTime=longestFlightTime, highestTrafficLocation=highestTrafficLocation,
+                                 highestTrafficCount=highestTrafficCount)
 
 
 @app.route('/loc/<icaoCode>', methods=['GET'])

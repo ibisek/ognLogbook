@@ -4,6 +4,25 @@
         <a class="logo" href="/">
             <img src="/static/img/logo.png">
         </a>
+
+        <div class="stats">
+            <div class="tooltip">
+                Registered flights: <b>{{totNumFlights}}</b>
+                <span class="tooltiptext">Total number of registered flights since big bang</span>
+            </div>
+            <div class="tooltip">
+                Flights today: <b>{{numFlightsToday}}</b>
+                <span class="tooltiptext">Number of flights registered today</span>
+            </div>
+            <div class="tooltip">
+                Longest flight: <b>{% if longestFlightTime %}{{longestFlightTime}}{% else %}none{% endif %}</b>
+                <span class="tooltiptext">Longest time interval between take-off and landing</span>
+            </div>
+            <div class="tooltip">
+                Highest traffic: <b>{% if highestTrafficLocation %}{{highestTrafficLocation}} ({{highestTrafficCount}}){% else %}none{% endif %}</b>
+                <span class="tooltiptext">Location with the most dense traffic of the day (with number of take-offs + landings)</span>
+            </div>
+        </div>
     </div>
 </div>
 

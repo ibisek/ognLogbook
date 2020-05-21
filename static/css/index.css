@@ -109,6 +109,42 @@ a:hover {
     padding-left: 10px;
 }
 
+.stats {
+    position: absolute;
+    top: 0px;
+    right: 10px;
+    width: 180px;
+    padding: 0px;
+    margin: 0px 35px;
+    text-align: center;
+    vertical-align: middle;
+    text-align: right;
+}
+
+.tooltip {
+  position: relative;
+  display: inline-block;
+}
+
+.tooltip .tooltiptext {
+  visibility: hidden;
+  width: 200px;
+  background-color: black;
+  color: #fff;
+  text-align: center;
+  border-radius: 6px;
+  padding: 5px 0;
+
+  /* Position the tooltip */
+  position: absolute;
+  z-index: 1;
+  right: 100px;
+}
+
+.tooltip:hover .tooltiptext {
+  visibility: visible;
+}
+
 /* ------------------------------ site body --------------------------- */
 
 .sitebody {
