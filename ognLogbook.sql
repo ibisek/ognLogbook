@@ -16,6 +16,7 @@ CREATE TABLE logbook_events (
     flight_time BIGINT DEFAULT 0
 );
 
+CREATE INDEX logbook_events_ts ON logbook_events(ts);
 CREATE INDEX logbook_events_address ON logbook_events(address);
 CREATE INDEX logbook_events_location_icao ON logbook_events(location_icao);
 --SHOW INDEXES FROM logbook_events;
@@ -52,6 +53,12 @@ CREATE TABLE logbook_entries (
   landing_icao VARCHAR(4),
   flight_time BIGINT DEFAULT 0
 );
+
+CREATE INDEX logbook_entries_address ON logbook_entries(address);
+CREATE INDEX logbook_entries_takeoff_ts ON logbook_entries(takeoff_ts);
+CREATE INDEX logbook_entries_landing_ts ON logbook_entries(landing_ts);
+--SHOW INDEXES FROM logbook_entries;
+
 
 --DROP TABLE IF EXISTS ddb;
 CREATE TABLE ddb (
@@ -109,3 +116,5 @@ SELECT * FROM logbook_events where address='DD8220';
 --
 
 select count(*) from ddb;
+
+
