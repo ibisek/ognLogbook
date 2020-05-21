@@ -24,6 +24,11 @@ if DB_PASSWORD != '**':
     os.environ.setdefault('DB_USER', DB_USER)
     os.environ.setdefault('DB_PASSWORD', DB_PASSWORD)
 
+try:
+    global debugMode
+    print('[INFO] debugMode', debugMode)
+except NameError:
+    debugMode = False
 
 # this enforces the SQLITE to be used:
 # if 'SQLITE_DB_FILENAME' not in os.environ:
