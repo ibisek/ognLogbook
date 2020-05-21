@@ -1,8 +1,8 @@
-from time import time
 
 from configuration import dbConnectionInfo
 from db.DbSource import DbSource
 from dataStructures import LogbookItem
+from utils import getDayTimestamps
 
 
 def _prepareCondition(address=None, icaoCode=None, registration=None):
@@ -16,9 +16,17 @@ def _prepareCondition(address=None, icaoCode=None, registration=None):
     return cond
 
 
-def listDepartures(address=None, icaoCode=None, registration=None):
+def listDepartures(address=None, icaoCode=None, registration=None, forDay=None, limit=None):
 
     cond = _prepareCondition(address=address, icaoCode=icaoCode, registration=registration)
+
+    condTs = ''
+    condLimit = ''
+    if forDay:
+        startTs, endTs = getDayTimestamps(forDay)
+        condTs = f" AND l.ts >= {startTs} AND l.ts <= {endTs}"
+    if limit:
+        condLimit = f" limit {limit}"
 
     records = list()
 
@@ -28,8 +36,8 @@ def listDepartures(address=None, icaoCode=None, registration=None):
                     d.device_type,	d.aircraft_type, d.aircraft_registration, d.aircraft_cn 
                     FROM logbook_events AS l 
                     LEFT JOIN ddb AS d ON l.address = d.device_id 
-                    WHERE l.event = 'T' AND tracked = true AND identified = true {cond}
-                    ORDER by ts desc limit 20;"""
+                    WHERE l.event = 'T' AND tracked = true AND identified = true {cond} {condTs}
+                    ORDER by ts desc {condLimit};"""
 
         c.execute(strSql)
 
@@ -56,20 +64,28 @@ def listDepartures(address=None, icaoCode=None, registration=None):
     return records
 
 
-def listArrivals(address=None, icaoCode=None, registration=None):
+def listArrivals(address=None, icaoCode=None, registration=None, forDay=None, limit=None):
 
     cond = _prepareCondition(address=address, icaoCode=icaoCode, registration=registration)
+
+    condTs = ''
+    condLimit = ''
+    if forDay:
+        startTs, endTs = getDayTimestamps(forDay)
+        condTs = f" AND l.ts >= {startTs} AND l.ts <= {endTs}"
+    if limit:
+        condLimit = f" limit {limit}"
 
     records = list()
 
     with DbSource(dbConnectionInfo).getConnection() as c:
 
-        strSql = f"""SELECT l.ts, l.address, l.address_type, l.aircraft_type, l.lat, l.lon, l.location_icao, l.flight_time, 
+        strSql = f"""SELECT l.ts, l.address, l.address_type, l.aircraft_type, l.lat, l.lon, l.location_icao, l.flight_time,
                     d.device_type,	d.aircraft_type, d.aircraft_registration, d.aircraft_cn 
                     FROM logbook_events AS l 
                     LEFT JOIN ddb AS d ON l.address = d.device_id 
-                    WHERE l.event = 'L' AND tracked = true AND identified = true {cond}
-                    ORDER by ts desc limit 20;"""
+                    WHERE l.event = 'L' AND tracked = true AND identified = true {cond} {condTs}
+                    ORDER by ts desc {condLimit};"""
 
         c.execute(strSql)
 
@@ -96,7 +112,7 @@ def listArrivals(address=None, icaoCode=None, registration=None):
     return records
 
 
-def listFlights(address=None, icaoCode=None, registration=None):
+def listFlights(address=None, icaoCode=None, registration=None, forDay=None, limit=None):
 
     c1 = c2 = ''
     if icaoCode:
@@ -104,6 +120,14 @@ def listFlights(address=None, icaoCode=None, registration=None):
     if registration:
         c2 = f" AND d.aircraft_registration = '{registration}'"
     cond = c1 + c2
+
+    condTs = ''
+    condLimit = ''
+    if forDay:
+        startTs, endTs = getDayTimestamps(forDay)
+        condTs = f" AND l.takeoff_ts >= {startTs} AND l.landing_ts <= {endTs}"
+    if limit:
+        condLimit = f" limit {limit}"
 
     records = list()
 
@@ -114,8 +138,8 @@ def listFlights(address=None, icaoCode=None, registration=None):
                     d.device_type, d.aircraft_type, d.aircraft_registration, d.aircraft_cn
                     FROM logbook_entries as l 
                     LEFT JOIN ddb AS d ON l.address = d.device_id
-                    WHERE tracked = true AND identified = true {cond}
-                    ORDER by landing_ts desc limit 20;"""
+                    WHERE tracked = true AND identified = true {cond} {condTs}
+                    ORDER by landing_ts desc {condLimit};"""
 
         c.execute(strSql)
 

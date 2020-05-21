@@ -8,6 +8,7 @@ import sys
 import flask
 import getopt
 
+from configuration import debugMode
 from dao.logbookDao import listDepartures, listArrivals,listFlights
 from dao.stats import getNumFlightsToday, getTotNumFlights, getLongestFlightTimeToday, getHighestTrafficToday
 
@@ -17,7 +18,7 @@ app = flask.Flask(__name__)
 
 @app.route('/')
 def index():
-    departures, arrivals, flights = _prepareData()
+    departures, arrivals, flights = _prepareData(limit=20)
 
     totNumFlights = getTotNumFlights()
     numFlightsToday = getNumFlightsToday()
@@ -32,18 +33,29 @@ def index():
 
 
 @app.route('/loc/<icaoCode>', methods=['GET'])
-def filterByIcaoCode(icaoCode):
-    departures, arrivals, flights = _prepareData(icaoCode=icaoCode)
-    return flask.render_template('index.html', departures=departures, arrivals=arrivals, flights=flights)
+@app.route('/loc/<icaoCode>/<date>', methods=['GET'])
+def filterByIcaoCode(icaoCode, date=None):
+    if date:
+        date = _saninitise(date)
+        from datetime import datetime
+        try:
+            date = datetime.strptime(date, '%Y-%m-%d')
+        except ValueError:
+            date = None
+
+    departures, arrivals, flights = _prepareData(icaoCode=icaoCode, forDay=date)
+    return flask.render_template('index.html', debugMode=debugMode,
+                                 departures=departures, arrivals=arrivals, flights=flights)
 
 
 @app.route('/reg/<registration>', methods=['GET'])
 def filterByRegistration(registration):
     departures, arrivals, flights = _prepareData(registration=registration)
-    return flask.render_template('index.html', departures=departures, arrivals=arrivals, flights=flights)
+    return flask.render_template('index.html', debugMode=debugMode,
+                                 departures=departures, arrivals=arrivals, flights=flights)
 
 
-def _prepareData(icaoCode=None, registration=None):
+def _prepareData(icaoCode=None, registration=None, forDay=None, limit=None):
 
     if icaoCode:
         icaoCode = _saninitise(icaoCode)
@@ -51,9 +63,9 @@ def _prepareData(icaoCode=None, registration=None):
     if registration:
         registration = _saninitise(registration)
 
-    departures = listDepartures(icaoCode=icaoCode, registration=registration)
-    arrivals = listArrivals(icaoCode=icaoCode, registration=registration)
-    flights = listFlights(icaoCode=icaoCode, registration=registration)
+    departures = listDepartures(icaoCode=icaoCode, registration=registration, forDay=forDay, limit=limit)
+    arrivals = listArrivals(icaoCode=icaoCode, registration=registration, forDay=forDay, limit=limit)
+    flights = listFlights(icaoCode=icaoCode, registration=registration, forDay=forDay, limit=limit)
 
     return departures, arrivals, flights
 
@@ -78,9 +90,6 @@ def _saninitise(s):
 
 
 if __name__ == '__main__':
-
-    global debugMode
-    debugMode = False
 
     try:
         opts, args = getopt.getopt(sys.argv[1:], "d")

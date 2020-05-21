@@ -1,19 +1,7 @@
 
-from datetime import datetime, time
-
 from configuration import dbConnectionInfo
 from db.DbSource import DbSource
-from utils import formatDuration
-
-
-def _getTodayTimestamps():
-    """
-    :return: start, end timestamps of current day
-    """
-    startTs = datetime.combine(datetime.today(), time.min).timestamp()
-    endTs = datetime.combine(datetime.today(), time.max).timestamp()
-
-    return startTs, endTs
+from utils import formatDuration, getDayTimestamps
 
 
 def getTotNumFlights():
@@ -35,7 +23,7 @@ def getTotNumFlights():
 
 def getNumFlightsToday():
     num = None
-    startTs, endTs = _getTodayTimestamps()
+    startTs, endTs = getDayTimestamps()
 
     try:
         with DbSource(dbConnectionInfo=dbConnectionInfo).getConnection() as c:
@@ -53,7 +41,7 @@ def getNumFlightsToday():
 
 def getLongestFlightTimeToday():
     retVal = None
-    startTs, endTs = _getTodayTimestamps()
+    startTs, endTs = getDayTimestamps()
 
     try:
         with DbSource(dbConnectionInfo=dbConnectionInfo).getConnection() as c:
@@ -74,7 +62,7 @@ def getLongestFlightTimeToday():
 
 def getHighestTrafficToday():
     retVal = None, 0
-    startTs, endTs = _getTodayTimestamps()
+    startTs, endTs = getDayTimestamps()
 
     try:
         with DbSource(dbConnectionInfo=dbConnectionInfo).getConnection() as c:
