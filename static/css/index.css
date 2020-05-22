@@ -109,6 +109,31 @@ a:hover {
     padding-left: 10px;
 }
 
+.menu {
+    float: left;
+    margin-top: 12px;
+    vertical-align: middle;
+    font-size: 22px;
+    color: #999;
+}
+
+.menuitem {
+    margin-left: 40px;
+}
+
+.menuitem span {
+    vertical-align: text-top;
+}
+
+.menuitem a:link {
+    color: #999;
+}
+
+.menuitem a:visited {
+    text-decoration: none;
+    color: #999;
+}
+
 .stats {
     position: absolute;
     top: 0px;

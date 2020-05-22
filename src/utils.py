@@ -1,5 +1,4 @@
-
-from datetime import datetime, time
+from datetime import datetime, time, timedelta
 
 
 def formatDuration(seconds):
@@ -36,3 +35,21 @@ def getDayTimestamps(forDay: datetime = None):
 
     return startTs, endTs
 
+
+def getDaysLinks(baselink: str, date: datetime):
+    """
+    :param baselink:
+    :param date:
+    :return:
+    """
+
+    if not date:
+        date = datetime.now()
+
+    linkNextDay = None
+    if date.date() < datetime.now().date():
+        linkNextDay = "{}/{}".format(baselink, (date + timedelta(1)).strftime('%Y-%m-%d'))
+
+    linkPrevDay = "{}/{}".format(baselink, (date - timedelta(1)).strftime('%Y-%m-%d'))
+
+    return linkPrevDay, linkNextDay

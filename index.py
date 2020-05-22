@@ -7,10 +7,12 @@ Created on 20. 5. 2020
 import sys
 import flask
 import getopt
+from datetime import datetime
 
 from configuration import debugMode
 from dao.logbookDao import listDepartures, listArrivals,listFlights
 from dao.stats import getNumFlightsToday, getTotNumFlights, getLongestFlightTimeToday, getHighestTrafficToday
+from utils import getDaysLinks
 
 
 app = flask.Flask(__name__)
@@ -25,7 +27,7 @@ def index():
     longestFlightTime = getLongestFlightTimeToday()
     highestTrafficLocation, highestTrafficCount = getHighestTrafficToday()
 
-    return flask.render_template('index.html', debugMode=debugMode,
+    return flask.render_template('index.html', debugMode=debugMode, date=datetime.now(),
                                  departures=departures, arrivals=arrivals, flights=flights,
                                  numFlightsToday=numFlightsToday, totNumFlights=totNumFlights,
                                  longestFlightTime=longestFlightTime, highestTrafficLocation=highestTrafficLocation,
@@ -41,17 +43,24 @@ def filterByIcaoCode(icaoCode, date=None):
         try:
             date = datetime.strptime(date, '%Y-%m-%d')
         except ValueError:
-            date = None
+            date = datetime.now()
+
+    if icaoCode:
+        icaoCode = _saninitise(icaoCode)
 
     departures, arrivals, flights = _prepareData(icaoCode=icaoCode, forDay=date)
-    return flask.render_template('index.html', debugMode=debugMode,
+
+    linkPrevDay, linkNextDay = getDaysLinks(f"/loc/{icaoCode}", date)
+
+    return flask.render_template('index.html', debugMode=debugMode, date=date,
+                                 linkPrevDay=linkPrevDay, linkNextDay=linkNextDay,
                                  departures=departures, arrivals=arrivals, flights=flights)
 
 
 @app.route('/reg/<registration>', methods=['GET'])
 def filterByRegistration(registration):
     departures, arrivals, flights = _prepareData(registration=registration)
-    return flask.render_template('index.html', debugMode=debugMode,
+    return flask.render_template('index.html', debugMode=debugMode, date=datetime.now(),
                                  departures=departures, arrivals=arrivals, flights=flights)
 
 
