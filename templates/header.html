@@ -6,11 +6,17 @@
         </a>
 
         <div class="menu">
-            <div class="menuitem">
+            <span class="menuitem">
                 <span>{% if linkPrevDay %} <a href="{{linkPrevDay}}" style="font-size:12px;"><</a> {% endif %}</span>
                 {{date.strftime('%d.%m.%Y')}}
                 <span>{% if linkNextDay %} <a href="{{linkNextDay}}" style="font-size:12px;">></a> {% endif %}</span>
-            </div>
+            </span>
+            {% if icaoCode %}
+            <span class="menuitem">{{icaoCode}}</span>
+            {% endif %}
+            {% if registration %}
+            <span class="menuitem">{{registration}}</span>
+            {% endif %}
             {#
             <span class="menuitem">|</span>
             <span class="menuitem"><a href="https://ogn.ibisek.com" target="_blank">OGN Cube</a></span>

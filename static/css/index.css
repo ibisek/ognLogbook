@@ -111,14 +111,14 @@ a:hover {
 
 .menu {
     float: left;
-    margin-top: 12px;
+    margin-top: 9px;
     vertical-align: middle;
     font-size: 22px;
     color: #999;
 }
 
 .menuitem {
-    margin-left: 40px;
+    margin-left: 30px;
 }
 
 .menuitem span {

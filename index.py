@@ -53,7 +53,7 @@ def filterByIcaoCode(icaoCode, date=None):
 
     linkPrevDay, linkNextDay = getDaysLinks(f"/loc/{icaoCode}", date)
 
-    return flask.render_template('index.html', debugMode=debugMode, date=date,
+    return flask.render_template('index.html', debugMode=debugMode, date=date, icaoCode=icaoCode,
                                  linkPrevDay=linkPrevDay, linkNextDay=linkNextDay,
                                  departures=departures, arrivals=arrivals, flights=flights)
 
@@ -61,7 +61,8 @@ def filterByIcaoCode(icaoCode, date=None):
 @app.route('/reg/<registration>', methods=['GET'])
 def filterByRegistration(registration):
     departures, arrivals, flights = _prepareData(registration=registration)
-    return flask.render_template('index.html', debugMode=debugMode, date=datetime.now(),
+
+    return flask.render_template('index.html', debugMode=debugMode, date=datetime.now(), registration=registration,
                                  departures=departures, arrivals=arrivals, flights=flights)
 
 
