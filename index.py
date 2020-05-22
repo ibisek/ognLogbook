@@ -39,11 +39,12 @@ def index():
 def filterByIcaoCode(icaoCode, date=None):
     if date:
         date = _saninitise(date)
-        from datetime import datetime
         try:
             date = datetime.strptime(date, '%Y-%m-%d')
         except ValueError:
             date = datetime.now()
+    else:
+        date = datetime.now()
 
     if icaoCode:
         icaoCode = _saninitise(icaoCode)
