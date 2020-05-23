@@ -5,7 +5,7 @@ from utils import formatDuration, getDayTimestamps
 
 
 def getTotNumFlights():
-    num = None
+    num = 0
 
     try:
         with DbSource(dbConnectionInfo=dbConnectionInfo).getConnection() as c:
