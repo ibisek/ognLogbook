@@ -22,7 +22,7 @@ def getTotNumFlights():
 
 
 def getNumFlightsToday():
-    num = None
+    num = 0
     startTs, endTs = getDayTimestamps()
 
     try:
