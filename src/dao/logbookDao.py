@@ -23,7 +23,8 @@ def listDepartures(address=None, icaoCode=None, registration=None, forDay=None, 
     condTs = ''
     condLimit = ''
     startTs, endTs = getDayTimestamps(forDay)
-    condTs = f" AND l.ts >= {startTs} AND l.ts <= {endTs}"
+    if startTs and endTs:
+        condTs = f" AND l.ts >= {startTs} AND l.ts <= {endTs}"
 
     if limit:
         condLimit = f" limit {limit}"
@@ -71,7 +72,8 @@ def listArrivals(address=None, icaoCode=None, registration=None, forDay=None, li
     condTs = ''
     condLimit = ''
     startTs, endTs = getDayTimestamps(forDay)
-    condTs = f" AND l.ts >= {startTs} AND l.ts <= {endTs}"
+    if startTs and endTs:
+        condTs = f" AND l.ts >= {startTs} AND l.ts <= {endTs}"
 
     if limit:
         condLimit = f" limit {limit}"
@@ -124,7 +126,8 @@ def listFlights(address=None, icaoCode=None, registration=None, forDay=None, lim
     condTs = ''
     condLimit = ''
     startTs, endTs = getDayTimestamps(forDay)
-    condTs = f" AND l.takeoff_ts >= {startTs} AND l.landing_ts <= {endTs}"
+    if startTs and endTs:
+        condTs = f" AND l.takeoff_ts >= {startTs} AND l.landing_ts <= {endTs}"
 
     if limit:
         condLimit = f" limit {limit}"

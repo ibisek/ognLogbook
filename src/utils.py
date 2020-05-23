@@ -28,7 +28,8 @@ def getDayTimestamps(forDay: datetime = None):
     :return: start, end timestamps of current day
     """
     if not forDay:
-        forDay = datetime.today()
+        # forDay = datetime.today()
+        return None, None
 
     startTs = datetime.combine(forDay, time.min).timestamp()
     endTs = datetime.combine(forDay, time.max).timestamp()
