@@ -149,6 +149,7 @@ a:hover {
 .tooltip {
   position: relative;
   display: inline-block;
+  color: #666;
 }
 
 .tooltip .tooltiptext {

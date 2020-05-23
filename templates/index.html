@@ -23,14 +23,14 @@
 
 
 {% macro formatDepartures(list) -%}
-	<h2>Departures</h2>
+	<h2>{{ gettext('main.departures') }}</h2>
 	<div class="table">
 		<div class="row header">
-			<div class="cell">Date</div>
-			<div class="cell">Time</div>
-			<div class="cell">Loc</div>
-			<div class="cell">Reg</div>
-			<div class="cell">CN</div>
+			<div class="cell">{{ gettext('tab.date') }}</div>
+			<div class="cell">{{ gettext('tab.time') }}</div>
+			<div class="cell">{{ gettext('tab.loc') }}</div>
+			<div class="cell">{{ gettext('tab.reg') }}</div>
+			<div class="cell">{{ gettext('tab.cn') }}</div>
 		</div>
 		{% for item in list %}
 		<div class="row">
@@ -46,15 +46,15 @@
 
 
 {% macro formatArrivals(list) -%}
-	<h2>Arrivals</h2>
+	<h2>{{ gettext('main.arrivals') }}</h2>
 
 	<div class="table">
 		<div class="row header green">
-			<div class="cell">Date</div>
-			<div class="cell">Time</div>
-			<div class="cell">Loc</div>
-			<div class="cell">Reg</div>
-			<div class="cell">CN</div>
+			<div class="cell">{{ gettext('tab.date') }}</div>
+			<div class="cell">{{ gettext('tab.time') }}</div>
+			<div class="cell">{{ gettext('tab.loc') }}</div>
+			<div class="cell">{{ gettext('tab.reg') }}</div>
+			<div class="cell">{{ gettext('tab.cn') }}</div>
 		</div>
 		{% for item in list %}
 		<div class="row">
@@ -69,18 +69,18 @@
 {%- endmacro %}
 
 {% macro formatFlights(list) -%}
-	<h2>Flights</h2>
+	<h2>{{ gettext('main.flights') }}</h2>
 
 	<div class="table">
 		<div class="row header blue">
-			<div class="cell">Date</div>
-			<div class="cell">Reg</div>
-			<div class="cell">CN</div>
-			<div class="cell">Take-off</div>
+			<div class="cell">{{ gettext('tab.date') }}</div>
+			<div class="cell">{{ gettext('tab.reg') }}</div>
+			<div class="cell">{{ gettext('tab.cn') }}</div>
+			<div class="cell">{{ gettext('tab.to') }}</div>
 			<div class="cell"></div>
-			<div class="cell">Landing</div>
+			<div class="cell">{{ gettext('tab.land') }}</div>
 			<div class="cell"></div>
-			<div class="cell">Flight time</div>
+			<div class="cell">{{ gettext('tab.ft') }}</div>
 		</div>
 		{% for item in list %}
 		<div class="row">

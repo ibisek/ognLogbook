@@ -13,9 +13,10 @@ from configuration import debugMode
 from dao.logbookDao import listDepartures, listArrivals,listFlights
 from dao.stats import getNumFlightsToday, getTotNumFlights, getLongestFlightTimeToday, getHighestTrafficToday
 from utils import getDaysLinks
-
+from translations import gettext
 
 app = flask.Flask(__name__)
+app.jinja_env.globals.update(gettext=gettext)
 
 
 @app.route('/')
