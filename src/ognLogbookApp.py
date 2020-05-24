@@ -72,6 +72,8 @@ if __name__ == '__main__':
             print('[ERROR] Timeout:', str(ex))
         except ConnectionError as ex:
             print('[ERROR] Connection:', str(ex))
+        except BrokenPipeError as ex:
+            print('[WARN] broken pipe:', str(ex))
         except Exception as ex:
             print('ANOTHER ERROR:', str(ex))
 
