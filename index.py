@@ -82,6 +82,16 @@ def _prepareData(icaoCode=None, registration=None, forDay=None, limit=None):
     return departures, arrivals, flights
 
 
+@app.route('/search/<text>', methods=['GET'])
+def search(text=None):
+    text = _saninitise(text)
+
+    if len(text) == 4 and text.upper()[0:2] in ['LK', 'LZ']:
+        return flask.redirect(f"/loc/{text.upper()}")
+    else:
+        return flask.redirect(f"/reg/{text}")
+
+
 @app.errorhandler(400)
 @app.errorhandler(404)
 @app.errorhandler(405)  # method not allowed
@@ -98,7 +108,7 @@ def handle_error(error):
 #     return flask.render_template('error40x.html', code=500), 500
 
 def _saninitise(s):
-    return s.replace('\\', '').replace(';', '').replace('\'', '').replace('--', '')
+    return s.replace('\\', '').replace(';', '').replace('\'', '').replace('--', '').replace('"', '')
 
 
 if __name__ == '__main__':

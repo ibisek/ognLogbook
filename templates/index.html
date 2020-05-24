@@ -13,6 +13,8 @@
 	<link rel="stylesheet" href="/static/css/index.css"	type="text/css">
 	<link href="/static/img/favicon.png" rel="shortcut icon">
 	<link href="/static/img/favicon.png" rel="icon" type="image/png" />
+	<link rel="stylesheet" href="/static/css/font-awesome.min.css">
+	<script type="text/javascript" src="/static/js/index.js"></script>
 {% if not debugMode %}
 	<link rel="stylesheet" href="http://count-for-me.appspot.com/logMe?location=ognLogbook"	type="text/css">
 {% endif %}
@@ -100,7 +102,7 @@
 	}
 </script>
 
-<body onload="afterLoad()">
+<body onload="onLoad()">
 
 	{% include 'header.html' %}
 

@@ -25,6 +25,15 @@
             #}
         </div>
 
+        <div class="searchWrap">
+            <div class="search">
+                <input type="text" class="searchTerm" id="searchTerm" placeholder="{{ gettext('search.hint') }}">
+                <button type="submit" class="searchButton" id="searchButton" onclick="return onSearchBtnClick();">
+                    <i class="fa fa-search" aria-hidden="true"></i>
+                </button>
+            </div>
+        </div>
+
         {% if totNumFlights and totNumFlights > 0 %} {# .. display only if the statistical data is available #}
         <div class="stats">
             <div class="tooltip">

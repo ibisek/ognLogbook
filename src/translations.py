@@ -27,8 +27,11 @@ i10n['stat.line3.hint'] = ['Longest time interval between take-off and landing',
 i10n['stat.line4.hint'] = ['Location with the most dense traffic of the day (with number of take-offs + landings)', 'Letiště s největším provozem dne (s počtem vzletů + přistání)']
 i10n['stat.none1'] = ['none', 'žádný']
 i10n['stat.none2'] = ['none', 'není']
-i10n[''] = ['', '']
 
+
+i10n['search.hint'] = ['ICAO code or registration', 'ICAO kód nebo registrace']
+
+i10n[''] = ['', '']
 
 def gettext(key='x'):
     lan = request.accept_languages.best

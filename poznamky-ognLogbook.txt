@@ -9,3 +9,5 @@ Info o stavu zpracovani:
 --
 
 https://python-rq.org/docs/
+
+https://codepen.io/huange/pen/rbqsD
