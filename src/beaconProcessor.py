@@ -52,9 +52,16 @@ class RawWorker(Thread):
 
         print(f"[INFO] Worker #{self.index} terminated.")
 
-    def _saveToRedis(self, statusKey: str, status: Status):
-        self.redis.set(statusKey, str(status))
-        self.redis.expire(statusKey, REDIS_RECORD_EXPIRATION)
+    def _saveToRedis(self, key: str, value):
+        self.redis.set(key, str(value))
+        self.redis.expire(key, REDIS_RECORD_EXPIRATION)
+
+    def _getFromRedis(self, key, default=None):
+        res = self.redis.get(key)
+        if not res:
+            return default
+        else:
+            return res.decode('utf-8')
 
     def _processMessage(self, raw_message: str):
         beacon = None
@@ -82,27 +89,37 @@ class RawWorker(Thread):
         address = beacon['address']
         groundSpeed = beacon['ground_speed']
         ts = round(beacon['timestamp'].timestamp())  # [s]
-        # print(f"[INFO] {address} gs: {groundSpeed:.0f}")
-
-        # print('[DEBUG] Gps H:', beacon['gps_quality']['horizontal'])
-
-        currentStatus: Status = Status(ts=ts)
-        currentStatus.s = 0 if groundSpeed < SPEED_THRESHOLD else 1    # 0 = on ground, 1 = airborne, -1 = unknown
-        # TODO add AGL check (?)
-        # TODO threshold by aircraftType
+        if address == '447D13':    # 447D13 | 39BA7B
+            print(f"[INFO] ts: {ts}, addr: {address}, gs: {groundSpeed:.0f}")
 
         prevStatus: Status = None
         statusKey = f"{address}-status"
-        ps = self.redis.get(statusKey)
+        ps = self._getFromRedis(statusKey)
         if ps:
             try:
                 prevStatus = Status.parse(ps)
             except ValueError as e:
                 print('[ERROR] when parsing prev. status: ', e)
 
+        currentStatus: Status = Status(ts=ts, s=0 if groundSpeed < SPEED_THRESHOLD else 1)    # 0 = on ground, 1 = airborne, -1 = unknown
+
         if not prevStatus:  # we have no prior information
             self._saveToRedis(statusKey, currentStatus)
             return
+
+        gsKey = f"{address}-gs"
+        prevGroundSpeed = float(self._getFromRedis(gsKey, 0))
+
+        # filter speed change a bit (sometimes there are glitches in speed with badly placed gps antenna):
+        groundSpeed = groundSpeed * 0.3 + prevGroundSpeed * 0.7
+        self._saveToRedis(gsKey, groundSpeed)
+
+        currentStatus.s = 0 if groundSpeed < SPEED_THRESHOLD else 1  # 0 = on ground, 1 = airborne, -1 = unknown
+        # TODO add AGL check (?)
+        # TODO threshold by aircraftType?
+
+        # if address in ['39BA7B', '447D13'] :  # 447D13 | 39BA7B
+        #         print(f"XXX {a:.0f} {b:.0f} {c:.0f}")
 
         if currentStatus.s != prevStatus.s:
             addressType = beacon['address_type']
@@ -116,6 +133,7 @@ class RawWorker(Thread):
 
             event = 'L' if currentStatus.s == 0 else 'T'  # L = landing, T = take-off
             flightTime = 0
+
             if event == 'L':
                 flightTime = currentStatus.ts - prevStatus.ts   # [s]
                 if flightTime < 120:
