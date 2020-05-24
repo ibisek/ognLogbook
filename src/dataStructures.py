@@ -19,13 +19,12 @@ class Status(object):
 
     @staticmethod
     def parse(s):
-        s = s.decode('utf-8')
         items = s.split(';')
 
         if len(items) != 2:
             raise ValueError(s)
 
-        s: Status = Status(s=items[0], ts=items[1])
+        s: Status = Status(s=items[0], ts=int(items[1]))
 
         return s
 
