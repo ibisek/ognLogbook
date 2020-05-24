@@ -1,7 +1,5 @@
 from datetime import datetime, time, timedelta
 
-from configuration import SPEED_THRESHOLD_GLIDER, SPEED_THRESHOLD_TOW
-
 
 def formatDuration(seconds):
     h = seconds // 3600
