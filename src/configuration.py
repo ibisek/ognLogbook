@@ -1,14 +1,11 @@
 
 import os
 
-APRS_FILTER = 'r/+49.3678/+16.1145/250'
+APRS_FILTER = 'r/+49.3678/+16.1145/300'
 # APRS_FILTER = None
-
-SPEED_THRESHOLD = 50    # [km/h]
 
 redisConfig = {"host": "127.0.0.1", "password": "", "port": 6379}
 REDIS_RECORD_EXPIRATION = 12*60*60     # [s]
-
 
 DB_HOST = '127.0.0.1'
 DB_PORT = 3306

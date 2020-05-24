@@ -13,10 +13,11 @@ from queue import Queue, Empty
 from ogn.parser import parse
 from ogn.parser.exceptions import ParseError
 
-from configuration import SPEED_THRESHOLD, redisConfig, dbConnectionInfo, REDIS_RECORD_EXPIRATION
+from configuration import redisConfig, dbConnectionInfo, REDIS_RECORD_EXPIRATION
 from db.DbThread import DbThread
 from airfieldManager import AirfieldManager
 from dataStructures import Status
+from utils import getGroundSpeedThreshold
 
 
 class RawWorker(Thread):
@@ -89,8 +90,6 @@ class RawWorker(Thread):
         address = beacon['address']
         groundSpeed = beacon['ground_speed']
         ts = round(beacon['timestamp'].timestamp())  # [s]
-        if address == '447D13':    # 447D13 | 39BA7B
-            print(f"[INFO] ts: {ts}, addr: {address}, gs: {groundSpeed:.0f}")
 
         prevStatus: Status = None
         statusKey = f"{address}-status"
@@ -101,7 +100,7 @@ class RawWorker(Thread):
             except ValueError as e:
                 print('[ERROR] when parsing prev. status: ', e)
 
-        currentStatus: Status = Status(ts=ts, s=0 if groundSpeed < SPEED_THRESHOLD else 1)    # 0 = on ground, 1 = airborne, -1 = unknown
+        currentStatus: Status = Status(ts=ts, s=0 if groundSpeed < getGroundSpeedThreshold(aircraftType) else 1)    # 0 = on ground, 1 = airborne, -1 = unknown
 
         if not prevStatus:  # we have no prior information
             self._saveToRedis(statusKey, currentStatus)
@@ -114,9 +113,8 @@ class RawWorker(Thread):
         groundSpeed = groundSpeed * 0.2 + prevGroundSpeed * 0.8
         self._saveToRedis(gsKey, groundSpeed, 120)
 
-        currentStatus.s = 0 if groundSpeed < SPEED_THRESHOLD else 1  # 0 = on ground, 1 = airborne, -1 = unknown
+        currentStatus.s = 0 if groundSpeed < getGroundSpeedThreshold(aircraftType) else 1  # 0 = on ground, 1 = airborne, -1 = unknown
         # TODO add AGL check (?)
-        # TODO threshold by aircraftType?
 
         # if address in ['39BA7B', '447D13'] :  # 447D13 | 39BA7B
         #         print(f"XXX {a:.0f} {b:.0f} {c:.0f}")

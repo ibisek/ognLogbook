@@ -1,5 +1,7 @@
 from datetime import datetime, time, timedelta
 
+from configuration import SPEED_THRESHOLD_GLIDER, SPEED_THRESHOLD_TOW
+
 
 def formatDuration(seconds):
     h = seconds // 3600
@@ -54,3 +56,27 @@ def getDaysLinks(baselink: str, date: datetime):
     linkPrevDay = "{}/{}".format(baselink, (date - timedelta(1)).strftime('%Y-%m-%d'))
 
     return linkPrevDay, linkNextDay
+
+
+def getGroundSpeedThreshold(aircraftType: int):
+    # define AIRCRAFT_TYPE_UNKNOWN 0
+    # define AIRCRAFT_TYPE_GLIDER 1
+    # define AIRCRAFT_TYPE_TOW_PLANE 2
+    # define AIRCRAFT_TYPE_HELICOPTER_ROTORCRAFT 3
+    # define AIRCRAFT_TYPE_PARACHUTE 4
+    # define AIRCRAFT_TYPE_DROP_PLANE 5
+    # define AIRCRAFT_TYPE_HANG_GLIDER 6
+    # define AIRCRAFT_TYPE_PARA_GLIDER 7
+    # define AIRCRAFT_TYPE_POWERED_AIRCRAFT 8
+    # define AIRCRAFT_TYPE_JET_AIRCRAFT 9
+    # define AIRCRAFT_TYPE_UFO 10
+    # define AIRCRAFT_TYPE_BALLOON 11
+    # define AIRCRAFT_TYPE_AIRSHIP 12
+    # define AIRCRAFT_TYPE_UAV 13
+    # define AIRCRAFT_TYPE_STATIC_OBJECT 15
+    # define AIRCRAFT_TYPE_WRONG 16 // a placeholder to identify mangled packets
+
+    if aircraftType in [1, 3, 4, 6, 7, 11, 12, 13, 15]:
+        return 20   # [km/h] glider
+    else:
+        return 40   # [km/h] tow
