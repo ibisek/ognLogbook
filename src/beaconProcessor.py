@@ -47,6 +47,8 @@ class RawWorker(Thread):
                     self._processMessage(raw_message)
             except Empty:
                 time.sleep(1)   # ~ thread.yield()
+            except BrokenPipeError as ex:
+                print('[WARN] in worker:', str(ex))
 
         print(f"[INFO] Worker #{self.index} terminated.")
 
@@ -198,7 +200,7 @@ class BeaconProcessor(object):
             numTasksPerMin = self.numEnquedTasks/tDiff*60
             numQueuedTasks = self.rawQueueOGN.qsize() + self.rawQueueFLR.qsize() + self.rawQueueICA.qsize()
 
-            print(f"Beacon rate: {numTasksPerMin:.0f}/min. {numQueuedTasks} queued.")
+            print(f"[INFO] Beacon rate: {numTasksPerMin:.0f}/min. {numQueuedTasks} queued.")
 
             self.numEnquedTasks = 0
             self.startTime = now
