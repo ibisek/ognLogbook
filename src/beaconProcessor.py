@@ -52,9 +52,9 @@ class RawWorker(Thread):
 
         print(f"[INFO] Worker #{self.index} terminated.")
 
-    def _saveToRedis(self, key: str, value):
+    def _saveToRedis(self, key: str, value, expire=REDIS_RECORD_EXPIRATION):
         self.redis.set(key, str(value))
-        self.redis.expire(key, REDIS_RECORD_EXPIRATION)
+        self.redis.expire(key, expire)
 
     def _getFromRedis(self, key, default=None):
         res = self.redis.get(key)
@@ -111,8 +111,8 @@ class RawWorker(Thread):
         prevGroundSpeed = float(self._getFromRedis(gsKey, 0))
 
         # filter speed change a bit (sometimes there are glitches in speed with badly placed gps antenna):
-        groundSpeed = groundSpeed * 0.3 + prevGroundSpeed * 0.7
-        self._saveToRedis(gsKey, groundSpeed)
+        groundSpeed = groundSpeed * 0.2 + prevGroundSpeed * 0.8
+        self._saveToRedis(gsKey, groundSpeed, 120)
 
         currentStatus.s = 0 if groundSpeed < SPEED_THRESHOLD else 1  # 0 = on ground, 1 = airborne, -1 = unknown
         # TODO add AGL check (?)
