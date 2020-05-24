@@ -1,4 +1,6 @@
 
+from datetime import datetime
+
 from configuration import dbConnectionInfo
 from db.DbSource import DbSource
 from utils import formatDuration, getDayTimestamps
@@ -23,7 +25,7 @@ def getTotNumFlights():
 
 def getNumFlightsToday():
     num = 0
-    startTs, endTs = getDayTimestamps()
+    startTs, endTs = getDayTimestamps(datetime.now())
 
     try:
         with DbSource(dbConnectionInfo=dbConnectionInfo).getConnection() as c:
@@ -41,7 +43,7 @@ def getNumFlightsToday():
 
 def getLongestFlightTimeToday():
     retVal = None
-    startTs, endTs = getDayTimestamps()
+    startTs, endTs = getDayTimestamps(datetime.now())
 
     try:
         with DbSource(dbConnectionInfo=dbConnectionInfo).getConnection() as c:
@@ -62,7 +64,7 @@ def getLongestFlightTimeToday():
 
 def getHighestTrafficToday():
     retVal = None, 0
-    startTs, endTs = getDayTimestamps()
+    startTs, endTs = getDayTimestamps(datetime.now())
 
     try:
         with DbSource(dbConnectionInfo=dbConnectionInfo).getConnection() as c:
