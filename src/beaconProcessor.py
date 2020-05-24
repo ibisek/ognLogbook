@@ -116,8 +116,7 @@ class RawWorker(Thread):
             flightTime = 0
             if event == 'L':
                 flightTime = currentStatus.ts - prevStatus.ts   # [s]
-                if flightTime < 60:
-                    self.redis.delete(statusKey)
+                if flightTime < 120:
                     return
 
             if event == 'T':
