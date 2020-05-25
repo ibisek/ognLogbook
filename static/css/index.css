@@ -5,6 +5,8 @@ body {
     line-height: 20px;
     font-weight: 400;
     color: #3b3b3b;
+    display: table;
+    margin: 0 auto;
 }
 
 /* ------------------------------ tables --------------------------- */
@@ -97,11 +99,12 @@ a:hover {
     z-index: 1000;
     top: 0;
     position: fixed;
+    max-width: 1350px;
 }
 
 .topbar {
     padding: 20px;
-    align: center
+    text-align:center;
 }
 
 .logo {
@@ -111,7 +114,7 @@ a:hover {
 
 .menu {
     float: left;
-    margin-top: 9px;
+    margin-top: 13px;
     vertical-align: middle;
     font-size: 22px;
     color: #999;
@@ -137,10 +140,10 @@ a:hover {
 .stats {
     position: absolute;
     top: 0px;
-    right: 10px;
+    right: 0px;
     width: 186px;
     padding: 0px;
-    margin: 0px 35px;
+    margin: 0px 15px;
     text-align: center;
     vertical-align: middle;
     text-align: right;
@@ -220,6 +223,7 @@ a:hover {
 
 .sitebody {
     margin-top: 80px;
+    max-width: 1450px;
 }
 
 /* ------------------------------ footer --------------------------- */
