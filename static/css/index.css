@@ -95,26 +95,27 @@ a:hover {
     height: 80px;
     width: 100%;
     background-color: #fff;
-    border-bottom: 1px solid #ebeaeb;
     z-index: 1000;
     top: 0;
+    left: 0;
     position: fixed;
-    max-width: 1350px;
+    border-bottom: 1px solid #ebeaeb;
 }
 
 .topbar {
-    padding: 20px;
     text-align:center;
+    max-width: 1350px;
 }
 
 .logo {
     float: left;
-    padding-left: 10px;
-}
+    margin-left: 10px;
+    margin-top: 21px;
 
+}
 .menu {
     float: left;
-    margin-top: 13px;
+    margin-top: 33px;
     vertical-align: middle;
     font-size: 22px;
     color: #999;
@@ -138,15 +139,14 @@ a:hover {
 }
 
 .stats {
-    position: absolute;
     top: 0px;
     right: 0px;
     width: 186px;
     padding: 0px;
-    margin: 0px 15px;
     text-align: center;
     vertical-align: middle;
     text-align: right;
+    float: right;
 }
 
 .tooltip {
@@ -181,7 +181,7 @@ a:hover {
 
 .searchWrap {
     float: left;
-    margin-top: 6px;
+    margin-top: 26px;
     vertical-align: middle;
     font-family: 'Open Sans', sans-serif;
 }

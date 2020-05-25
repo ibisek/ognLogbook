@@ -1,60 +1,64 @@
 
 <div class="siteheader">
-    <div class="topbar">
-        <a class="logo" href="/">
-            <img src="/static/img/logo.png">
-        </a>
+    <center>
+        <div class="topbar">
+            <a class="logo" href="/">
+                <img src="/static/img/logo.png">
+            </a>
 
-        <div class="menu">
-            <span class="menuitem">
-                <span>{% if linkPrevDay %} <a href="{{linkPrevDay}}" style="font-size:12px;"><</a> {% endif %}</span>
-                {{date.strftime('%d.%m.%Y')}}
-                <span>{% if linkNextDay %} <a href="{{linkNextDay}}" style="font-size:12px;">></a> {% endif %}</span>
-            </span>
-            {% if icaoCode %}
-            <span class="menuitem">{{icaoCode}}</span>
-            {% endif %}
-            {% if registration %}
-            <span class="menuitem">{{registration}}</span>
-            {% endif %}
-            <span class="menuitem"></span>
+            <div class="menu">
+                <span class="menuitem">
+                    <span>{% if linkPrevDay %} <a href="{{linkPrevDay}}" style="font-size:12px;"><</a> {% endif %}</span>
+                    {{date.strftime('%d.%m.%Y')}}
+                    <span>{% if linkNextDay %} <a href="{{linkNextDay}}" style="font-size:12px;">></a> {% endif %}</span>
+                </span>
+                {% if icaoCode %}
+                <span class="menuitem">{{icaoCode}}</span>
+                {% endif %}
+                {% if registration %}
+                <span class="menuitem">{{registration}}</span>
+                {% endif %}
+                <span class="menuitem"></span>
+            </div>
+
+            <div class="searchWrap">
+                <div class="search">
+                    <input type="text" class="searchTerm" id="searchTerm" placeholder="{{ gettext('search.hint') }}">
+                    <button type="submit" class="searchButton" id="searchButton" onclick="return onSearchBtnClick();">
+                        <i class="fa fa-search" aria-hidden="true"></i>
+                    </button>
+                </div>
+            </div>
+
             {#
-            <span class="menuitem">|</span>
-            <span class="menuitem"><a href="https://ogn.ibisek.com" target="_blank">OGN Cube</a></span>
-            <span class="menuitem"><a href="https://play.google.com/store/apps/details?id=com.ibisek.vfrmanualcz" target="_blank">VFR Manuál</a></span>
+            <div class="menu">
+                <span class="menuitem"><a href="https://ogn.ibisek.com" target="_blank">OGN Cube</a></span>
+                <span class="menuitem"><a href="https://play.google.com/store/apps/details?id=com.ibisek.vfrmanualcz" target="_blank">VFR Manual</a></span>
+            </div>
             #}
-        </div>
 
-        <div class="searchWrap">
-            <div class="search">
-                <input type="text" class="searchTerm" id="searchTerm" placeholder="{{ gettext('search.hint') }}">
-                <button type="submit" class="searchButton" id="searchButton" onclick="return onSearchBtnClick();">
-                    <i class="fa fa-search" aria-hidden="true"></i>
-                </button>
+            {% if totNumFlights and totNumFlights > 0 %} {# .. display only if the statistical data is available #}
+            <div class="stats">
+                <div class="tooltip">
+                    {{ gettext('stat.line1') }}: <b>{{totNumFlights}}</b>
+                    <span class="tooltiptext">{{ gettext('stat.line1.hint') }}</span>
+                </div>
+                <div class="tooltip">
+                    {{ gettext('stat.line2') }}: <b>{{numFlightsToday}}</b>
+                    <span class="tooltiptext">{{ gettext('stat.line2.hint') }}</span>
+                </div>
+                <div class="tooltip">
+                    {{ gettext('stat.line3') }}: <b>{% if longestFlightTime %}{{longestFlightTime}}{% else %}{{ gettext('stat.none1') }}{% endif %}</b>
+                    <span class="tooltiptext">{{ gettext('stat.line3.hint') }}</span>
+                </div>
+                <div class="tooltip">
+                    {{ gettext('stat.line4') }}: <b>{% if highestTrafficLocation %}<a href="/loc/{{highestTrafficLocation}}">{{highestTrafficLocation}}</a> ({{highestTrafficCount}}){% else %}{{ gettext('stat.none2') }}{% endif %}</b>
+                    <span class="tooltiptext">{{ gettext('stat.line4.hint') }}</span>
+                </div>
             </div>
-        </div>
+            {% endif %}
 
-        {% if totNumFlights and totNumFlights > 0 %} {# .. display only if the statistical data is available #}
-        <div class="stats">
-            <div class="tooltip">
-                {{ gettext('stat.line1') }}: <b>{{totNumFlights}}</b>
-                <span class="tooltiptext">{{ gettext('stat.line1.hint') }}</span>
-            </div>
-            <div class="tooltip">
-                {{ gettext('stat.line2') }}: <b>{{numFlightsToday}}</b>
-                <span class="tooltiptext">{{ gettext('stat.line2.hint') }}</span>
-            </div>
-            <div class="tooltip">
-                {{ gettext('stat.line3') }}: <b>{% if longestFlightTime %}{{longestFlightTime}}{% else %}{{ gettext('stat.none1') }}{% endif %}</b>
-                <span class="tooltiptext">{{ gettext('stat.line3.hint') }}</span>
-            </div>
-            <div class="tooltip">
-                {{ gettext('stat.line4') }}: <b>{% if highestTrafficLocation %}<a href="/loc/{{highestTrafficLocation}}">{{highestTrafficLocation}}</a> ({{highestTrafficCount}}){% else %}{{ gettext('stat.none2') }}{% endif %}</b>
-                <span class="tooltiptext">{{ gettext('stat.line4.hint') }}</span>
-            </div>
         </div>
-        {% endif %}
-
-    </div>
+    </center>
 </div>
 
