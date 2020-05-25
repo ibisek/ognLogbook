@@ -21,7 +21,7 @@ app.jinja_env.globals.update(gettext=gettext)
 
 @app.route('/')
 def index():
-    departures, arrivals, flights = _prepareData(limit=20)
+    departures, arrivals, flights = _prepareData(limit=25)
 
     totNumFlights = getTotNumFlights()
     numFlightsToday = getNumFlightsToday()
