@@ -29,8 +29,9 @@ i10n['stat.line4.hint'] = ['Location with the most dense traffic of the day (wit
 i10n['stat.none1'] = ['none', 'žádný']
 i10n['stat.none2'] = ['none', 'není']
 
-
 i10n['search.hint'] = ['ICAO code or registration', 'ICAO kód nebo registrace']
+
+i10n['werbung.vfrmanual'] = ['VFR Manual', 'VFR Manuál']
 
 i10n[''] = ['', '']
 
