@@ -34,7 +34,7 @@ def getDayTimestamps(forDay: datetime = None):
     startTs = datetime.combine(forDay, time.min).timestamp()
     endTs = datetime.combine(forDay, time.max).timestamp()
 
-    return startTs, endTs
+    return int(startTs), int(endTs)
 
 
 def getDaysLinks(baselink: str, date: datetime):

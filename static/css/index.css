@@ -238,3 +238,12 @@ a:hover {
     color: #999;
 }
 
+.footer a {
+    text-decoration: none;
+    color: #999;
+}
+
+.footer a:hover {
+    text-decoration: underline;
+}
+
