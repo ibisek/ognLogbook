@@ -1,7 +1,7 @@
 
 import os
 
-APRS_FILTER = 'r/+49.3678/+16.1145/300'
+APRS_FILTER = 'r/+49.3678/+16.1145/1000'
 # APRS_FILTER = None
 
 redisConfig = {"host": "127.0.0.1", "password": "", "port": 6379}
@@ -20,6 +20,19 @@ if DB_PASSWORD != '**':
     os.environ.setdefault('DB_NAME', DB_NAME)
     os.environ.setdefault('DB_USER', DB_USER)
     os.environ.setdefault('DB_PASSWORD', DB_PASSWORD)
+
+
+MQ_HOST = 'mq.ibisek.com'
+MQ_PORT = 1883
+MQ_USER = '**'
+MQ_PASSWORD = '**'
+
+if MQ_PASSWORD != '**':
+    os.environ.setdefault('MQ_HOST', MQ_HOST)
+    os.environ.setdefault('MQ_PORT', str(MQ_PORT))
+    os.environ.setdefault('MQ_USER', MQ_USER)
+    os.environ.setdefault('MQ_PASSWORD', MQ_PASSWORD)
+
 
 try:
     global debugMode

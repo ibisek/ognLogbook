@@ -3,6 +3,7 @@ Notes:
     * multiple workers cannot work on a single queue as flight-states need to be processed in order.
     * hence multiple queues exist to paralelise processing a bit using queue-specific workers
 """
+import os
 import time
 from datetime import datetime
 from threading import Thread
@@ -13,7 +14,7 @@ from queue import Queue, Empty
 from ogn.parser import parse
 from ogn.parser.exceptions import ParseError
 
-from configuration import redisConfig, dbConnectionInfo, REDIS_RECORD_EXPIRATION
+from configuration import redisConfig, dbConnectionInfo, REDIS_RECORD_EXPIRATION, MQ_HOST, MQ_PORT, MQ_USER, MQ_PASSWORD
 from db.DbThread import DbThread
 from airfieldManager import AirfieldManager
 from dataStructures import Status
@@ -220,6 +221,10 @@ class BeaconProcessor(object):
 
             self.numEnquedTasks = 0
             self.startTime = now
+
+            if numQueuedTasks >= 400:
+                os.system(f"mosquitto_pub -h {MQ_HOST} -p {MQ_PORT} -u {MQ_USER} -P {MQ_PASSWORD} -t ognLogbook/rate -m '{round(numTasksPerMin)}'; "
+                       f"mosquitto_pub -h {MQ_HOST} -p {MQ_PORT} -u {MQ_USER} -P {MQ_PASSWORD} -t ognLogbook/queued -m '{round(numQueuedTasks)}'")
 
     def enqueueForProcessing(self, raw_message: str):
         self._printStats()
