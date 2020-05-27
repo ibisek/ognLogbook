@@ -46,11 +46,11 @@ CREATE TABLE logbook_entries (
   takeoff_ts BIGINT,
   takeoff_lat DECIMAL(8,5),
   takeoff_lon DECIMAL(8,5),
-  takeoff_icao VARCHAR(4),
+  takeoff_icao VARCHAR(8),
   landing_ts BIGINT,
   landing_lat DECIMAL(8,5),
   landing_lon DECIMAL(8,5),
-  landing_icao VARCHAR(4),
+  landing_icao VARCHAR(8),
   flight_time BIGINT DEFAULT 0
 );
 
@@ -116,5 +116,4 @@ SELECT * FROM logbook_events where address='DD8220';
 --
 
 select count(*) from ddb;
-
 
