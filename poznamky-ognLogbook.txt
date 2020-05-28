@@ -1,6 +1,7 @@
 
 ## REQUIRED PACKAGES for INSTALLATION ##
 
+python3.8-dev
 apt install mosquitto-clients
 apt install gdal-bin
 
