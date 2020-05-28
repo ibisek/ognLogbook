@@ -23,6 +23,7 @@ CREATE INDEX logbook_events_location_icao ON logbook_events(location_icao);
 
 
 -- (!) MYSQL ONLY (!)
+--DROP TRIGGER IF EXISTS logbook_events_after_insert;
 DELIMITER //
 CREATE TRIGGER IF NOT EXISTS logbook_events_after_insert 
 AFTER INSERT ON logbook_events FOR EACH ROW
@@ -34,7 +35,7 @@ FROM logbook_events as e
 WHERE e.address = new.address and e.event='T' and e.ts < new.ts 
 ORDER BY e.ts DESC LIMIT 1;
 INSERT INTO logbook_entries (address, takeoff_ts, takeoff_lat, takeoff_lon, takeoff_icao, landing_ts, landing_lat, landing_lon, landing_icao, flight_time) 
-VALUES (new.address, @t_ts, @t_lat, @t_lon, @t_loc, new.ts, new.lat, new.lon, new.location_icao, new.flight_time);
+VALUES (new.address, @t_ts, @t_lat, @t_lon, @t_loc, new.ts, new.lat, new.lon, new.location_icao, new.ts-@t_ts);
 END IF;
 END;//
 DELIMITER ;
@@ -117,3 +118,4 @@ SELECT * FROM logbook_events where address='DD8220';
 
 select count(*) from ddb;
 
+	
