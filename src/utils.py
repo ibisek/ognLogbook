@@ -75,6 +75,6 @@ def getGroundSpeedThreshold(aircraftType: int):
     # define AIRCRAFT_TYPE_WRONG 16 // a placeholder to identify mangled packets
 
     if aircraftType in [1, 3, 4, 6, 7, 11, 12, 13, 15]:
-        return 20   # [km/h] glider
+        return 30   # [km/h] glider
     else:
-        return 40   # [km/h] tow
+        return 50   # [km/h] tow
