@@ -1,10 +1,29 @@
 
+## REQUIRED PACKAGES for INSTALLATION ##
+
+apt install mosquitto-clients
+apt install gdal-bin
+
+--
+
 Spusteni workera:
     aktivnim venvem a ve stejnem adresari, kde jsou zdrojaky /src/
         rq worker beacons -q
 
 Info o stavu zpracovani:
     rqinfo
+
+--
+
+EU terrain elevation data:
+
+    https://land.copernicus.eu/imagery-in-situ/eu-dem/eu-dem-v1.1?tab=mapview
+
+apt install gdal-bin
+    nainstaluje i python3-gdal
+
+gdallocationinfo -wgs84 eu_dem_v11_E40N20.TIF 16.1144561 49.3678764 |grep Value| cut -d":" -f 2
+gdallocationinfo -wgs84 -valonly eu_dem_v11_E40N20.TIF 16.1144561 49.3678764
 
 --
 
