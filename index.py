@@ -10,9 +10,9 @@ import getopt
 from datetime import datetime
 
 from configuration import debugMode
-from dao.logbookDao import listDepartures, listArrivals,listFlights
+from dao.logbookDao import listDepartures, listArrivals, listFlights, getSums
 from dao.stats import getNumFlightsToday, getTotNumFlights, getLongestFlightTimeToday, getHighestTrafficToday
-from utils import getDaysLinks
+from utils import getDaysLinks, formatDuration
 from translations import gettext
 
 app = flask.Flask(__name__)
@@ -38,6 +38,12 @@ def index():
 @app.route('/loc/<icaoCode>', methods=['GET'])
 @app.route('/loc/<icaoCode>/<date>', methods=['GET'])
 def filterByIcaoCode(icaoCode, date=None):
+    if icaoCode:
+        icaoCode = _saninitise(icaoCode)
+
+    if not icaoCode:
+        return flask.redirect('/')
+
     if date:
         date = _saninitise(date)
         try:
@@ -46,9 +52,6 @@ def filterByIcaoCode(icaoCode, date=None):
             date = datetime.now()
     else:
         date = datetime.now()
-
-    if icaoCode:
-        icaoCode = _saninitise(icaoCode)
 
     departures, arrivals, flights = _prepareData(icaoCode=icaoCode, forDay=date)
 
@@ -60,10 +63,31 @@ def filterByIcaoCode(icaoCode, date=None):
 
 
 @app.route('/reg/<registration>', methods=['GET'])
-def filterByRegistration(registration):
-    departures, arrivals, flights = _prepareData(registration=registration)
+@app.route('/reg/<registration>/<date>', methods=['GET'])
+def filterByRegistration(registration, date=None):
+    registration = _saninitise(registration)
+
+    if not registration:
+        return flask.redirect('/')
+
+    if date:
+        date = _saninitise(date)
+        try:
+            date = datetime.strptime(date, '%Y-%m-%d')
+        except ValueError:
+            date = datetime.now()
+    else:
+        date = datetime.now()
+
+    linkPrevDay, linkNextDay = getDaysLinks(f"/reg/{registration}", date)
+    numFlights, totalFlightTime = getSums(registration=registration, forDay=date)
+    departures, arrivals, flights = _prepareData(registration=registration, forDay=date)
+
+    totalFlightTime = formatDuration(totalFlightTime)
 
     return flask.render_template('index.html', debugMode=debugMode, date=datetime.now(), registration=registration,
+                                 linkPrevDay=linkPrevDay, linkNextDay=linkNextDay,
+                                 numFlights=numFlights, totalFlightTime=totalFlightTime,
                                  departures=departures, arrivals=arrivals, flights=flights)
 
 
@@ -108,11 +132,10 @@ def handle_error(error):
 #     return flask.render_template('error40x.html', code=500), 500
 
 def _saninitise(s):
-    return s.replace('\\', '').replace(';', '').replace('\'', '').replace('--', '').replace('"', '')
+    return s.replace('\\', '').replace(';', '').replace('\'', '').replace('--', '').replace('"', '').strip()
 
 
 if __name__ == '__main__':
-
     try:
         opts, args = getopt.getopt(sys.argv[1:], "d")
         for optPair in opts:

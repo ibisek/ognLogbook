@@ -95,6 +95,21 @@
 			<div class="cell">{{item.flight_time}}</div>
 		</div>
 		{% endfor %}
+
+		{% if numFlights and totalFlightTime %}
+			<div class="row">
+				<div class="cell sum"></div>
+				<div class="cell sum"></div>
+				<div class="cell sum"></div>
+				<div class="cell sum"></div>
+				<div class="cell sum"></div>
+				<div class="cell sum">{{ gettext('sum.flights') }}:</div>
+				<div class="cell sum">{{numFlights}}</div>
+				<div class="cell sum">{{ gettext('sum.hours') }}:</div>
+				<div class="cell sum">{{totalFlightTime}}</div>
+			</div>
+		{% endif %}
+
 	</div>
 {%- endmacro %}
 

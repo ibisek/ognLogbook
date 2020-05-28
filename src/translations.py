@@ -31,6 +31,9 @@ i10n['stat.none2'] = ['none', 'není']
 
 i10n['search.hint'] = ['ICAO code or registration', 'ICAO kód nebo registrace']
 
+i10n['sum.flights'] = ['Flights', 'Letů']
+i10n['sum.hours'] = ['Hours', 'Hodin']
+
 i10n['werbung.vfrmanual'] = ['VFR Manual', 'VFR Manuál']
 
 i10n[''] = ['', '']

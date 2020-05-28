@@ -167,3 +167,33 @@ def listFlights(address=None, icaoCode=None, registration=None, forDay=None, lim
             records.append(item)
 
     return records
+
+
+def getSums(registration, forDay=None, limit=None):
+    cond = f" AND d.aircraft_registration='{registration}'"
+
+    condTs = ''
+    startTs, endTs = getDayTimestamps(forDay)
+    if startTs and endTs:
+        condTs = f" AND l.takeoff_ts >= {startTs} AND l.landing_ts <= {endTs}"
+
+    numFlights = 0
+    totalFlightTime = 0
+
+    with DbSource(dbConnectionInfo).getConnection() as c:
+
+        strSql = f"""SELECT COUNT(l.address) AS num, SUM(l.flight_time) AS time
+                        FROM logbook_entries as l 
+                        LEFT JOIN ddb AS d ON l.address = d.device_id
+                        WHERE tracked = true AND identified = true {cond} {condTs}
+                        ORDER by landing_ts desc;"""
+
+        c.execute(strSql)
+
+        row = c.fetchall()
+
+        if row:
+            numFlights = row[0][0]
+            totalFlightTime = row[0][1]    # [s]
+
+    return numFlights, totalFlightTime
