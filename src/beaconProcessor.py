@@ -19,6 +19,7 @@ from db.DbThread import DbThread
 from airfieldManager import AirfieldManager
 from dataStructures import Status
 from utils import getGroundSpeedThreshold
+from dao.geo import getElevation
 
 
 class RawWorker(Thread):
@@ -114,8 +115,12 @@ class RawWorker(Thread):
         groundSpeed = groundSpeed * 0.2 + prevGroundSpeed * 0.8
         self._saveToRedis(gsKey, groundSpeed, 120)
 
-        currentStatus.s = 0 if groundSpeed < getGroundSpeedThreshold(aircraftType) else 1  # 0 = on ground, 1 = airborne, -1 = unknown
-        # TODO add AGL check (?)
+        # if gs under threshold, check also altitude above ground level:
+        if groundSpeed < getGroundSpeedThreshold(aircraftType):
+            agl = getElevation(beacon['latitude'], beacon['longitude'])
+            currentStatus.s = 0 if agl < 200 else 1     # 0 = on ground, 1 = airborne, -1 = unknown
+        else:
+            currentStatus.s = 1     # 0 = on ground, 1 = airborne, -1 = unknown
 
         # if address in ['39BA7B', '447D13'] :  # 447D13 | 39BA7B
         #         print(f"XXX {a:.0f} {b:.0f} {c:.0f}")
