@@ -225,7 +225,7 @@ class BeaconProcessor(object):
             self.numEnquedTasks = 0
             self.startTime = now
 
-            if numQueuedTasks >= 400:
+            if numTasksPerMin >= 400:
                 os.system(f"mosquitto_pub -h {MQ_HOST} -p {MQ_PORT} -u {MQ_USER} -P {MQ_PASSWORD} -t ognLogbook/rate -m '{round(numTasksPerMin)}'; "
                        f"mosquitto_pub -h {MQ_HOST} -p {MQ_PORT} -u {MQ_USER} -P {MQ_PASSWORD} -t ognLogbook/queued -m '{round(numQueuedTasks)}'")
 
