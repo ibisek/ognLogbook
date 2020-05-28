@@ -2,6 +2,9 @@ from datetime import datetime, time, timedelta
 
 
 def formatDuration(seconds):
+    if not seconds:
+        return 0
+
     h = seconds // 3600
     s = seconds % 3600
     m = s // 60

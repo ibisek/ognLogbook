@@ -85,7 +85,7 @@ def filterByRegistration(registration, date=None):
 
     totalFlightTime = formatDuration(totalFlightTime)
 
-    return flask.render_template('index.html', debugMode=debugMode, date=datetime.now(), registration=registration,
+    return flask.render_template('index.html', debugMode=debugMode, date=date, registration=registration,
                                  linkPrevDay=linkPrevDay, linkNextDay=linkNextDay,
                                  numFlights=numFlights, totalFlightTime=totalFlightTime,
                                  departures=departures, arrivals=arrivals, flights=flights)
