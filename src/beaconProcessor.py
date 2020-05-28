@@ -14,7 +14,8 @@ from queue import Queue, Empty
 from ogn.parser import parse
 from ogn.parser.exceptions import ParseError
 
-from configuration import redisConfig, dbConnectionInfo, REDIS_RECORD_EXPIRATION, MQ_HOST, MQ_PORT, MQ_USER, MQ_PASSWORD
+from configuration import debugMode, redisConfig, \
+    dbConnectionInfo, REDIS_RECORD_EXPIRATION, MQ_HOST, MQ_PORT, MQ_USER, MQ_PASSWORD
 from db.DbThread import DbThread
 from airfieldManager import AirfieldManager
 from dataStructures import Status
@@ -225,7 +226,7 @@ class BeaconProcessor(object):
             self.numEnquedTasks = 0
             self.startTime = now
 
-            if numTasksPerMin >= 400:
+            if not debugMode and numTasksPerMin >= 400:
                 os.system(f"mosquitto_pub -h {MQ_HOST} -p {MQ_PORT} -u {MQ_USER} -P {MQ_PASSWORD} -t ognLogbook/rate -m '{round(numTasksPerMin)}'; "
                        f"mosquitto_pub -h {MQ_HOST} -p {MQ_PORT} -u {MQ_USER} -P {MQ_PASSWORD} -t ognLogbook/queued -m '{round(numQueuedTasks)}'")
 
