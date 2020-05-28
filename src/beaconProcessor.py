@@ -131,14 +131,15 @@ class RawWorker(Thread):
 
             if event == 'L':
                 flightTime = currentStatus.ts - prevStatus.ts   # [s]
-                if flightTime < 120:
+                if flightTime < 120:    # [s]
                     return
 
                 # check altitude above ground level:
                 elev = getElevation(beacon['latitude'], beacon['longitude'])
-                agl = beacon['altitude'] - elev
-                if agl > 150:   # [m]
-                    return
+                if elev:
+                    agl = beacon['altitude'] - elev
+                    if agl > 150:   # [m]
+                        return
 
             if event == 'T':
                 self._saveToRedis(statusKey, currentStatus)
