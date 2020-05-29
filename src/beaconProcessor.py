@@ -135,6 +135,11 @@ class RawWorker(Thread):
                 if flightTime < 120:    # [s]
                     return
 
+                if flightTime > 12 * 3600:  # some relic from the previous day
+                    self.redis.delete(statusKey)
+                    self.redis.delete(gsKey)
+                    return
+
                 # check altitude above ground level:
                 elev = getElevation(beacon['latitude'], beacon['longitude'])
                 if elev:
