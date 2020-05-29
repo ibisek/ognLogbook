@@ -110,7 +110,8 @@ def _prepareData(icaoCode=None, registration=None, forDay=None, limit=None):
 def search(text=None):
     text = _saninitise(text)
 
-    if len(text) == 4 and text.upper()[0:2] in ['LK', 'LZ', 'LO', 'EP', 'ED']:
+    if len(text) == 4 and text.upper()[0:2] in ['EB', 'ED', 'EF', 'EH', 'EK', 'EP', 'ES',
+                                                'LB', 'LH', 'LI', 'LJ', 'LK', 'LO', 'LS', 'LZ']:
         return flask.redirect(f"/loc/{text.upper()}")
     else:
         return flask.redirect(f"/reg/{text}")
