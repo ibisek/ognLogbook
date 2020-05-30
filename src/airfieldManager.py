@@ -24,6 +24,9 @@ class AirfieldManager(object, metaclass=Singleton):
                 ar = AirfieldRecord(item)
                 self.airfields.append(ar)
 
+        # sort airfields by latitude:
+        self.airfields.sort(key=lambda af: af.lat)
+
         print(f"[INFO] num airfields: {len(self.airfields)}")
 
     @staticmethod
@@ -56,7 +59,24 @@ class AirfieldManager(object, metaclass=Singleton):
         latRad = math.radians(lat)
         lonRad = math.radians(lon)
 
-        for rec in self.airfields:
+        startI = 0
+        endI = len(self.airfields)
+        n = 0
+        while True:
+            i = startI + int((endI-startI) / 2)
+            if latRad < self.airfields[i].lat:
+                endI = i
+            else:
+                startI = i
+
+            if endI - startI <= 10:
+                break
+
+            n += 1
+            if n > 10:
+                break
+
+        for rec in self.airfields[startI:endI]:
             dist = AirfieldManager.getDistanceInKm(latRad, lonRad, rec.lat, rec.lon)
             if dist < minDist:
                 minDist = dist
@@ -71,11 +91,11 @@ class AirfieldManager(object, metaclass=Singleton):
 if __name__ == '__main__':
     am = AirfieldManager()
 
-    lat = 49.16
-    lon = 16.11
+    # lat = 49.16
+    # lon = 16.11
 
-    lat = 49.3697147
-    lon = 16.1141575
+    # lat = 49.3697147
+    # lon = 16.1141575
 
     # lat = 50.32798
     # lon = 15.95643
