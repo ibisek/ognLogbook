@@ -171,9 +171,9 @@ class BeaconProcessor(object):
 
     redis = StrictRedis(**redisConfig)
 
-    rawQueueOGN = Queue()
-    rawQueueFLR = Queue()
-    rawQueueICA = Queue()
+    rawQueueOGN = Queue(maxsize=0)  # 0 ~ infinite (according to docs)
+    rawQueueFLR = Queue(maxsize=0)
+    rawQueueICA = Queue(maxsize=0)
     queues = (rawQueueOGN, rawQueueFLR, rawQueueICA)
     queueKeys = ('rawQueueOGN', 'rawQueueFLR', 'rawQueueICA')
 
