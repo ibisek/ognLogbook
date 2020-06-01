@@ -3,9 +3,12 @@
 
 python3.8-dev
 apt install mosquitto-clients
-apt install gdal-bin
+#apt install gdal-bin
+#apt install libgdal-dev
 
 --
+
+REDISQ:
 
 Spusteni workera:
     aktivnim venvem a ve stejnem adresari, kde jsou zdrojaky /src/
@@ -26,8 +29,22 @@ apt install gdal-bin
 gdallocationinfo -wgs84 eu_dem_v11_E40N20.TIF 16.1144561 49.3678764 |grep Value| cut -d":" -f 2
 gdallocationinfo -wgs84 -valonly eu_dem_v11_E40N20.TIF 16.1144561 49.3678764
 
+Joining all tiles to one file:
+    # @see https://gis.stackexchange.com/questions/230553/merging-all-tiles-from-one-directory-using-gdal
+    gdalbuildvrt mosaic.vrt *.tif
+    gdal_translate -of GTiff -co "COMPRESS=TIFF" -co "TILED=YES" mosaic.vrt mosaic.tif
+
 --
 
 https://python-rq.org/docs/
 
 https://codepen.io/huange/pen/rbqsD
+
+--
+
+PIP:
+export CPLUS_INCLUDE_PATH=/usr/include/gdal
+export C_INCLUDE_PATH=/usr/include/gdal
+gdal-config --version
+pip install GDAL==3.0.4
+
