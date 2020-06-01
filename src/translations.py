@@ -49,4 +49,4 @@ def gettext(key='x'):
     elif 'en' in lan:
         return i10n[key][0]
     else:
-        return key
+        return i10n[key][0]
