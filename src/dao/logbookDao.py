@@ -16,7 +16,7 @@ def _prepareCondition(address=None, icaoCode=None, registration=None):
     return cond
 
 
-def listDepartures(address=None, icaoCode=None, registration=None, forDay=None, limit=None):
+def listDepartures(address=None, icaoCode=None, registration=None, forDay=None, limit=None, icaoFilter: list = []):
 
     cond = _prepareCondition(address=address, icaoCode=icaoCode, registration=registration)
 
@@ -29,6 +29,11 @@ def listDepartures(address=None, icaoCode=None, registration=None, forDay=None, 
     if limit:
         condLimit = f" limit {limit}"
 
+    condIcao = ''
+    if len(icaoFilter) > 0:
+        for prefix in icaoFilter:
+            condIcao += f" AND l.location_icao LIKE '{prefix}%'"
+
     records = list()
 
     with DbSource(dbConnectionInfo).getConnection() as c:
@@ -37,7 +42,7 @@ def listDepartures(address=None, icaoCode=None, registration=None, forDay=None, 
                     d.device_type,	d.aircraft_type, d.aircraft_registration, d.aircraft_cn 
                     FROM logbook_events AS l 
                     LEFT JOIN ddb AS d ON l.address = d.device_id 
-                    WHERE l.event = 'T' AND tracked = true AND identified = true {cond} {condTs}
+                    WHERE l.event = 'T' AND tracked = true AND identified = true {cond} {condTs} {condIcao}
                     ORDER by ts desc {condLimit};"""
 
         c.execute(strSql)
@@ -65,7 +70,7 @@ def listDepartures(address=None, icaoCode=None, registration=None, forDay=None, 
     return records
 
 
-def listArrivals(address=None, icaoCode=None, registration=None, forDay=None, limit=None):
+def listArrivals(address=None, icaoCode=None, registration=None, forDay=None, limit=None, icaoFilter: list = []):
 
     cond = _prepareCondition(address=address, icaoCode=icaoCode, registration=registration)
 
@@ -78,6 +83,11 @@ def listArrivals(address=None, icaoCode=None, registration=None, forDay=None, li
     if limit:
         condLimit = f" limit {limit}"
 
+    condIcao = ''
+    if len(icaoFilter) > 0:
+        for prefix in icaoFilter:
+            condIcao += f" AND l.location_icao LIKE '{prefix}%'"
+
     records = list()
 
     with DbSource(dbConnectionInfo).getConnection() as c:
@@ -86,7 +96,7 @@ def listArrivals(address=None, icaoCode=None, registration=None, forDay=None, li
                     d.device_type,	d.aircraft_type, d.aircraft_registration, d.aircraft_cn 
                     FROM logbook_events AS l 
                     LEFT JOIN ddb AS d ON l.address = d.device_id 
-                    WHERE l.event = 'L' AND tracked = true AND identified = true {cond} {condTs}
+                    WHERE l.event = 'L' AND tracked = true AND identified = true {cond} {condTs} {condIcao}
                     ORDER by ts desc {condLimit};"""
 
         c.execute(strSql)
@@ -114,7 +124,7 @@ def listArrivals(address=None, icaoCode=None, registration=None, forDay=None, li
     return records
 
 
-def listFlights(address=None, icaoCode=None, registration=None, forDay=None, limit=None):
+def listFlights(address=None, icaoCode=None, registration=None, forDay=None, limit=None, icaoFilter: list = []):
 
     c1 = c2 = ''
     if icaoCode:
@@ -132,6 +142,11 @@ def listFlights(address=None, icaoCode=None, registration=None, forDay=None, lim
     if limit:
         condLimit = f" limit {limit}"
 
+    condIcao = ''
+    if len(icaoFilter) > 0:
+        for prefix in icaoFilter:
+            condIcao += f" AND (l.takeoff_icao LIKE '{prefix}%' OR l.landing_icao like '{prefix}%')"
+
     records = list()
 
     with DbSource(dbConnectionInfo).getConnection() as c:
@@ -141,7 +156,7 @@ def listFlights(address=None, icaoCode=None, registration=None, forDay=None, lim
                     d.device_type, d.aircraft_type, d.aircraft_registration, d.aircraft_cn
                     FROM logbook_entries as l 
                     LEFT JOIN ddb AS d ON l.address = d.device_id
-                    WHERE tracked = true AND identified = true {cond} {condTs}
+                    WHERE tracked = true AND identified = true {cond} {condTs} {condIcao}
                     ORDER by landing_ts desc {condLimit};"""
 
         c.execute(strSql)

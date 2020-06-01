@@ -8,6 +8,7 @@ import sys
 import flask
 import getopt
 from datetime import datetime
+from flask import request
 
 from configuration import debugMode
 from dao.logbookDao import listDepartures, listArrivals, listFlights, getSums
@@ -21,7 +22,13 @@ app.jinja_env.globals.update(gettext=gettext)
 
 @app.route('/')
 def index():
-    departures, arrivals, flights = _prepareData(limit=25)
+    langs = [al[0].lower() for al in request.accept_languages]
+    icaoFilter = []
+    if 'cz' in langs or 'cs' in langs or 'sk' in langs:
+        icaoFilter.append('LK')
+        icaoFilter.append('LZ')
+
+    departures, arrivals, flights = _prepareData(limit=25, icaoFilter=icaoFilter)
 
     totNumFlights = getTotNumFlights()
     numFlightsToday = getNumFlightsToday()
@@ -91,7 +98,7 @@ def filterByRegistration(registration, date=None):
                                  departures=departures, arrivals=arrivals, flights=flights)
 
 
-def _prepareData(icaoCode=None, registration=None, forDay=None, limit=None):
+def _prepareData(icaoCode=None, registration=None, forDay=None, limit=None, icaoFilter=[]):
 
     if icaoCode:
         icaoCode = _saninitise(icaoCode)
@@ -99,9 +106,9 @@ def _prepareData(icaoCode=None, registration=None, forDay=None, limit=None):
     if registration:
         registration = _saninitise(registration)
 
-    departures = listDepartures(icaoCode=icaoCode, registration=registration, forDay=forDay, limit=limit)
-    arrivals = listArrivals(icaoCode=icaoCode, registration=registration, forDay=forDay, limit=limit)
-    flights = listFlights(icaoCode=icaoCode, registration=registration, forDay=forDay, limit=limit)
+    departures = listDepartures(icaoCode=icaoCode, registration=registration, forDay=forDay, limit=limit, icaoFilter=icaoFilter)
+    arrivals = listArrivals(icaoCode=icaoCode, registration=registration, forDay=forDay, limit=limit, icaoFilter=icaoFilter)
+    flights = listFlights(icaoCode=icaoCode, registration=registration, forDay=forDay, limit=limit, icaoFilter=icaoFilter)
 
     return departures, arrivals, flights
 
