@@ -37,11 +37,6 @@ def index():
         icaoFilter.append('EF')     # fi
         icaoFilter.append('ES')     # se
 
-    narrowScreen = False
-    ua = request.user_agent.string.lower()
-    if 'android' in ua or 'iphone' in ua or 'windows phone' in ua or 'mobile safari' in ua:
-        narrowScreen = True
-
     departures, arrivals, flights = _prepareData(limit=25, icaoFilter=icaoFilter)
 
     totNumFlights = getTotNumFlights()
