@@ -104,7 +104,7 @@ def filterByRegistration(registration, date=None):
     return flask.render_template('index.html', debugMode=debugMode, date=date, registration=registration,
                                  linkPrevDay=linkPrevDay, linkNextDay=linkNextDay,
                                  numFlights=numFlights, totalFlightTime=totalFlightTime,
-                                 departures=departures, arrivals=arrivals, flights=flights)
+                                 departures=departures, arrivals=arrivals, flights=flights, showFlightsOnly=True)
 
 
 def _prepareData(icaoCode=None, registration=None, forDay=None, limit=None, icaoFilter=[]):

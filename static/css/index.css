@@ -36,6 +36,15 @@ h1 {
   align: center;
 }
 
+.oneCol > div {
+  overflow:hidden;
+  /*background-color: lightgray;*/
+  text-align: center;
+  padding: 0px 10px 10px 10px;
+  align: center;
+}
+
+
 .table {
     margin: auto;
     text-align: center;
