@@ -48,7 +48,7 @@ def index():
                                  departures=departures, arrivals=arrivals, flights=flights,
                                  numFlightsToday=numFlightsToday, totNumFlights=totNumFlights,
                                  longestFlightTime=longestFlightTime, highestTrafficLocation=highestTrafficLocation,
-                                 highestTrafficCount=highestTrafficCount, showFlightsOnly=narrowScreen)
+                                 highestTrafficCount=highestTrafficCount)
 
 
 @app.route('/loc/<icaoCode>', methods=['GET'])
