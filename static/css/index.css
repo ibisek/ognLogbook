@@ -22,10 +22,20 @@ h1 {
 	width: 20%;
 }
 
-.threeCols {
-  display: grid;
-  grid-template-columns: 1fr 1fr 2fr;
-  grid-column-gap: 5px;
+
+@media only screen and (min-width: 1200px) {
+   .threeCols {
+      display: grid;
+      grid-template-columns: 1fr 1fr 2fr;
+      grid-column-gap: 5px;
+    }
+}
+
+@media only screen and (min-width: 400px) {
+    .threeCols {
+        text-align: center;
+        padding: 0px 10px 10px 10px;
+    }
 }
 
 .threeCols > div {
@@ -127,12 +137,21 @@ a:hover {
     margin-top: 21px;
 
 }
-.menu {
-    float: left;
-    margin-top: 33px;
-    vertical-align: middle;
-    font-size: 22px;
-    color: #999;
+
+@media only screen and (min-width: 1200px) {
+    .menu {
+        float: left;
+        margin-top: 33px;
+        vertical-align: middle;
+        font-size: 22px;
+        color: #999;
+    }
+}
+
+@media only screen and (min-width: 400px) {
+    .menu {
+        visibility: hidden;
+    }
 }
 
 .menuitem {
