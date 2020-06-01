@@ -31,8 +31,12 @@ def listDepartures(address=None, icaoCode=None, registration=None, forDay=None, 
 
     condIcao = ''
     if len(icaoFilter) > 0:
-        for prefix in icaoFilter:
-            condIcao += f" AND l.location_icao LIKE '{prefix}%'"
+        c = ""
+        for i, prefix in enumerate(icaoFilter):
+            c += f"l.location_icao LIKE '{prefix}%'"
+            if i < (len(icaoFilter) - 1):
+                c += ' OR '
+        condIcao += f" AND ({c})"
 
     records = list()
 
@@ -85,8 +89,12 @@ def listArrivals(address=None, icaoCode=None, registration=None, forDay=None, li
 
     condIcao = ''
     if len(icaoFilter) > 0:
-        for prefix in icaoFilter:
-            condIcao += f" AND l.location_icao LIKE '{prefix}%'"
+        c = ""
+        for i, prefix in enumerate(icaoFilter):
+            c += f"l.location_icao LIKE '{prefix}%'"
+            if i < (len(icaoFilter)-1):
+                c += ' OR '
+        condIcao += f" AND ({c})"
 
     records = list()
 
@@ -144,8 +152,13 @@ def listFlights(address=None, icaoCode=None, registration=None, forDay=None, lim
 
     condIcao = ''
     if len(icaoFilter) > 0:
-        for prefix in icaoFilter:
-            condIcao += f" AND (l.takeoff_icao LIKE '{prefix}%' OR l.landing_icao like '{prefix}%')"
+        c = ""
+        for i, prefix in enumerate(icaoFilter):
+            c += f"l.takeoff_icao LIKE '{prefix}%' OR l.landing_icao like '{prefix}%'"
+            if i < (len(icaoFilter)-1):
+                c += ' OR '
+
+        condIcao += f" AND ({c})"
 
     records = list()
 
