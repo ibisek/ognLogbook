@@ -52,7 +52,6 @@ class RawWorker(Thread):
                 raw_message = self.rawQueue.get(block=False)
                 if raw_message:
                     self._processMessage(raw_message)
-                    self.numProcessed += 1
             except Empty:
                 time.sleep(1)   # ~ thread.yield()
             except BrokenPipeError as ex:
@@ -88,6 +87,8 @@ class RawWorker(Thread):
             # if beacon:
             #     print("Failed BEACON:", beacon)
             return
+
+        self.numProcessed += 1
 
         # we are not interested in para, baloons, uavs and other crazy flying stuff:
         aircraftType = beacon['aircraft_type']
