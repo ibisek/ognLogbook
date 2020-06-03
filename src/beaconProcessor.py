@@ -21,6 +21,7 @@ from airfieldManager import AirfieldManager
 from dataStructures import Status
 from utils import getGroundSpeedThreshold
 from dao.geo import getElevation
+from periodicTimer import PeriodicTimer
 
 
 class RawWorker(Thread):
@@ -33,6 +34,8 @@ class RawWorker(Thread):
         self.id = id
         self.dbThread = dbThread
         self.rawQueue = rawQueue
+
+        self.numProcessed = 0
 
         self.doRun = True
 
@@ -49,6 +52,7 @@ class RawWorker(Thread):
                 raw_message = self.rawQueue.get(block=False)
                 if raw_message:
                     self._processMessage(raw_message)
+                    self.numProcessed += 1
             except Empty:
                 time.sleep(1)   # ~ thread.yield()
             except BrokenPipeError as ex:
@@ -178,7 +182,7 @@ class BeaconProcessor(object):
     rawQueueFLR = Queue(maxsize=0)
     rawQueueICA = Queue(maxsize=0)
     queues = (rawQueueOGN, rawQueueFLR, rawQueueICA)
-    queueKeys = ('rawQueueOGN', 'rawQueueFLR', 'rawQueueICA')
+    queueIds = ('ogn', 'flarm', 'icao')
 
     workers = list()
 
@@ -186,7 +190,7 @@ class BeaconProcessor(object):
 
         # restore unprocessed data from redis:
         numRead = 0
-        for key, queue in zip(self.queueKeys, self.queues):
+        for key, queue in zip(self.queueIds, self.queues):
             while True:
                 item = self.redis.lpop(key)
                 if not item:
@@ -198,10 +202,13 @@ class BeaconProcessor(object):
         self.dbThread = DbThread(dbConnectionInfo)
         self.dbThread.start()
 
-        for i, queue in enumerate(self.queues):
-            rawWorker = RawWorker(id=i, dbThread=self.dbThread, rawQueue=queue)
+        for id, queue in zip(self.queueIds, self.queues):
+            rawWorker = RawWorker(id=id, dbThread=self.dbThread, rawQueue=queue)
             rawWorker.start()
             self.workers.append(rawWorker)
+
+        self.timer = PeriodicTimer(60, self._processStats)
+        self.timer.start()
 
     def stop(self):
         for worker in self.workers:
@@ -209,7 +216,7 @@ class BeaconProcessor(object):
 
         # store all unprocessed data into redis:
         n = 0
-        for key, queue in zip(self.queueKeys, self.queues):
+        for key, queue in zip(self.queueIds, self.queues):
             n += queue.qsize()
             for item in list(queue.queue):
                 self.redis.rpush(key, item)
@@ -217,30 +224,38 @@ class BeaconProcessor(object):
 
         self.dbThread.stop()
 
+        self.timer.stop()
+
         print('[INFO] BeaconProcessor terminated.')
 
     startTime = time.time()
     numEnquedTasks = 0
 
-    def _printStats(self):
+    def _processStats(self):
         now = time.time()
         tDiff = now - self.startTime
-        if tDiff >= 60:
-            numTasksPerMin = self.numEnquedTasks/tDiff*60
-            numQueuedTasks = self.rawQueueOGN.qsize() + self.rawQueueFLR.qsize() + self.rawQueueICA.qsize()
+        numTasksPerMin = self.numEnquedTasks/tDiff*60
+        numQueuedTasks = self.rawQueueOGN.qsize() + self.rawQueueFLR.qsize() + self.rawQueueICA.qsize()
+        print(f"[INFO] Beacon rate: {numTasksPerMin:.0f}/min. {numQueuedTasks} queued.")
 
-            print(f"[INFO] Beacon rate: {numTasksPerMin:.0f}/min. {numQueuedTasks} queued.")
+        traffic = dict()
+        for worker in self.workers:
+            traffic[worker.id] = worker.numProcessed
+            worker.numProcessed = 0
 
-            self.numEnquedTasks = 0
-            self.startTime = now
+        if not debugMode and numTasksPerMin >= 400:
+            cmd = f"mosquitto_pub -h {MQ_HOST} -p {MQ_PORT} -u {MQ_USER} -P {MQ_PASSWORD} -t ognLogbook/rate -m '{round(numTasksPerMin)}'; " \
+                  f"mosquitto_pub -h {MQ_HOST} -p {MQ_PORT} -u {MQ_USER} -P {MQ_PASSWORD} -t ognLogbook/queued -m '{round(numQueuedTasks)}'; " \
+                  f"mosquitto_pub -h {MQ_HOST} -p {MQ_PORT} -u {MQ_USER} -P {MQ_PASSWORD} -t ognLogbook/ogn -m '{traffic['ogn']}'; " \
+                  f"mosquitto_pub -h {MQ_HOST} -p {MQ_PORT} -u {MQ_USER} -P {MQ_PASSWORD} -t ognLogbook/flarm -m '{traffic['flarm']}'; " \
+                  f"mosquitto_pub -h {MQ_HOST} -p {MQ_PORT} -u {MQ_USER} -P {MQ_PASSWORD} -t ognLogbook/icao -m '{traffic['icao']}';"
+            print("cmd:\n", cmd)
+            os.system(cmd)
 
-            if not debugMode and numTasksPerMin >= 400:
-                os.system(f"mosquitto_pub -h {MQ_HOST} -p {MQ_PORT} -u {MQ_USER} -P {MQ_PASSWORD} -t ognLogbook/rate -m '{round(numTasksPerMin)}'; "
-                       f"mosquitto_pub -h {MQ_HOST} -p {MQ_PORT} -u {MQ_USER} -P {MQ_PASSWORD} -t ognLogbook/queued -m '{round(numQueuedTasks)}'")
+        self.numEnquedTasks = 0
+        self.startTime = now
 
     def enqueueForProcessing(self, raw_message: str):
-        self._printStats()
-
         prefix = raw_message[:3]
         if prefix == 'OGN':
             self.rawQueueOGN.put(raw_message)
