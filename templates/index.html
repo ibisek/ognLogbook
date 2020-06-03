@@ -87,7 +87,7 @@
 			<div class="row">
 				<div class="cell">{% if item.takeoff_dt %} {{item.takeoff_dt.strftime('%d.%m.')}} {% else %} {{item.landing_dt.strftime('%d.%m.')}} {% endif %}</div>
 				<div class="cell"><a href="/reg/{{item.registration}}/{{item.landing_dt.strftime('%Y-%m-%d')}}">{{item.registration}}</a></div>
-				<div class="cell">{{item.cn}}</div>
+				<div class="cell"><a href="https://glideandseek.com/?aircraft={{item.address}}" target="_blank">{{item.cn}}</a></div>
 				<div class="cell">{{item.aircraft_type}}</div>
 				<div class="cell">{% if item.takeoff_icao %} <a href="/loc/{{item.takeoff_icao}}/{{item.takeoff_dt.strftime('%Y-%m-%d')}}">{{item.takeoff_icao}} {% else %} ? {% endif %}</div>
 				<div class="cell">{% if item.takeoff_dt %} {{item.takeoff_dt.strftime('%H:%M')}} {% else %} ? {% endif %}</div>
