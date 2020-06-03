@@ -59,7 +59,12 @@ def getDaysLinks(baselink: str, date: datetime):
     return linkPrevDay, linkNextDay
 
 
-def getGroundSpeedThreshold(aircraftType: int):
+def getGroundSpeedThreshold(aircraftType: int, forEvent: str):
+    """
+    :param aircraftType:
+    :param forEvent: 'L' / 'T' threshold for expected event
+    :return:
+    """
     # define AIRCRAFT_TYPE_UNKNOWN 0
     # define AIRCRAFT_TYPE_GLIDER 1
     # define AIRCRAFT_TYPE_TOW_PLANE 2
@@ -77,7 +82,11 @@ def getGroundSpeedThreshold(aircraftType: int):
     # define AIRCRAFT_TYPE_STATIC_OBJECT 15
     # define AIRCRAFT_TYPE_WRONG 16 // a placeholder to identify mangled packets
 
-    if aircraftType in [1, 3, 4, 6, 7, 11, 12, 13, 15]:
-        return 30   # [km/h] glider
-    else:
-        return 50   # [km/h] tow
+    if forEvent == 'L':
+        if aircraftType in [1, 3, 4, 6, 7, 11, 12, 13, 15]:
+            return 30   # [km/h] glider
+        else:
+            return 50   # [km/h] tow
+
+    else:   # takeoff threshold
+        return 100  # [km/h] all
