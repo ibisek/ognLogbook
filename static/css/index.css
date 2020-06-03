@@ -138,6 +138,14 @@ a:hover {
 
 }
 
+/*
+@media only screen and (min-width: 400px) {
+    .menu {
+        visibility: hidden;
+    }
+}
+*/
+
 @media only screen and (min-width: 1400px) {
     .menu {
         float: left;
@@ -145,12 +153,6 @@ a:hover {
         vertical-align: middle;
         font-size: 22px;
         color: #999;
-    }
-}
-
-@media only screen and (min-width: 400px) {
-    .menu {
-        visibility: hidden;
     }
 }
 
