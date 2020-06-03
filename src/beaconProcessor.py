@@ -199,7 +199,7 @@ class BeaconProcessor(object):
         self.dbThread.start()
 
         for i, queue in enumerate(self.queues):
-            rawWorker = RawWorker(index=i, dbThread=self.dbThread, rawQueue=queue)
+            rawWorker = RawWorker(id=i, dbThread=self.dbThread, rawQueue=queue)
             rawWorker.start()
             self.workers.append(rawWorker)
 
