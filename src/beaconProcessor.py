@@ -27,10 +27,10 @@ class RawWorker(Thread):
 
     redis = StrictRedis(**redisConfig)
 
-    def __init__(self, index: int, dbThread: DbThread, rawQueue: Queue):
+    def __init__(self, id: int, dbThread: DbThread, rawQueue: Queue):
         super(RawWorker, self).__init__()
 
-        self.index = index
+        self.id = id
         self.dbThread = dbThread
         self.rawQueue = rawQueue
 
@@ -43,7 +43,7 @@ class RawWorker(Thread):
         self.doRun = False
 
     def run(self):
-        print(f"[INFO] Starting worker #{self.index}")
+        print(f"[INFO] Starting worker '{self.id}'")
         while self.doRun:
             try:
                 raw_message = self.rawQueue.get(block=False)
@@ -54,7 +54,7 @@ class RawWorker(Thread):
             except BrokenPipeError as ex:
                 print('[WARN] in worker:', str(ex))
 
-        print(f"[INFO] Worker #{self.index} terminated.")
+        print(f"[INFO] Worker '{self.id}' terminated.")
 
     def _saveToRedis(self, key: str, value, expire=REDIS_RECORD_EXPIRATION):
         self.redis.set(key, str(value))
@@ -171,9 +171,9 @@ class BeaconProcessor(object):
 
     redis = StrictRedis(**redisConfig)
 
-    rawQueueOGN = Queue(maxsize=10e+6)  # 0 ~ infinite (according to docs)
-    rawQueueFLR = Queue(maxsize=10e+6)
-    rawQueueICA = Queue(maxsize=10e+6)
+    rawQueueOGN = Queue(maxsize=0)  # 0 ~ infinite (according to docs)
+    rawQueueFLR = Queue(maxsize=0)
+    rawQueueICA = Queue(maxsize=0)
     queues = (rawQueueOGN, rawQueueFLR, rawQueueICA)
     queueKeys = ('rawQueueOGN', 'rawQueueFLR', 'rawQueueICA')
 
