@@ -103,7 +103,7 @@ class RawWorker(Thread):
             except ValueError as e:
                 print('[ERROR] when parsing prev. status: ', e)
 
-        currentStatus: Status = Status(ts=ts, s=0 if groundSpeed < getGroundSpeedThreshold(aircraftType) else 1)    # 0 = on ground, 1 = airborne, -1 = unknown
+        currentStatus: Status = Status(ts=ts, s=0 if groundSpeed < getGroundSpeedThreshold(aircraftType, forEvent='T') else 1)    # 0 = on ground, 1 = airborne, -1 = unknown
 
         if not prevStatus:  # we have no prior information
             self._saveToRedis(statusKey, currentStatus)
