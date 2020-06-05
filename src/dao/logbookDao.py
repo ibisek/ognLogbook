@@ -16,7 +16,7 @@ def _prepareCondition(address=None, icaoCode=None, registration=None):
     return cond
 
 
-def listDepartures(address=None, icaoCode=None, registration=None, forDay=None, limit=None, icaoFilter: list = []):
+def listDepartures(address=None, icaoCode=None, registration=None, forDay=None, limit=None, icaoFilter: list = [], sortTsDesc=False):
 
     cond = _prepareCondition(address=address, icaoCode=icaoCode, registration=registration)
 
@@ -38,6 +38,8 @@ def listDepartures(address=None, icaoCode=None, registration=None, forDay=None, 
                 c += ' OR '
         condIcao += f" AND ({c})"
 
+    sortTs = 'DESC' if sortTsDesc else 'ASC'
+
     records = list()
 
     with DbSource(dbConnectionInfo).getConnection() as c:
@@ -47,7 +49,7 @@ def listDepartures(address=None, icaoCode=None, registration=None, forDay=None, 
                     FROM logbook_events AS l 
                     LEFT JOIN ddb AS d ON l.address = d.device_id 
                     WHERE l.event = 'T' AND tracked = true AND identified = true {cond} {condTs} {condIcao}
-                    ORDER by ts desc {condLimit};"""
+                    ORDER by ts {sortTs} {condLimit};"""
 
         c.execute(strSql)
 
@@ -74,7 +76,7 @@ def listDepartures(address=None, icaoCode=None, registration=None, forDay=None, 
     return records
 
 
-def listArrivals(address=None, icaoCode=None, registration=None, forDay=None, limit=None, icaoFilter: list = []):
+def listArrivals(address=None, icaoCode=None, registration=None, forDay=None, limit=None, icaoFilter: list = [], sortTsDesc=False):
 
     cond = _prepareCondition(address=address, icaoCode=icaoCode, registration=registration)
 
@@ -96,6 +98,8 @@ def listArrivals(address=None, icaoCode=None, registration=None, forDay=None, li
                 c += ' OR '
         condIcao += f" AND ({c})"
 
+    sortTs = 'DESC' if sortTsDesc else 'ASC'
+
     records = list()
 
     with DbSource(dbConnectionInfo).getConnection() as c:
@@ -105,7 +109,7 @@ def listArrivals(address=None, icaoCode=None, registration=None, forDay=None, li
                     FROM logbook_events AS l 
                     LEFT JOIN ddb AS d ON l.address = d.device_id 
                     WHERE l.event = 'L' AND tracked = true AND identified = true {cond} {condTs} {condIcao}
-                    ORDER by ts desc {condLimit};"""
+                    ORDER by ts {sortTs} {condLimit};"""
 
         c.execute(strSql)
 
@@ -132,7 +136,7 @@ def listArrivals(address=None, icaoCode=None, registration=None, forDay=None, li
     return records
 
 
-def listFlights(address=None, icaoCode=None, registration=None, forDay=None, limit=None, icaoFilter: list = []):
+def listFlights(address=None, icaoCode=None, registration=None, forDay=None, limit=None, icaoFilter: list = [], sortTsDesc=False):
 
     c1 = c2 = ''
     if icaoCode:
@@ -160,6 +164,8 @@ def listFlights(address=None, icaoCode=None, registration=None, forDay=None, lim
 
         condIcao += f" AND ({c})"
 
+    sortTs = 'DESC' if sortTsDesc else 'ASC'
+
     records = list()
 
     with DbSource(dbConnectionInfo).getConnection() as c:
@@ -170,7 +176,7 @@ def listFlights(address=None, icaoCode=None, registration=None, forDay=None, lim
                     FROM logbook_entries as l 
                     LEFT JOIN ddb AS d ON l.address = d.device_id
                     WHERE tracked = true AND identified = true {cond} {condTs} {condIcao}
-                    ORDER by landing_ts desc {condLimit};"""
+                    ORDER by landing_ts {sortTs} {condLimit};"""
 
         c.execute(strSql)
 
