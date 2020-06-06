@@ -36,6 +36,7 @@ class RawWorker(Thread):
         self.rawQueue = rawQueue
 
         self.numProcessed = 0
+        self.airfieldManager = AirfieldManager()
 
         self.doRun = True
 
@@ -131,7 +132,7 @@ class RawWorker(Thread):
             lat = beacon['latitude']
             lon = beacon['longitude']
 
-            icaoLocation = AirfieldManager().getNearest(lat, lon)
+            icaoLocation = self.airfieldManager.getNearest(lat, lon)
             if not icaoLocation:
                 return
 

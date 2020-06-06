@@ -13,7 +13,7 @@ class AirfieldRecord(object):
         self.code = map['code']
 
 
-class AirfieldManager(object, metaclass=Singleton):
+class AirfieldManager(object):  # , metaclass=Singleton
 
     def __init__(self):
         self.airfields = []
