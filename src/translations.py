@@ -7,7 +7,7 @@ from flask import request
 i10n = dict()
 i10n['main.departures'] = ['Departures', 'Odlety', 'Abflüge']
 i10n['main.arrivals'] = ['Arrivals', 'Přílety', 'Ankünfte']
-i10n['main.flights'] = ['Flights', 'Přelety', 'Überflüge']
+i10n['main.flights'] = ['Flights', 'Lety', 'Überflüge']
 i10n['tab.date'] = ['Date', 'Datum', 'Datum']
 i10n['tab.time'] = ['Time', 'Čas', 'Zeit']
 i10n['tab.loc'] = ['Loc', 'Místo', 'Ort']
