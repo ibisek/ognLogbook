@@ -36,8 +36,8 @@
 			<div class="cell">{{item.takeoff_dt.strftime('%d.%m.')}}</div>
 			<div class="cell">{{item.takeoff_dt.strftime('%H:%M')}}</div>
 			<div class="cell"><a href="/loc/{{item.takeoff_icao}}">{{item.takeoff_icao}}</a></div>
-			<div class="cell"><a href="/reg/{{item.registration}}">{{item.registration}}</a></div>
-			<div class="cell">{{item.cn}}</div>
+			<div class="cell">{% if item.registration %}<a href="/reg/{{item.registration}}">{{item.registration}}</a>{% else %}{{ gettext('tab.hidden') }}{% endif %}</div>
+			<div class="cell">{% if item.cn %}{{item.cn}}{% endif %}</div>
 		</div>
 		{% endfor %}
 	</div>
@@ -60,8 +60,8 @@
 			<div class="cell">{{item.landing_dt.strftime('%d.%m.')}}</div>
 			<div class="cell">{{item.landing_dt.strftime('%H:%M')}}</div>
 			<div class="cell"><a href="/loc/{{item.landing_icao}}">{{item.landing_icao}}</a></div>
-			<div class="cell"><a href="/reg/{{item.registration}}">{{item.registration}}</a></div>
-			<div class="cell">{{item.cn}}</div>
+			<div class="cell">{% if item.registration %}<a href="/reg/{{item.registration}}/{{item.landing_dt.strftime('%Y-%m-%d')}}">{{item.registration}}</a>{% else %}{{ gettext('tab.hidden') }}{% endif %}</div>
+			<div class="cell">{% if item.cn %}{{item.cn}}{% endif %}</div>
 		</div>
 		{% endfor %}
 	</div>
@@ -86,10 +86,10 @@
 			{% for item in list %}
 			<div class="row">
 				<div class="cell">{% if item.takeoff_dt %} {{item.takeoff_dt.strftime('%d.%m.')}} {% else %} {{item.landing_dt.strftime('%d.%m.')}} {% endif %}</div>
-				<div class="cell"><a href="/reg/{{item.registration}}/{{item.landing_dt.strftime('%Y-%m-%d')}}">{{item.registration}}</a></div>
-				<div class="cell"><a href="https://glideandseek.com/?aircraft={{item.address}}" target="_blank">{{item.cn}}</a></div>
-				<div class="cell">{{item.aircraft_type}}</div>
-				<div class="cell">{% if item.takeoff_icao %} <a href="/loc/{{item.takeoff_icao}}/{{item.takeoff_dt.strftime('%Y-%m-%d')}}">{{item.takeoff_icao}} {% else %} ? {% endif %}</div>
+				<div class="cell">{% if item.registration %}<a href="/reg/{{item.registration}}/{{item.landing_dt.strftime('%Y-%m-%d')}}">{{item.registration}}</a>{% else %}{{ gettext('tab.hidden') }}{% endif %}</a></div>
+				<div class="cell">{% if item.cn %}<a href="https://glideandseek.com/?aircraft={{item.address}}" target="_blank">{{item.cn}}</a>{% endif %}</div>
+				<div class="cell">{% if item.aircraft_type %}{{item.aircraft_type}}{% endif %}</div>
+				<div class="cell">{% if item.takeoff_icao %} <a href="/loc/{{item.takeoff_icao}}/{{item.takeoff_dt.strftime('%Y-%m-%d')}}">{{item.takeoff_icao}}</a>{% else %} ? {% endif %}</div>
 				<div class="cell">{% if item.takeoff_dt %} {{item.takeoff_dt.strftime('%H:%M')}} {% else %} ? {% endif %}</div>
 				<div class="cell"><a href="/loc/{{item.landing_icao}}//{{item.landing_dt.strftime('%Y-%m-%d')}}">{{item.landing_icao}}</a></div>
 				<div class="cell">{{item.landing_dt.strftime('%H:%M')}}</div>

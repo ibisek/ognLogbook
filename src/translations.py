@@ -17,6 +17,7 @@ i10n['tab.acftType'] = ['Type', 'Typ', 'Flugzeugtyp']
 i10n['tab.to'] = ['Take-off', 'Odlet', 'Abflug']
 i10n['tab.land'] = ['Landing', 'Přílet', 'Landung']
 i10n['tab.ft'] = ['Flight time', 'Doba letu', 'Flugzeit']
+i10n['tab.hidden'] = ['(hidden)', '(skrytá)', '(versteckt)']
 
 i10n['stat.line1'] = ['Registered flights', 'Registrované lety', 'Registrierte Flüge']
 i10n['stat.line2'] = ['Flights today', 'Letů dnes', 'Flüge heute']
