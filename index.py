@@ -133,6 +133,25 @@ def search(text=None):
         return flask.redirect(f"/reg/{text}")
 
 
+@app.route('/csv/<icaoCode>', methods=['GET'])
+def getCsv(icaoCode):
+    if not icaoCode:
+        return flask.redirect('/')
+
+    # date = datetime.now()
+    icaoCode = _saninitise(icaoCode).upper()
+
+    flights = listFlights(icaoCode=icaoCode, forDay=None, limit=100)
+    csvText = _toFlightOfficeCsv(flights)
+
+    output = flask.make_response(csvText)
+
+    output.headers["Content-Disposition"] = f"attachment; filename={icaoCode}.csv"
+    output.headers["Content-type"] = "text/csv"
+
+    return output
+
+
 @app.errorhandler(400)
 @app.errorhandler(404)
 @app.errorhandler(405)  # method not allowed
@@ -148,8 +167,56 @@ def handle_error(error):
 #     # app.logger.error(msg)
 #     return flask.render_template('error40x.html', code=500), 500
 
+
 def _saninitise(s):
     return s.replace('\\', '').replace(';', '').replace('\'', '').replace('--', '').replace('"', '').strip()
+
+
+def _toFlightOfficeCsv(flights: list):
+    DEV_TYPES = {'F': 'flarm', 'O': 'ogn', 'I': 'icao'}
+
+    rows = list()   # csv strings
+
+    for flight in flights:
+        idPrefix = DEV_TYPES[flight.device_type] if flight.device_type in DEV_TYPES else 'unknown'
+
+        row = list()  # csv items
+        row.append(flight.takeoff_dt.strftime('%Y-%m-%d'))  # date
+        row.append(flight.takeoff_ts)    # SEQ_NR
+        row.append(f"{idPrefix}:{flight.address}")    # ID
+        row.append(flight.registration)    # CALLSIGN
+        row.append(flight.cn)    # COMPETITION_NUMBER
+        row.append(0)    # (aircraft?) TYPE
+        row.append(flight.aircraft_type)    # DETAILED_TYPE
+        row.append('')    # CREW1
+        row.append('')    # CREW2
+        row.append(flight.takeoff_dt.strftime('%H:%M:%S'))    # TKOF_TIME 12:34:56
+        row.append(flight.takeoff_icao)    # TKOF_AP LKxx
+        row.append('')    # TKOF_RWY
+        row.append('')    # RESERVED
+        row.append(flight.landing_dt.strftime('%H:%M:%S'))    # LDG_TIME 12:34:56
+        row.append(flight.landing_icao)    # LDG_AP LKxx
+        row.append('')    # LDG_RWY
+        row.append('')    # LDG_TURN
+        row.append('')    # MAX_ALT
+        row.append('')    # AVERAGE_CLIMB_RATE
+        row.append(str(flight.landing_dt - flight.takeoff_dt))    # FLIGHT_TIME
+        row.append('')    # DAY_DIFFERENCE
+        row.append('')    # LAUNCH_METHOD
+        row.append('')    # INITIAL_CLIMBRATE
+        row.append('')    # TOW_ID
+        row.append('')    # TOW_CALLSIGN
+        row.append('')    # TOW_COMPETITION_NUMBER
+        row.append('')    # TOW_SEQUENCE_NUMBER
+
+        line = ';'.join([str(i) for i in row])
+        rows.append(line)
+
+    lines = '\n'.join(rows)
+
+    header = 'DATE;SEQ_NR;ID;CALLSIGN;COMPETITION_NUMBER;TYPE;DETAILED_TYPE;CREW1;CREW2;TKOF_TIME;TKOF_AP;TKOF_RWY;RESERVED;LDG_TIME;LDG_AP;LDG_RWY;LDG_TURN;MAX_ALT;AVERAGE_CLIMB_RATE;FLIGHT_TIME;DAY_DIFFERENCE;LAUNCH_METHOD;INITIAL_CLIMBRATE;TOW_ID;TOW_CALLSIGN;TOW_COMPETITION_NUMBER;TOW_SEQUENCE_NUMBER\n'
+
+    return header + lines
 
 
 if __name__ == '__main__':
@@ -162,8 +229,8 @@ if __name__ == '__main__':
                 debugMode = True
 
     # handle invalid script arguments
-    except getopt.GetoptError as e: 
-        
+    except getopt.GetoptError as e:
+
         # print error message to stderr
         print("Argument error: " + e.msg, file=sys.stderr)
         # exit application
