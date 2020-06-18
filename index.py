@@ -133,15 +133,23 @@ def search(text=None):
         return flask.redirect(f"/reg/{text}")
 
 
-@app.route('/csv/<icaoCode>', methods=['GET'])
-def getCsv(icaoCode):
+@app.route('/csv/<icaoCode>/<date>', methods=['GET'])
+def getCsv(icaoCode, date=None):
     if not icaoCode:
         return flask.redirect('/')
 
-    # date = datetime.now()
+    if date:
+        date = _saninitise(date)
+        try:
+            date = datetime.strptime(date, '%Y-%m-%d')
+        except ValueError:
+            date = datetime.now()
+    else:
+        date = datetime.now()
+
     icaoCode = _saninitise(icaoCode).upper()
 
-    flights = listFlights(icaoCode=icaoCode, forDay=None, limit=100)
+    flights = listFlights(icaoCode=icaoCode, forDay=date, limit=100)
     csvText = _toFlightOfficeCsv(flights)
 
     output = flask.make_response(csvText)
