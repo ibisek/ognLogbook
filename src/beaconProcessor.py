@@ -109,18 +109,20 @@ class RawWorker(Thread):
             except ValueError as e:
                 print('[ERROR] when parsing prev. status: ', e)
 
-        currentStatus: Status = Status(ts=ts, s=0 if groundSpeed < getGroundSpeedThreshold(aircraftType, forEvent='T') else 1)    # 0 = on ground, 1 = airborne, -1 = unknown
+        gsKey = f"{address}-gs"
 
         if not prevStatus:  # we have no prior information
-            self._saveToRedis(statusKey, currentStatus)
+            self._saveToRedis(statusKey, Status(s=0, ts=ts))    # 0 = on ground, 1 = airborne, -1 = unknown
+            self._saveToRedis(gsKey, 0, 120)    # gs = 0
             return
 
-        gsKey = f"{address}-gs"
         prevGroundSpeed = float(self._getFromRedis(gsKey, 0))
 
         # filter speed change a bit (sometimes there are glitches in speed with badly placed gps antenna):
         groundSpeed = groundSpeed * 0.2 + prevGroundSpeed * 0.8
         self._saveToRedis(gsKey, groundSpeed, 120)
+
+        currentStatus: Status = Status(ts=ts, s=0 if groundSpeed < getGroundSpeedThreshold(aircraftType, forEvent='T') else 1)    # 0 = on ground, 1 = airborne, -1 = unknown
 
         if prevStatus.s == 0:   # 0 = on ground, 1 = airborne, -1 = unknown
             currentStatus.s = 1 if groundSpeed > getGroundSpeedThreshold(aircraftType, forEvent='T') else 0
