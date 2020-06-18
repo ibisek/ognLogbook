@@ -127,6 +127,7 @@ def listArrivals(address=None, icaoCode=None, registration=None, forDay=None, li
                                landing_lon=float(lon),
                                landing_icao=locationIcao,
                                flight_time=flightTime,
+                               device_type=devType,
                                registration=registration,
                                cn=cn,
                                aircraft_type=aircraftType)
@@ -194,6 +195,7 @@ def listFlights(address=None, icaoCode=None, registration=None, forDay=None, lim
                                landing_lon=float(lon2),
                                landing_icao=locationIcao2,
                                flight_time=flightTime,
+                               device_type=devType,
                                registration=registration,
                                cn=cn,
                                aircraft_type=aircraftType)
