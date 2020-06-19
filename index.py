@@ -133,6 +133,7 @@ def search(text=None):
         return flask.redirect(f"/reg/{text}")
 
 
+@app.route('/csv/<icaoCode>', methods=['GET'])
 @app.route('/csv/<icaoCode>/<date>', methods=['GET'])
 def getCsv(icaoCode, date=None):
     if not icaoCode:
