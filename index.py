@@ -155,7 +155,7 @@ def getCsv(icaoCode, date=None):
 
     output = flask.make_response(csvText)
 
-    output.headers["Content-Disposition"] = f"attachment; filename={icaoCode}.csv"
+    output.headers["Content-Disposition"] = f"attachment; filename={icaoCode}_{date.strftime('%Y-%m-%d')}.csv"
     output.headers["Content-type"] = "text/csv"
 
     return output
