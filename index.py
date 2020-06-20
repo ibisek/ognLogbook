@@ -181,6 +181,24 @@ def _saninitise(s):
     return s.replace('\\', '').replace(';', '').replace('\'', '').replace('--', '').replace('"', '').strip()
 
 
+def _formatRegistration(reg: str):
+    if not reg:
+        return reg
+
+    reg = reg.upper()
+    if '-' not in reg:
+        if reg.startswith('OK'):
+            s = reg[reg.index('OK') + 2:]
+            reg = f"OK-{s}"
+
+        elif reg.startswith('D') or reg.startswith('F'):
+            r = reg[0]
+            s = reg[reg.index('D') + 1:]
+            reg = f"{r}-{s}"
+
+    return reg
+
+
 def _toFlightOfficeCsv(flights: list):
     DEV_TYPES = {'F': 'flarm', 'O': 'ogn', 'I': 'icao'}
 
@@ -189,11 +207,14 @@ def _toFlightOfficeCsv(flights: list):
     for flight in flights:
         idPrefix = DEV_TYPES[flight.device_type] if flight.device_type in DEV_TYPES else 'unknown'
 
+        registration = flight.registration if flight.registration else ''
+        registration = _formatRegistration(registration)
+
         row = list()  # csv items
         row.append(flight.takeoff_dt.strftime('%Y-%m-%d'))  # date
         row.append(flight.takeoff_ts)    # SEQ_NR
         row.append(f"{idPrefix}")    # ID   :{flight.address}
-        row.append(flight.registration if flight.registration else '')    # CALLSIGN
+        row.append(registration)    # CALLSIGN
         row.append(flight.cn if flight.cn else '')    # COMPETITION_NUMBER
         row.append(0)    # (aircraft?) TYPE
         row.append(flight.aircraft_type if flight.aircraft_type else '')    # DETAILED_TYPE
@@ -218,12 +239,12 @@ def _toFlightOfficeCsv(flights: list):
         row.append('')    # TOW_COMPETITION_NUMBER
         row.append('')    # TOW_SEQUENCE_NUMBER
 
-        line = ';'.join([str(i) for i in row])
+        line = ','.join([str(i) for i in row])
         rows.append(line)
 
     lines = '\n'.join(rows)
 
-    header = 'DATE;SEQ_NR;ID;CALLSIGN;COMPETITION_NUMBER;TYPE;DETAILED_TYPE;CREW1;CREW2;TKOF_TIME;TKOF_AP;TKOF_RWY;RESERVED;LDG_TIME;LDG_AP;LDG_RWY;LDG_TURN;MAX_ALT;AVERAGE_CLIMB_RATE;FLIGHT_TIME;DAY_DIFFERENCE;LAUNCH_METHOD;INITIAL_CLIMBRATE;TOW_ID;TOW_CALLSIGN;TOW_COMPETITION_NUMBER;TOW_SEQUENCE_NUMBER\n'
+    header = 'DATE,SEQ_NR,ID,CALLSIGN,COMPETITION_NUMBER,TYPE,DETAILED_TYPE,CREW1,CREW2,TKOF_TIME,TKOF_AP,TKOF_RWY,RESERVED,LDG_TIME,LDG_AP,LDG_RWY,LDG_TURN,MAX_ALT,AVERAGE_CLIMB_RATE,FLIGHT_TIME,DAY_DIFFERENCE,LAUNCH_METHOD,INITIAL_CLIMBRATE,TOW_ID,TOW_CALLSIGN,TOW_COMPETITION_NUMBER,TOW_SEQUENCE_NUMBER\n'
 
     return header + lines
 
