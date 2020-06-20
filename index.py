@@ -187,13 +187,14 @@ def _formatRegistration(reg: str):
 
     reg = reg.upper()
     if '-' not in reg:
-        if reg.startswith('OK'):
-            s = reg[reg.index('OK') + 2:]
-            reg = f"OK-{s}"
+        if reg.startswith('OK') or reg.startswith('OM'):
+            r = reg[0:2]
+            s = reg[2:]
+            reg = f"{r}-{s}"
 
         elif reg.startswith('D') or reg.startswith('F'):
             r = reg[0]
-            s = reg[reg.index('D') + 1:]
+            s = reg[1:]
             reg = f"{r}-{s}"
 
     return reg
