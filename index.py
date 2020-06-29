@@ -37,7 +37,7 @@ def index():
         icaoFilter.append('EF')     # fi
         icaoFilter.append('ES')     # se
 
-    departures, arrivals, flights = _prepareData(limit=25, icaoFilter=icaoFilter, sortTsDesc=True)
+    departures, arrivals, flights = _prepareData(limit=25, icaoFilter=icaoFilter, sortTsDesc=True, orderByCol='landing_ts')
 
     totNumFlights = getTotNumFlights()
     numFlightsToday = getNumFlightsToday()
@@ -107,7 +107,7 @@ def filterByRegistration(registration, date=None):
                                  departures=departures, arrivals=arrivals, flights=flights, showFlightsOnly=True)
 
 
-def _prepareData(icaoCode=None, registration=None, forDay=None, limit=None, icaoFilter=[], sortTsDesc=False):
+def _prepareData(icaoCode=None, registration=None, forDay=None, limit=None, icaoFilter=[], sortTsDesc=False, orderByCol='takeoff_ts'):
 
     if icaoCode:
         icaoCode = _saninitise(icaoCode)
@@ -117,7 +117,8 @@ def _prepareData(icaoCode=None, registration=None, forDay=None, limit=None, icao
 
     departures = listDepartures(icaoCode=icaoCode, registration=registration, forDay=forDay, limit=limit, icaoFilter=icaoFilter, sortTsDesc=sortTsDesc)
     arrivals = listArrivals(icaoCode=icaoCode, registration=registration, forDay=forDay, limit=limit, icaoFilter=icaoFilter, sortTsDesc=sortTsDesc)
-    flights = listFlights(icaoCode=icaoCode, registration=registration, forDay=forDay, limit=limit, icaoFilter=icaoFilter, sortTsDesc=sortTsDesc)
+    flights = listFlights(icaoCode=icaoCode, registration=registration, forDay=forDay, limit=limit, icaoFilter=icaoFilter,
+                          sortTsDesc=sortTsDesc, orderByCol=orderByCol)
 
     return departures, arrivals, flights
 

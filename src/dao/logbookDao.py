@@ -137,7 +137,7 @@ def listArrivals(address=None, icaoCode=None, registration=None, forDay=None, li
     return records
 
 
-def listFlights(address=None, icaoCode=None, registration=None, forDay=None, limit=None, icaoFilter: list = [], sortTsDesc=False):
+def listFlights(address=None, icaoCode=None, registration=None, forDay=None, limit=None, icaoFilter: list = [], sortTsDesc=False, orderByCol='takeoff_ts'):
 
     c1 = c2 = ''
     if icaoCode:
@@ -177,7 +177,7 @@ def listFlights(address=None, icaoCode=None, registration=None, forDay=None, lim
                     FROM logbook_entries as l 
                     LEFT JOIN ddb AS d ON l.address = d.device_id
                     WHERE (d.tracked != false OR d.tracked IS NULL) AND (d.identified != false OR d.identified IS NULL) {cond} {condTs} {condIcao}
-                    ORDER by landing_ts {sortTs} {condLimit};"""
+                    ORDER by {orderByCol} {sortTs} {condLimit};"""
 
         c.execute(strSql)
 
