@@ -1,8 +1,8 @@
 
 import os
 
-APRS_FILTER = 'r/+49.3678/+16.1145/1000'
-# APRS_FILTER = None
+# APRS_FILTER = 'r/+49.3678/+16.1145/1000'
+APRS_FILTER = None
 
 redisConfig = {"host": "127.0.0.1", "password": "", "port": 6379}
 REDIS_RECORD_EXPIRATION = 4*60*60     # [s]
@@ -13,6 +13,9 @@ DB_NAME = 'ogn_logbook'
 DB_USER = '**'
 DB_PASSWORD = '**'
 dbConnectionInfo = (DB_HOST, DB_PORT, DB_NAME, DB_USER, DB_PASSWORD)
+
+INFLUX_DB_NAME = DB_NAME
+INFLUX_DB_HOST = DB_HOST
 
 if DB_PASSWORD != '**':
     os.environ.setdefault('DB_HOST', DB_HOST)

@@ -15,8 +15,9 @@ from ogn.parser import parse
 from ogn.parser.exceptions import ParseError
 
 from configuration import debugMode, redisConfig, \
-    dbConnectionInfo, REDIS_RECORD_EXPIRATION, MQ_HOST, MQ_PORT, MQ_USER, MQ_PASSWORD
+    dbConnectionInfo, REDIS_RECORD_EXPIRATION, MQ_HOST, MQ_PORT, MQ_USER, MQ_PASSWORD, INFLUX_DB_NAME, INFLUX_DB_HOST
 from db.DbThread import DbThread
+from db.InfluxDbThread import InfluxDbThread
 from airfieldManager import AirfieldManager
 from dataStructures import Status
 from utils import getGroundSpeedThreshold
@@ -28,12 +29,13 @@ class RawWorker(Thread):
 
     redis = StrictRedis(**redisConfig)
 
-    def __init__(self, id: int, dbThread: DbThread, rawQueue: Queue):
+    def __init__(self, id: int, dbThread: DbThread, rawQueue: Queue, influxDb: InfluxDbThread):
         super(RawWorker, self).__init__()
 
         self.id = id
         self.dbThread = dbThread
         self.rawQueue = rawQueue
+        self.influxDb = influxDb
 
         self.numProcessed = 0
         self.airfieldManager = AirfieldManager()
@@ -96,9 +98,21 @@ class RawWorker(Thread):
         if aircraftType not in [1, 2, 6, 8, 9]:
             return
 
-        address = beacon['address']
-        groundSpeed = beacon['ground_speed']
         ts = round(beacon['timestamp'].timestamp())  # [s]
+        address = beacon['address']
+        lat = beacon['latitude']
+        lon = beacon['longitude']
+        altitude = int(beacon['altitude'])
+        groundSpeed = beacon['ground_speed']
+        verticalSpeed = beacon['climb_rate']
+        turnRate = beacon['turn_rate']
+        if not turnRate:
+            turnRate = 0
+
+        # insert into influx:
+        # pos ~ position, vs = vertical speed, tr = turn rate
+        q = f"pos,addr={address} lat={lat:.6f},lon={lon:.6f},alt={altitude:.0f},gs={groundSpeed:.2f},vs={verticalSpeed:.2f},tr={turnRate:.2f} {ts}000000000"
+        self.influxDb.addStatement(q)
 
         prevStatus: Status = None
         statusKey = f"{address}-status"
@@ -131,8 +145,6 @@ class RawWorker(Thread):
 
         if currentStatus.s != prevStatus.s:
             addressType = beacon['address_type']
-            lat = beacon['latitude']
-            lon = beacon['longitude']
 
             icaoLocation = self.airfieldManager.getNearest(lat, lon)
             if not icaoLocation:
@@ -206,8 +218,11 @@ class BeaconProcessor(object):
         self.dbThread = DbThread(dbConnectionInfo)
         self.dbThread.start()
 
+        self.influxDb = InfluxDbThread(dbName=INFLUX_DB_NAME, host=INFLUX_DB_HOST)
+        self.influxDb.start()
+
         for id, queue in zip(self.queueIds, self.queues):
-            rawWorker = RawWorker(id=id, dbThread=self.dbThread, rawQueue=queue)
+            rawWorker = RawWorker(id=id, dbThread=self.dbThread, rawQueue=queue, influxDb=self.influxDb)
             rawWorker.start()
             self.workers.append(rawWorker)
 
@@ -227,6 +242,7 @@ class BeaconProcessor(object):
         print(f"[INFO] Flushed {n} rawQueueX items into redis.")
 
         self.dbThread.stop()
+        self.influxDb.stop()
 
         self.timer.stop()
 
