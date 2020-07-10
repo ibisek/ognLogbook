@@ -37,7 +37,7 @@
 			<div class="cell">{{item.takeoff_dt.strftime('%H:%M')}}</div>
 			<div class="cell"><a href="/loc/{{item.takeoff_icao}}">{{item.takeoff_icao}}</a></div>
 			<div class="cell">{% if item.registration %}<a href="/reg/{{item.registration}}">{{item.registration}}</a>{% else %}{{ gettext('tab.hidden') }}{% endif %}</div>
-			<div class="cell">{% if item.cn %}{{item.cn}}{% endif %}</div>
+			<div class="cell">{% if item.cn %}<a href="https://glideandseek.com/?aircraft={{item.address}}" target="_blank">{{item.cn}}</a>{% endif %}</div>
 		</div>
 		{% endfor %}
 	</div>
