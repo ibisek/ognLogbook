@@ -13,7 +13,7 @@ from queue import Queue, Empty
 
 import requests
 from influxdb import InfluxDBClient
-from influxdb.exceptions import InfluxDBClientError
+from influxdb.exceptions import InfluxDBClientError, InfluxDBServerError
 
 
 class InfluxDbThread(threading.Thread):
@@ -54,9 +54,9 @@ class InfluxDbThread(threading.Thread):
                         print(f"[ERROR] when executing influx query: '{query}' -> {e}")
                         self.toDoStatements.append(query)  # requeue for retry
 
-                    except requests.exceptions.ConnectionError as e:
+                    except (requests.exceptions.ConnectionError, InfluxDBServerError) as e:
                         print(f"[ERROR] when connecting to influx db at {self.host}:{self.port}")
-                        raise e
+                        self._connect()
 
             except Empty:
                 time.sleep(1)  # ~ thread.yield()
