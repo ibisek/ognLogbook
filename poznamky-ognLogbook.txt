@@ -19,6 +19,13 @@ Info o stavu zpracovani:
 
 --
 
+INFLUX DB:
+
+influxd backup -database ogn_logbook /tmp/00/mysnapshot
+influxd restore -db ogn_logbook /tmp/00/mysnapshot
+
+--
+
 EU terrain elevation data:
 
     https://land.copernicus.eu/imagery-in-situ/eu-dem/eu-dem-v1.1?tab=mapview
