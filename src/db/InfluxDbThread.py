@@ -7,9 +7,9 @@ Speeds-up DB inserts by not opening and closing cursors after every statement.
 """
 
 
-import sys
 import time
 import threading
+from queue import Queue, Empty
 
 import requests
 from influxdb import InfluxDBClient
@@ -17,6 +17,8 @@ from influxdb.exceptions import InfluxDBClientError
 
 
 class InfluxDbThread(threading.Thread):
+
+    toDoStatements = Queue()
 
     def __init__(self, dbName: str, host: str, port: int = 8086):
         super(InfluxDbThread, self).__init__()
@@ -27,9 +29,6 @@ class InfluxDbThread(threading.Thread):
 
         self._connect()
 
-        self.toDoStatements = []
-        self.toDoStatementsLock = threading.Lock()
-        
         self.doRun = True
 
     def _connect(self):
@@ -40,31 +39,27 @@ class InfluxDbThread(threading.Thread):
         self.doRun = False
         
     def addStatement(self, sql):
-        with self.toDoStatementsLock:
-            self.toDoStatements.append(sql)
-            
+        self.toDoStatements.put(sql)
+
     def run(self):
         while self.doRun or len(self.toDoStatements) > 0:
+            try:
+                query = self.toDoStatements.get(block=False)
+                if query:
+                    # print(f"[INFO] influxDbThread sql: {query}")
+                    try:
+                        res = self.client.write(data=query, params={'db': self.dbName}, expected_response_code=204, protocol='line')
 
-            if len(self.toDoStatements) > 0:
-                with self.toDoStatementsLock:
-                    while len(self.toDoStatements) > 0:
-                        query = self.toDoStatements.pop()
-                        # print(f"[INFO] influxDbThread sql: {query}")
+                    except InfluxDBClientError as e:
+                        print(f"[ERROR] when executing influx query: '{query}' -> {e}")
+                        self.toDoStatements.append(query)  # requeue for retry
 
-                        try:
-                            res = self.client.write(data=query, params={'db': self.dbName}, expected_response_code=204, protocol='line')
+                    except requests.exceptions.ConnectionError as e:
+                        print(f"[ERROR] when connecting to influx db at {self.host}:{self.port}")
+                        raise e
 
-                        except InfluxDBClientError as e:
-                            print(f"[ERROR] when executing influx query: '{query}' -> {e}")
-                            self.toDoStatements.append(query)  # requeue for retry
-
-                        except requests.exceptions.ConnectionError as e:
-                            print(f"[ERROR] when connecting to influx db at {self.host}:{self.port}")
-                            raise e
-
-            else:
-                time.sleep(1)
+            except Empty:
+                time.sleep(1)  # ~ thread.yield()
 
         if self.client:
             self.client.close()
