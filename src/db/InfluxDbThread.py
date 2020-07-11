@@ -43,22 +43,31 @@ class InfluxDbThread(threading.Thread):
 
     def run(self):
         while self.doRun or self.toDoStatements.qsize() > 0:
-            try:
-                query = self.toDoStatements.get(block=False)
-                if query:
-                    # print(f"[INFO] influxDbThread sql: {query}")
-                    try:
-                        res = self.client.write(data=query, params={'db': self.dbName}, expected_response_code=204, protocol='line')
+            queries = list()
 
-                    except InfluxDBClientError as e:
-                        print(f"[ERROR] when executing influx query: '{query}' -> {e}")
+            while len(queries) < 5000:  # write in batches of N records
+                try:
+                    query = self.toDoStatements.get(block=False)
+                    if query:
+                        # print(f"[INFO] influxDbThread sql: {query}")
+                        queries.append(query)
+                except Empty:
+                    time.sleep(1)  # ~ thread.yield()
+
+            if len(queries) > 0:
+                try:
+                    res = self.client.write(data=queries, params={'db': self.dbName}, expected_response_code=204, protocol='line')
+
+                except InfluxDBClientError as e:
+                    print(f"[ERROR] when executing influx query: '{query}' -> {e}")
+                    for query in queries:
                         self.toDoStatements.put(query)  # requeue for retry
 
-                    except (requests.exceptions.ConnectionError, InfluxDBServerError) as e:
-                        print(f"[ERROR] when connecting to influx db at {self.host}:{self.port}")
-                        self._connect()
+                except (requests.exceptions.ConnectionError, InfluxDBServerError) as e:
+                    print(f"[ERROR] when connecting to influx db at {self.host}:{self.port}")
+                    self._connect()
 
-            except Empty:
+            else:
                 time.sleep(1)  # ~ thread.yield()
 
         if self.client:
