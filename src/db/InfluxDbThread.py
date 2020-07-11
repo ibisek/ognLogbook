@@ -42,7 +42,7 @@ class InfluxDbThread(threading.Thread):
         self.toDoStatements.put(sql)
 
     def run(self):
-        while self.doRun or len(self.toDoStatements) > 0:
+        while self.doRun or self.toDoStatements.qsize() > 0:
             try:
                 query = self.toDoStatements.get(block=False)
                 if query:
