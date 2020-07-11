@@ -52,7 +52,7 @@ class InfluxDbThread(threading.Thread):
 
                     except InfluxDBClientError as e:
                         print(f"[ERROR] when executing influx query: '{query}' -> {e}")
-                        self.toDoStatements.append(query)  # requeue for retry
+                        self.toDoStatements.put(query)  # requeue for retry
 
                     except (requests.exceptions.ConnectionError, InfluxDBServerError) as e:
                         print(f"[ERROR] when connecting to influx db at {self.host}:{self.port}")
