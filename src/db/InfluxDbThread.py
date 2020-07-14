@@ -44,15 +44,14 @@ class InfluxDbThread(threading.Thread):
     def run(self):
         while self.doRun or self.toDoStatements.qsize() > 0:
             queries = list()
+            while self.toDoStatements.qsize() > 0:
+                query = self.toDoStatements.get(block=False)
+                if query:
+                    # print(f"[INFO] influxDbThread sql: {query}")
+                    queries.append(query)
 
-            while len(queries) < 5000:  # write in batches of N records
-                try:
-                    query = self.toDoStatements.get(block=False)
-                    if query:
-                        # print(f"[INFO] influxDbThread sql: {query}")
-                        queries.append(query)
-                except Empty:
-                    time.sleep(1)  # ~ thread.yield()
+                if len(queries) >= 5000:
+                    break   # influx is said to be optimised to 5000 queries/batch
 
             if len(queries) > 0:
                 try:
@@ -67,7 +66,7 @@ class InfluxDbThread(threading.Thread):
                     print(f"[ERROR] when connecting to influx db at {self.host}:{self.port}")
                     self._connect()
 
-            else:
+            if len(queries) < 1000:     # ~ wait for more items in the queue to save network resources a bit..
                 time.sleep(1)  # ~ thread.yield()
 
         if self.client:
