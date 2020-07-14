@@ -82,7 +82,7 @@ class AirfieldManager(object):  # , metaclass=Singleton
                 minDist = dist
                 code = rec.code
 
-        if minDist < 4:   # [km]
+        if minDist < 10:   # [km]
             return code
         else:
             return None
