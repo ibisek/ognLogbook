@@ -89,4 +89,4 @@ def getGroundSpeedThreshold(aircraftType: int, forEvent: str):
             return 50   # [km/h] tow
 
     else:   # takeoff threshold
-        return 100  # [km/h] all
+        return 80  # [km/h] all
