@@ -134,7 +134,7 @@ class RawWorker(Thread):
         prevGroundSpeed = float(self._getFromRedis(gsKey, 0))
 
         # filter speed change a bit (sometimes there are glitches in speed with badly placed gps antenna):
-        groundSpeed = groundSpeed * 0.2 + prevGroundSpeed * 0.8
+        groundSpeed = groundSpeed * 0.6 + prevGroundSpeed * 0.4
         self._saveToRedis(gsKey, groundSpeed, 120)
 
         currentStatus: Status = Status(ts=ts, s=0 if groundSpeed < getGroundSpeedThreshold(aircraftType, forEvent='T') else 1)    # 0 = on ground, 1 = airborne, -1 = unknown
@@ -146,10 +146,6 @@ class RawWorker(Thread):
 
         if currentStatus.s != prevStatus.s:
             addressType = beacon['address_type']
-
-            icaoLocation = self.airfieldManager.getNearest(lat, lon)
-            if not icaoLocation:
-                return
 
             event = 'L' if currentStatus.s == 0 else 'T'  # L = landing, T = take-off
             flightTime = 0
@@ -176,15 +172,19 @@ class RawWorker(Thread):
             elif event == 'L':
                 self.redis.delete(statusKey)    # landed, quit observing
 
+            icaoLocation = self.airfieldManager.getNearest(lat, lon)
+
             dt = datetime.fromtimestamp(ts)
             dtStr = dt.strftime('%H:%M:%S')
             print(f"[INFO] event: {dtStr}; {icaoLocation}; {address}; {event}; {flightTime}")
+
+            icaoLocation = f"'{icaoLocation}'" if icaoLocation else 'null'
 
             strSql = f"INSERT INTO logbook_events " \
                 f"(ts, address, address_type, aircraft_type, event, lat, lon, location_icao, flight_time) " \
                 f"VALUES " \
                 f"({ts}, '{address}', {addressType}, '{aircraftType}', " \
-                f"'{event}', {lat:.5f}, {lon:.5f}, '{icaoLocation}', {flightTime});"
+                f"'{event}', {lat:.5f}, {lon:.5f}, {icaoLocation}, {flightTime});"
 
             # print('strSql:', strSql)
 
