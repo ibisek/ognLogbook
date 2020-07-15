@@ -5,7 +5,7 @@ APRS_FILTER = 'r/+49.3678/+16.1145/1100'    # 1100 km ~ eastern Romania
 # APRS_FILTER = None
 
 redisConfig = {"host": "127.0.0.1", "password": "", "port": 6379}
-REDIS_RECORD_EXPIRATION = 4*60*60     # [s]
+REDIS_RECORD_EXPIRATION = 8*60*60     # [s]
 
 DB_HOST = '127.0.0.1'
 DB_PORT = 3306
