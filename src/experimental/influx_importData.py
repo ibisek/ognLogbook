@@ -12,9 +12,9 @@ if __name__ == '__main__':
     influx.start()
 
     with open(DUMP_FILEPATH, 'r') as f:
-        line = f.readline()
-        print(line)
-        influx.addStatement(line)
+        for line in f:
+            # print('line:', line)
+            influx.addStatement(line)
 
     while influx.toDoStatements.qsize() > 0:
         time.sleep(1)  # ~ thread.yield()
