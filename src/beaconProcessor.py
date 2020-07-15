@@ -5,6 +5,7 @@ Notes:
 """
 import os
 import time
+import pytz
 from datetime import datetime
 from threading import Thread
 
@@ -98,7 +99,8 @@ class RawWorker(Thread):
         if aircraftType not in [1, 2, 6, 8, 9]:
             return
 
-        ts = round(beacon['timestamp'].timestamp())  # [s]
+        dt = beacon['timestamp'].replace(tzinfo=pytz.UTC)
+        ts = round(dt.timestamp())  # [s]
         address = beacon['address']
         lat = beacon['latitude']
         lon = beacon['longitude']
