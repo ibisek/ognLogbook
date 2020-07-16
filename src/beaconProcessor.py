@@ -101,6 +101,11 @@ class RawWorker(Thread):
 
         dt = beacon['timestamp'].replace(tzinfo=pytz.UTC)
         ts = round(dt.timestamp())  # [s]
+        now = datetime.utcnow().replace(tzinfo=pytz.UTC)
+        if ts > now.timestamp():    # timestamp from the future?
+            print(f"[WARN] Timestamp from the future: {dt}, now is {now}")
+            return
+
         address = beacon['address']
         lat = beacon['latitude']
         lon = beacon['longitude']
