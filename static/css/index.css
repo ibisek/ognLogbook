@@ -282,14 +282,22 @@ a:hover {
     text-decoration: underline;
 }
 
-.workInProgress {
+.footerInfo {
     margin-top: 14px;
 }
 
-.workInProgress span {
+.footerInfo span {
     padding: 8px 8px 5px 8px;
     color: white;
     font-size: 12px;
     font-weight: bold;
+    background: green;
+}
+
+.footerInfo .node {
+    background: blue;
+}
+
+.footerInfo .wip {
     background: red;
 }

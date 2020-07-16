@@ -7,6 +7,7 @@ Created on 20. 5. 2020
 import sys
 import flask
 import getopt
+from platform import node
 from datetime import datetime
 from flask import request
 
@@ -18,6 +19,7 @@ from translations import gettext
 
 app = flask.Flask(__name__)
 app.jinja_env.globals.update(gettext=gettext)
+app.jinja_env.globals.update(node=node)
 
 
 @app.route('/')
