@@ -102,7 +102,7 @@ class RawWorker(Thread):
         dt = beacon['timestamp'].replace(tzinfo=pytz.UTC)
         ts = round(dt.timestamp())  # [s]
         now = datetime.utcnow().replace(tzinfo=pytz.UTC)
-        if ts > now.timestamp():    # timestamp from the future?
+        if ts - now.timestamp() > 30:    # timestamp from the future? We'll 30s time offset at most..
             print(f"[WARN] Timestamp from the future: {dt}, now is {now}")
             return
 
