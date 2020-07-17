@@ -283,21 +283,22 @@ a:hover {
 }
 
 .footerInfo {
-    margin-top: 14px;
+    margin-top: 6px;
 }
 
 .footerInfo span {
-    padding: 8px 8px 5px 8px;
+    padding: 5px 8px 1px 8px;
     color: white;
     font-size: 12px;
     font-weight: bold;
     background: green;
+    border-radius: 20px;
 }
 
 .footerInfo .node {
-    background: blue;
+    background: #2980b9;
 }
 
 .footerInfo .wip {
-    background: red;
+    background: #ea6153;
 }
