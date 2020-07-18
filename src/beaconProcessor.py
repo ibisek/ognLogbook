@@ -28,6 +28,8 @@ from periodicTimer import PeriodicTimer
 
 class RawWorker(Thread):
 
+    ADDRESS_TYPES = {1: 'I', 2: 'F', 3: 'O'}
+
     redis = StrictRedis(**redisConfig)
 
     def __init__(self, id: int, dbThread: DbThread, rawQueue: Queue, influxDb: InfluxDbThread):
@@ -153,6 +155,7 @@ class RawWorker(Thread):
 
         if currentStatus.s != prevStatus.s:
             addressType = beacon['address_type']
+            addressTypeStr = self.ADDRESS_TYPES.get(addressType, 'X')
 
             event = 'L' if currentStatus.s == 0 else 'T'  # L = landing, T = take-off
             flightTime = 0
@@ -183,7 +186,7 @@ class RawWorker(Thread):
 
             dt = datetime.fromtimestamp(ts)
             dtStr = dt.strftime('%H:%M:%S')
-            print(f"[INFO] event: {dtStr}; {icaoLocation}; {address}; {event}; {flightTime}")
+            print(f"[INFO] event: {dtStr}; {icaoLocation}; [{addressTypeStr}] {address}; {event}; {flightTime}")
 
             icaoLocation = f"'{icaoLocation}'" if icaoLocation else 'null'
 
