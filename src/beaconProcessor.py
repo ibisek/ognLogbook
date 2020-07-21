@@ -62,6 +62,8 @@ class RawWorker(Thread):
                 time.sleep(1)   # ~ thread.yield()
             except BrokenPipeError as ex:
                 print('[WARN] in worker:', str(ex))
+            except Exception as ex:
+                print('[ERROR] some other problem:', str(ex))
 
         print(f"[INFO] Worker '{self.id}' terminated.")
 
