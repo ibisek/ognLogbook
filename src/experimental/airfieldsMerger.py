@@ -1,11 +1,15 @@
+#
+# A script to merge list of already know airfields with
+# OSM-extracted location information CSV files.
+#
 
 import json
 
 AIRFIELDS_FN = '../../data/airfields.json'
 AIRFIELDS_FN_new = '../../data/airfields.json.new'
 
-# OSM = '/home/jaja/btsync/doma/ogn/00-letiste/airfields-europe.csv'
-OSM = '/home/jaja/btsync/doma/ogn/00-letiste/airfields-africa.csv'
+OSM = '/home/jaja/btsync/doma/ogn/00-letiste/airfields-europe.csv'
+# OSM = '/home/jaja/btsync/doma/ogn/00-letiste/airfields-africa.csv'
 # OSM = '/home/jaja/btsync/doma/ogn/00-letiste/airfields-oceania.csv'
 # OSM = '/home/jaja/btsync/doma/ogn/00-letiste/airfields-camerica.csv'
 # OSM = '/home/jaja/btsync/doma/ogn/00-letiste/airfields-namerica.csv'
@@ -40,7 +44,20 @@ if __name__ == '__main__':
     print(f'New: {new}, old: {old}')
 
     with open(AIRFIELDS_FN_new, 'w') as f:
-        j = json.dumps(afs)
+        l = list()
+        for key in afs.keys():
+            af = afs[key]
+            lat = af['lat']
+            lon = af['lon']
+
+            d = dict()
+            d['code'] = key
+            d['lat'] = lat
+            d['lon'] = lon
+
+            l.append(d)
+
+        j = json.dumps(l)
         f.write(j)
 
     print('KOHEU.')
