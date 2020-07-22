@@ -34,7 +34,7 @@ if __name__ == '__main__':
             lat = float(lat)
             lon = float(lon)
 
-            if code not in afs and len(code) == 4:
+            if code not in afs and 4 <= len(code) <= 6:
                 afs[code] = {'lat': lat, 'lon': lon}
                 new += 1
             else:
