@@ -192,10 +192,7 @@ class RawWorker(Thread):
                 if not agl or agl < 50:  # [m]
                     return  # most likely a false detection
 
-                self._saveToRedis(statusKey, currentStatus)
-
-            elif event == 'L':
-                self.redis.delete(statusKey)    # landed, quit observing
+            self._saveToRedis(statusKey, currentStatus)
 
             icaoLocation = self.airfieldManager.getNearest(lat, lon)
 
