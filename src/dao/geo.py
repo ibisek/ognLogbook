@@ -5,25 +5,29 @@ gdallocationinfo -wgs84  eu_dem_v11_E40N20-500m.TIF 16.1144561 49.3678764
 
 import subprocess
 
-GEOSCRIPT = '/home/ibisek/wqz/prog/python/ognLogbook/scripts/findElevation.sh'
-GEOTIFF_ROOT_DIR = '/home/ibisek/wqz/prog/python/ognLogbook/data'
 
+class Geo(object):
 
-def getElevation(lat: float, lon: float):
-    cmd = f"{GEOSCRIPT} {GEOTIFF_ROOT_DIR} {lat} {lon}"
-    res = subprocess.run(cmd, shell=True, check=True, capture_output=True)
+    GEOSCRIPT = '/home/ibisek/wqz/prog/python/ognLogbook/scripts/findElevation.sh'
+    GEOTIFF_ROOT_DIR = '/home/ibisek/wqz/prog/python/ognLogbook/data'
 
-    if res.stdout:
-        elev = float(res.stdout.decode('utf-8').strip())
-        return elev
+    def getElevation(self, lat: float, lon: float):
+        cmd = f"{self.GEOSCRIPT} {self.GEOTIFF_ROOT_DIR} {lat} {lon}"
+        res = subprocess.run(cmd, shell=True, check=True, capture_output=True)
 
-    return None
+        if res.stdout:
+            elev = float(res.stdout.decode('utf-8').strip())
+            return elev
+
+        return None
 
 
 if __name__ == '__main__':
     lat = 49.3678764
     lon = 16.1144561
-    elev = getElevation(lat, lon)
+
+    geo = Geo()
+    elev = geo.getElevation(lat, lon)
     print('ELEV:', elev)
 
     # --
