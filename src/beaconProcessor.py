@@ -22,7 +22,7 @@ from db.InfluxDbThread import InfluxDbThread
 from airfieldManager import AirfieldManager
 from dataStructures import Status
 from utils import getGroundSpeedThreshold
-from dao.geo import getElevation
+from dao.geo import Geo
 from periodicTimer import PeriodicTimer
 
 
@@ -42,6 +42,7 @@ class RawWorker(Thread):
 
         self.numProcessed = 0
         self.airfieldManager = AirfieldManager()
+        self.geo = Geo()
 
         self.doRun = True
 
@@ -77,6 +78,14 @@ class RawWorker(Thread):
             return default
         else:
             return res.decode('utf-8')
+
+    def _getAgl(self, lat, lon,  altitude):
+        elev = self.geo.getElevation(lat, lon)
+        if elev:
+            agl = altitude - elev
+            return agl
+
+        return None
 
     def _processMessage(self, raw_message: str):
         beacon = None
@@ -146,7 +155,7 @@ class RawWorker(Thread):
 
         # filter speed change a bit (sometimes there are glitches in speed with badly placed gps antenna):
         groundSpeed = groundSpeed * 0.6 + prevGroundSpeed * 0.4
-        self._saveToRedis(gsKey, groundSpeed, 120)
+        self._saveToRedis(gsKey, groundSpeed, 3600)
 
         currentStatus: Status = Status(ts=ts, s=0 if groundSpeed < getGroundSpeedThreshold(aircraftType, forEvent='T') else 1)    # 0 = on ground, 1 = airborne, -1 = unknown
 
@@ -173,14 +182,18 @@ class RawWorker(Thread):
                     return
 
                 # check altitude above ground level:
-                elev = getElevation(beacon['latitude'], beacon['longitude'])
-                if elev:
-                    agl = beacon['altitude'] - elev
-                    if agl > 150:   # [m]
-                        return
+                agl = self._getAgl(lat, lon, altitude)
+                if agl and agl > 150:   # [m]
+                    return  # most likely a false detection
 
             if event == 'T':
+                # check altitude above ground level:
+                agl = self._getAgl(lat, lon, altitude)
+                if not agl or agl < 50:  # [m]
+                    return  # most likely a false detection
+
                 self._saveToRedis(statusKey, currentStatus)
+
             elif event == 'L':
                 self.redis.delete(statusKey)    # landed, quit observing
 
