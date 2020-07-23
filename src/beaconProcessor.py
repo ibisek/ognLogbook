@@ -186,11 +186,11 @@ class RawWorker(Thread):
                 if agl and agl > 150:   # [m]
                     return  # most likely a false detection
 
-            if event == 'T':
-                # check altitude above ground level:
-                agl = self._getAgl(lat, lon, altitude)
-                if agl and agl < 50:  # [m]
-                    return  # most likely a false detection
+            # if event == 'T':
+            #     # check altitude above ground level:
+            #     agl = self._getAgl(lat, lon, altitude)
+            #     if agl and agl < 50:  # [m]
+            #         return  # most likely a false detection
 
             self._saveToRedis(statusKey, currentStatus)
 
