@@ -12,6 +12,9 @@ class AirfieldRecord(object):
         self.lon = math.radians(map['lon'])
         self.code = map['code']
 
+    def __str__(self):
+        return f'#AirfieldRecord: {self.code}; lat:{self.lat:.4f}; lon:{self.lon:.4f}'
+
 
 class AirfieldManager(object):  # , metaclass=Singleton
 
@@ -69,11 +72,11 @@ class AirfieldManager(object):  # , metaclass=Singleton
             else:
                 startI = i
 
-            if endI - startI <= 10:
+            if endI - startI <= 100:
                 break
 
             n += 1
-            if n > 10:
+            if n > 100:
                 break
 
         for rec in self.airfields[startI:endI]:
@@ -91,6 +94,7 @@ class AirfieldManager(object):  # , metaclass=Singleton
 if __name__ == '__main__':
     am = AirfieldManager()
 
+    # LKNA
     # lat = 49.16
     # lon = 16.11
 
@@ -100,6 +104,11 @@ if __name__ == '__main__':
     # lat = 50.32798
     # lon = 15.95643
 
+    # Poznan EPPK:
+    # lat = 52.4335667
+    # lon = 17.0384183
+    lat = 52.4396
+    lon = 17.0553
+
     icao = am.getNearest(lat, lon)
     print(icao)
-
