@@ -9,7 +9,7 @@ import json
 AIRFIELDS_FN = '../../data/airfields.json'
 AIRFIELDS_FN_new = '../../data/airfields.json.new'
 
-OSM_ROOT_DIR = '/home/jaja/btsync/doma/ogn/00-letiste/'
+OSM_ROOT_DIR = '/home/ibisek/btsync/doma/ogn/00-letiste/'
 
 new = 0
 old = 0
