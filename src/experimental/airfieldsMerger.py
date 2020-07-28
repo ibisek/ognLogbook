@@ -78,6 +78,9 @@ if __name__ == '__main__':
 
             l.append(d)
 
+        # sort the list by latitude:
+        l.sort(key=lambda x: x['lat'])
+
         j = json.dumps(l)
         f.write(j)
 
