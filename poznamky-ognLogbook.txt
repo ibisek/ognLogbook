@@ -24,6 +24,15 @@ INFLUX DB:
 influxd backup -database ogn_logbook /tmp/00/mysnapshot
 influxd restore -db ogn_logbook /tmp/00/mysnapshot
 
+Remote access:
+    influxdb.conf:
+        bind-address = ":8086"
+
+    iptables:
+        # influxdb port forwarding:
+        iptables -t nat -I PREROUTING --src 0/0 --dst 0.0.0.0 -p tcp --dport 8086 -j REDIRECT --to-ports 8086
+        iptables -A INPUT -m state --state NEW -p tcp -s 192.168.1.0/24 --dport 8086 -j ACCEPT
+
 --
 
 EU terrain elevation data:
