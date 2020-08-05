@@ -164,8 +164,6 @@ class RawWorker(Thread):
         else:   # when airborne
             currentStatus.s = 0 if groundSpeed < getGroundSpeedThreshold(aircraftType, forEvent='L') else 1
 
-        self._saveToRedis(statusKey, currentStatus)     # even if the status is the same - do not let the key to expire(!)
-
         if currentStatus.s != prevStatus.s:
             addressType = beacon['address_type']
             addressTypeStr = self.ADDRESS_TYPES.get(addressType, 'X')
@@ -211,6 +209,8 @@ class RawWorker(Thread):
             # print('strSql:', strSql)
 
             self.dbThread.addStatement(strSql)
+
+        self._saveToRedis(statusKey, currentStatus)     # even if the status is the same - do not let the key to expire(!)
 
 
 class BeaconProcessor(object):
