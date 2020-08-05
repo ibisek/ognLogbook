@@ -67,7 +67,9 @@ if __name__ == '__main__':
     influx = InfluxDbThread(dbName=INFLUX_DB_NAME, host=INFLUX_DB_HOST)
 
     # ADDR = 'DDDDFE'     # kabrda ventus
-    ADDR = '074812'     # IBI CUBE3
+    # ADDR = '074812'     # IBI CUBE3
+    # ADDR = '4AD706'  # 'SE-UXF', Kjell, 'Duo Discus xlt'
+    ADDR = 'DDA80A'    # 'DS' (TT)
 
     query = f"select * from pos where addr='{ADDR}'"
 
