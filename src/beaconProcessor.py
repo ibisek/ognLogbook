@@ -164,6 +164,8 @@ class RawWorker(Thread):
         else:   # when airborne
             currentStatus.s = 0 if groundSpeed < getGroundSpeedThreshold(aircraftType, forEvent='L') else 1
 
+        self._saveToRedis(statusKey, currentStatus)     # even if the status is the same - do not let the key to expire(!)
+
         if currentStatus.s != prevStatus.s:
             addressType = beacon['address_type']
             addressTypeStr = self.ADDRESS_TYPES.get(addressType, 'X')
@@ -191,8 +193,6 @@ class RawWorker(Thread):
             #     agl = self._getAgl(lat, lon, altitude)
             #     if agl and agl < 50:  # [m]
             #         return  # most likely a false detection
-
-            self._saveToRedis(statusKey, currentStatus)
 
             icaoLocation = self.airfieldManager.getNearest(lat, lon)
 
