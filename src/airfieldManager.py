@@ -72,11 +72,11 @@ class AirfieldManager(object):  # , metaclass=Singleton
             else:
                 startI = i
 
-            if endI - startI <= 100:
+            if endI - startI <= 150:
                 break
 
             n += 1
-            if n > 100:
+            if n > 150:
                 break
 
         for rec in self.airfields[startI:endI]:
