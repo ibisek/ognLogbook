@@ -1,6 +1,7 @@
 
 import sys
 
+import numpy as np
 import pandas as pd
 from dateutil import parser
 from datetime import datetime
@@ -72,9 +73,10 @@ if __name__ == '__main__':
     # ADDR = '4AD706'  # 'SE-UXF', Kjell, 'Duo Discus xlt'
     # ADDR = 'DDA80A'    # 'DS' (TT)
     # ADDR = 'DDDD40'  # 'ZQ' (gliding - mach02)
-    ADDR = 'DDD530'  # hUSKy
+    # ADDR = 'DDD530'  # hUSKy
+    ADDR = '151035'  # A1
 
-    startDate = '2020-08-08'
+    startDate = '2020-08-10'
 
     dt: datetime = datetime.strptime(startDate, '%Y-%m-%d')
     ts = dt.timestamp()     # [s]
