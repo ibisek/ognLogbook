@@ -4,9 +4,12 @@ import os
 APRS_FILTER = 'r/+49.3678/+16.1145/1100'    # 1100 km ~ eastern Romania
 # APRS_FILTER = None
 
+GEOFILE_PATH = '/home/jaja/data/download/ognLogbook/500m/mosaic-500m.TIF'
+
 redisConfig = {"host": "127.0.0.1", "password": "", "port": 6379}
 REDIS_RECORD_EXPIRATION = 8*60*60     # [s]
 
+# DB_HOST = '10.8.0.18'   # 127.0.0.1
 DB_HOST = '127.0.0.1'
 DB_PORT = 3306
 DB_NAME = 'ogn_logbook'
@@ -42,6 +45,7 @@ try:
     print('[INFO] debugMode', debugMode)
 except NameError:
     debugMode = False
+
 
 # this enforces the SQLITE to be used:
 # if 'SQLITE_DB_FILENAME' not in os.environ:
