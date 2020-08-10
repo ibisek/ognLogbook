@@ -36,11 +36,17 @@ Remote access:
 --
 
 EU terrain elevation data:
-
     https://land.copernicus.eu/imagery-in-situ/eu-dem/eu-dem-v1.1?tab=mapview
 
-apt install gdal-bin
-    nainstaluje i python3-gdal
+Installation:
+    apt install gdal-bin
+       - nainstaluje i python3-gdal
+    apt install libgdal-dev
+    pip3 install wheel
+    export CPLUS_INCLUDE_PATH=/usr/include/gdal
+    export C_INCLUDE_PATH=/usr/include/gdal
+    gdalinfo --version
+    pip3 install gdal==2.2.3
 
 gdallocationinfo -wgs84 eu_dem_v11_E40N20.TIF 16.1144561 49.3678764 |grep Value| cut -d":" -f 2
 gdallocationinfo -wgs84 -valonly eu_dem_v11_E40N20.TIF 16.1144561 49.3678764
