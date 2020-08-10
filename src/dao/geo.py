@@ -5,6 +5,8 @@ gdallocationinfo -wgs84  eu_dem_v11_E40N20-500m.TIF 16.1144561 49.3678764
 
 import subprocess
 
+from configuration import GEOFILE_PATH
+
 
 class Geo(object):
 
@@ -33,11 +35,9 @@ if __name__ == '__main__':
     # --
 
     from math import radians
-    # fn = '/home/jaja/data/download/ognLogbook/500m/mosaic-500m.TIF'
-    fn = '/home/jaja/data/download/ognLogbook/500m/eu_dem_v11_E40N20-500m.TIF'
 
     from osgeo import gdal
-    dataset = gdal.Open(fn, gdal.GA_ReadOnly)
+    dataset = gdal.Open(GEOFILE_PATH, gdal.GA_ReadOnly)
     geotransform = dataset.GetGeoTransform()
 
     x = (lon - geotransform[0]) / geotransform[1]
