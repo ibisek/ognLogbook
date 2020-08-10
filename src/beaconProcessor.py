@@ -23,7 +23,6 @@ from db.InfluxDbThread import InfluxDbThread
 from airfieldManager import AirfieldManager
 from dataStructures import Status
 from utils import getGroundSpeedThreshold
-from dao.geo import Geo
 from periodicTimer import PeriodicTimer
 
 
@@ -43,7 +42,6 @@ class RawWorker(Thread):
 
         self.numProcessed = 0
         self.airfieldManager = AirfieldManager()
-        self.geo = Geo()
 
         self.geofile = Geofile(filename=GEOFILE_PATH)
 
@@ -83,7 +81,7 @@ class RawWorker(Thread):
             return res.decode('utf-8')
 
     def _getAgl(self, lat, lon,  altitude):
-        elev = self.geo.getElevation(lat, lon)
+        elev = self.geofile.getValue(lat, lon)
         if elev:
             agl = altitude - elev
             return agl
@@ -132,11 +130,11 @@ class RawWorker(Thread):
         if not turnRate:
             turnRate = 0
 
-        # estimate AGL:
+        # calculate altitude above ground level (AGL):
         agl = 0
-        terrainHeight = self.geofile.getValue(lat, lon)
-        if terrainHeight:
-            agl = altitude - terrainHeight
+        terrainElevation = self.geofile.getValue(lat, lon)
+        if terrainElevation and terrainElevation <= 100000:   # 100 km is the edge of space ;)
+            agl = altitude - terrainElevation
             if agl < 0:
                 agl = 0
 
