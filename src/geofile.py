@@ -10,9 +10,7 @@ from osgeo.osr import SpatialReference, CoordinateTransformation
 
 class Geofile(object):
 
-    # FILENAME = '/tmp/00/mosaic-500m.TIF'
-    # FILENAME = '/home/jaja/data/download/ognLogbook/500m/mosaic-500m.TIF'
-    FILENAME = '/home/jaja/data/download/ognLogbook/1000m/mosaic-1000m.TIF'
+    FILENAME = '/tmp/00/mosaic-500m.TIF'
 
     def __init__(self, filename=FILENAME):
         print(f"[INFO] Reading geofile from '{filename}'")
