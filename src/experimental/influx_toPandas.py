@@ -3,6 +3,7 @@ import sys
 
 import pandas as pd
 from dateutil import parser
+from datetime import datetime
 
 from mpl_toolkits.axes_grid1 import host_subplot
 import mpl_toolkits.axisartist as AA
@@ -69,9 +70,17 @@ if __name__ == '__main__':
     # ADDR = 'DDDDFE'     # kabrda ventus
     # ADDR = '074812'     # IBI CUBE3
     # ADDR = '4AD706'  # 'SE-UXF', Kjell, 'Duo Discus xlt'
-    ADDR = 'DDA80A'    # 'DS' (TT)
+    # ADDR = 'DDA80A'    # 'DS' (TT)
+    # ADDR = 'DDDD40'  # 'ZQ' (gliding - mach02)
+    ADDR = 'DDD530'  # hUSKy
 
-    query = f"select * from pos where addr='{ADDR}'"
+    startDate = '2020-08-08'
+
+    dt: datetime = datetime.strptime(startDate, '%Y-%m-%d')
+    ts = dt.timestamp()     # [s]
+    startTs = f"{ts:.0f}000000000"
+
+    query = f"select * from pos where addr='{ADDR}' and time > {startTs}"
 
     c = DataFrameClient(host=INFLUX_DB_HOST, port=8086, database=INFLUX_DB_NAME)
     res = c.query(query=query)
