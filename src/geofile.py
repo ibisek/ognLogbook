@@ -10,9 +10,12 @@ from osgeo.osr import SpatialReference, CoordinateTransformation
 
 class Geofile(object):
 
-    FILENAME = '/tmp/00/mosaic-500m.TIF'
+    # FILENAME = '/tmp/00/mosaic-500m.TIF'
+    # FILENAME = '/home/jaja/data/download/ognLogbook/500m/mosaic-500m.TIF'
+    FILENAME = '/home/jaja/data/download/ognLogbook/1000m/mosaic-1000m.TIF'
 
     def __init__(self, filename=FILENAME):
+        print(f"[INFO] Reading geofile from '{filename}'")
         self.dataset = gdal.Open(filename, gdal.GA_ReadOnly)
         self.geotransform = self.dataset.GetGeoTransform()
         self.band = self.dataset.GetRasterBand(1)
@@ -22,8 +25,17 @@ class Geofile(object):
         dstRef = SpatialReference(self.dataset.GetProjection())
         self.ct = CoordinateTransformation(srcRef, dstRef)
 
+        if hasattr(gdal, '__version__'):
+            self.gdalMajorVer = int(gdal.__version__[:gdal.__version__.find('.')])
+        else:
+            self.gdalMajorVer = 3   # 3+
+
     def getValue(self, lat, lon):
-        xy = self.ct.TransformPoint(lon, lat)
+        if self.gdalMajorVer < 3:
+            xy = self.ct.TransformPoint(lon, lat)
+        else:
+            xy = self.ct.TransformPoint(lat, lon)   # since gdal ver.3 they flipped order of the arguments (!)
+
         x = (xy[0] - self.geotransform[0]) / self.geotransform[1]  # geotransform : (ulx, xres, xskew, uly, yskew, yres)
         y = (xy[1] - self.geotransform[3]) / self.geotransform[5]
 
@@ -46,4 +58,4 @@ if __name__ == '__main__':
 
     gf = Geofile()
     val = gf.getValue(lat, lon)
-    print(f'val: {val:.2f}')
+    print('val:', val)
