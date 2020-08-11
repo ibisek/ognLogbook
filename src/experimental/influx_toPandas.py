@@ -3,7 +3,6 @@ import sys
 
 import numpy as np
 import pandas as pd
-from dateutil import parser
 from datetime import datetime
 
 from mpl_toolkits.axes_grid1 import host_subplot
@@ -16,6 +15,7 @@ from influxdb import DataFrameClient
 
 from configuration import INFLUX_DB_NAME, INFLUX_DB_HOST
 from db.InfluxDbThread import InfluxDbThread
+from experimental.kalman import Kalman
 
 
 def superPlot(df):
@@ -74,7 +74,8 @@ if __name__ == '__main__':
     # ADDR = 'DDA80A'    # 'DS' (TT)
     # ADDR = 'DDDD40'  # 'ZQ' (gliding - mach02)
     # ADDR = 'DDD530'  # hUSKy
-    ADDR = '151035'  # A1
+    # ADDR = '151035'  # A1 2020-08-10
+    ADDR = '213707'  # OK-PLR
 
     startDate = '2020-08-10'
 
@@ -93,17 +94,25 @@ if __name__ == '__main__':
 
     df = res['pos']
 
+    # filter/smoothen the data a bit:
     windowsSize = 14
     df['altf'] = df['alt'].rolling(window=windowsSize, center=False, closed='right').mean()
+    kalman = Kalman()
+    df['altk'] = df['alt'].apply(lambda val: kalman.predict(val))
+
     df['gsf'] = df['gs'].rolling(window=windowsSize, center=False).mean()
+    kalman = Kalman()
+    df['gsk'] = df['gs'].apply(lambda val: kalman.predict(val))
+
     # df['vsf'] = df['vs'].rolling(window=windowsSize, center=True).mean()
     # df['trf'] = df['tr'].rolling(window=windowsSize, center=True).mean()
 
+    df['aglf'] = df['agl'].rolling(window=windowsSize, center=False).mean()
+    kalman = Kalman()
+    df['aglk'] = df['agl'].apply(lambda val: kalman.predict(val))
+
     # altitude delta:
     # df['dAlt'] = df['alt'].diff()
-
-    # TODO kalman filtering? https://stackoverflow.com/questions/48739169/how-to-apply-a-rolling-kalman-filter-to-a-column-in-a-dataframe
-    # TODO https://pykalman.github.io/
 
     # superPlot(df)
 
@@ -113,14 +122,33 @@ if __name__ == '__main__':
     # keys4 = ['tr', 'trf']
     # df[keys].plot(figsize=(20, 15))
 
-    fig, axes = plt.subplots(nrows=2, ncols=1)
+    fig = plt.figure()
+    gs = fig.add_gridspec(3, hspace=0)
+    axes = gs.subplots(sharex=True, sharey=False)
+    # fig, axes = plt.subplots(nrows=3, ncols=1)
     for ax in axes:
+        ax.minorticks_on()
+
         ax.xaxis.set_major_formatter(DateFormatter("%d. %m. %Y\n%H:%M"))
+        ax.yaxis.set_ticks_position('both')
+
+        ax.grid(b=True, which='major', color='#666666', linestyle='-')
+        ax.grid(b=True, which='minor', color='#999999', linestyle='--', alpha=0.5)
+
     plt.subplots_adjust(left=0.05, right=0.95, top=0.95)
+
     df.plot(y=['alt'], figsize=(20, 15), ax=axes[0], rot=0, ls='', marker='.', markersize=2)
     df.plot(y=['altf'], ax=axes[0], rot=0)
-    df.plot(y=['gs'], ax=axes[1], rot=0, ls='', marker='.', markersize=2)
-    df.plot(y=['gsf'], ax=axes[1], rot=0)
+    df.plot(y=['altk'], ax=axes[0], rot=0)
+
+    df.plot(y=['agl'], ax=axes[1], rot=0, ls='', marker='.', markersize=2)
+    df.plot(y=['aglf'], ax=axes[1], rot=0)
+    df.plot(y=['aglk'], ax=axes[1], rot=0)
+
+    df.plot(y=['gs'], ax=axes[2], rot=0, ls='', marker='.', markersize=2)
+    df.plot(y=['gsf'], ax=axes[2], rot=0)
+    df.plot(y=['gsk'], ax=axes[2], rot=0)
+
     # df[keys3].plot(figsize=(20, 15), ax=axes[2], rot=0)
     # df[keys4].plot(figsize=(20, 15), ax=axes[3], rot=0)
     plt.show()
