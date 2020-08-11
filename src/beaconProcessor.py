@@ -82,11 +82,16 @@ class RawWorker(Thread):
 
     def _getAgl(self, lat, lon,  altitude):
         elev = self.geofile.getValue(lat, lon)
-        if elev:
-            agl = altitude - elev
-            return agl
+        if elev and elev <= 100000:  # 100 km is the edge of space ;)
+            if elev:
+                agl = altitude - elev
 
-        return None
+                if agl < 0:
+                    agl = 0
+
+                return agl
+
+        return 0
 
     def _processMessage(self, raw_message: str):
         beacon = None
@@ -130,13 +135,8 @@ class RawWorker(Thread):
         if not turnRate:
             turnRate = 0
 
-        # calculate altitude above ground level (AGL):
-        agl = 0
-        terrainElevation = self.geofile.getValue(lat, lon)
-        if terrainElevation and terrainElevation <= 100000:   # 100 km is the edge of space ;)
-            agl = altitude - terrainElevation
-            if agl < 0:
-                agl = 0
+        # get altitude above ground level (AGL):
+        agl = self._getAgl(lat, lon, altitude)
 
         # insert into influx:
         # pos ~ position, vs = vertical speed, tr = turn rate
@@ -191,7 +191,6 @@ class RawWorker(Thread):
                     return
 
                 # check altitude above ground level:
-                agl = self._getAgl(lat, lon, altitude)
                 if agl and agl > 150:   # [m]
                     return  # most likely a false detection
 
