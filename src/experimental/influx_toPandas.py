@@ -68,16 +68,21 @@ if __name__ == '__main__':
 
     influx = InfluxDbThread(dbName=INFLUX_DB_NAME, host=INFLUX_DB_HOST)
 
-    # ADDR = 'DDDDFE'     # kabrda ventus
     # ADDR = '074812'     # IBI CUBE3
+    # ADDR = 'DDDDFE'     # kabrda ventus
+    ADDR = 'DDD530'  # hUSKy
+    # ADDR = '034819'  # ROBIN
     # ADDR = '4AD706'  # 'SE-UXF', Kjell, 'Duo Discus xlt'
-    # ADDR = 'DDA80A'    # 'DS' (TT)
-    # ADDR = 'DDDD40'  # 'ZQ' (gliding - mach02)
-    # ADDR = 'DDD530'  # hUSKy
+    # ADDR = 'DDA80A'  # 'DS' (TT)
     # ADDR = '151035'  # A1 2020-08-10
-    ADDR = '213707'  # OK-PLR
+    # ADDR = '213707'  # OK-PLR
+    # ADDR = 'DDDD40'  # 'ZQ' (gliding - mach02)
 
-    startDate = '2020-08-10'
+    # ADDR = 'DD8ED4'  # F-CVVZ (LFLE) where gliders never land
+    # ADDR = 'DDA391'  # F-CIJL (LFLE) where gliders never land
+    # ADDR = 'D006D0'  # F-PVVA (LFLE) where gliders never land
+
+    startDate = '2020-08-13'
 
     dt: datetime = datetime.strptime(startDate, '%Y-%m-%d')
     ts = dt.timestamp()     # [s]
