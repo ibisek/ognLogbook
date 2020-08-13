@@ -156,8 +156,7 @@ class RawWorker(Thread):
         gsKey = f"{address}-gs"
 
         if not prevStatus:  # we have no prior information
-            s = 0 if groundSpeed < getGroundSpeedThreshold(aircraftType, forEvent='T') else 1
-            self._saveToRedis(statusKey, Status(s=s, ts=ts))    # 0 = on ground, 1 = airborne, -1 = unknown
+            self._saveToRedis(statusKey, Status(s=0, ts=ts))    # 0 = on ground, 1 = airborne, -1 = unknown
             self._saveToRedis(gsKey, 0, 120)    # gs = 0
             return
 
@@ -171,9 +170,9 @@ class RawWorker(Thread):
         currentStatus: Status = Status(ts=ts, s=-1)    # 0 = on ground, 1 = airborne, -1 = unknown
 
         if prevStatus.s == 0:   # 0 = on ground, 1 = airborne, -1 = unknown
-            currentStatus.s = 1 if groundSpeed > getGroundSpeedThreshold(aircraftType, forEvent='T') else 0
+            currentStatus.s = 1 if groundSpeed >= getGroundSpeedThreshold(aircraftType, forEvent='T') else 0
         else:   # when airborne
-            currentStatus.s = 0 if groundSpeed < getGroundSpeedThreshold(aircraftType, forEvent='L') else 1
+            currentStatus.s = 0 if groundSpeed <= getGroundSpeedThreshold(aircraftType, forEvent='L') else 1
 
         if currentStatus.s != prevStatus.s:
             addressType = beacon['address_type']
