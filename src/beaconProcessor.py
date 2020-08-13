@@ -140,7 +140,7 @@ class RawWorker(Thread):
 
         # insert into influx:
         # pos ~ position, vs = vertical speed, tr = turn rate
-        if groundSpeed >= 10 and 0 <= agl < 128000:   # 10 km/h threshold
+        if groundSpeed >= 5 and 0 <= agl < 128000:   # 5 km/h threshold
             q = f"pos,addr={address} lat={lat:.6f},lon={lon:.6f},alt={altitude:.0f},gs={groundSpeed:.2f},vs={verticalSpeed:.2f},tr={turnRate:.2f},agl={agl:.0f} {ts}000000000"
             self.influxDb.addStatement(q)
 
@@ -156,17 +156,19 @@ class RawWorker(Thread):
         gsKey = f"{address}-gs"
 
         if not prevStatus:  # we have no prior information
-            self._saveToRedis(statusKey, Status(s=0, ts=ts))    # 0 = on ground, 1 = airborne, -1 = unknown
+            s = 0 if groundSpeed < getGroundSpeedThreshold(aircraftType, forEvent='T') else 1
+            self._saveToRedis(statusKey, Status(s=s, ts=ts))    # 0 = on ground, 1 = airborne, -1 = unknown
             self._saveToRedis(gsKey, 0, 120)    # gs = 0
             return
 
         prevGroundSpeed = float(self._getFromRedis(gsKey, 0))
+        if prevGroundSpeed > 0:
+            # filter speed change a bit (sometimes there are glitches in speed with badly placed gps antenna):
+            groundSpeed = groundSpeed * 0.8 + prevGroundSpeed * 0.2
 
-        # filter speed change a bit (sometimes there are glitches in speed with badly placed gps antenna):
-        groundSpeed = groundSpeed * 0.8 + prevGroundSpeed * 0.2
         self._saveToRedis(gsKey, groundSpeed, 3600)
 
-        currentStatus: Status = Status(ts=ts, s=0 if groundSpeed < getGroundSpeedThreshold(aircraftType, forEvent='T') else 1)    # 0 = on ground, 1 = airborne, -1 = unknown
+        currentStatus: Status = Status(ts=ts, s=-1)    # 0 = on ground, 1 = airborne, -1 = unknown
 
         if prevStatus.s == 0:   # 0 = on ground, 1 = airborne, -1 = unknown
             currentStatus.s = 1 if groundSpeed > getGroundSpeedThreshold(aircraftType, forEvent='T') else 0
