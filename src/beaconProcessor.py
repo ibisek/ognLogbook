@@ -163,7 +163,7 @@ class RawWorker(Thread):
         prevGroundSpeed = float(self._getFromRedis(gsKey, 0))
 
         # filter speed change a bit (sometimes there are glitches in speed with badly placed gps antenna):
-        groundSpeed = groundSpeed * 0.6 + prevGroundSpeed * 0.4
+        groundSpeed = groundSpeed * 0.8 + prevGroundSpeed * 0.2
         self._saveToRedis(gsKey, groundSpeed, 3600)
 
         currentStatus: Status = Status(ts=ts, s=0 if groundSpeed < getGroundSpeedThreshold(aircraftType, forEvent='T') else 1)    # 0 = on ground, 1 = airborne, -1 = unknown
@@ -191,7 +191,7 @@ class RawWorker(Thread):
                     return
 
                 # check altitude above ground level:
-                if agl and agl > 150:   # [m]
+                if agl and agl > 100:   # [m]
                     return  # most likely a false detection
 
             # if event == 'T':
@@ -218,7 +218,7 @@ class RawWorker(Thread):
 
             self.dbThread.addStatement(strSql)
 
-        self._saveToRedis(statusKey, currentStatus)     # even if the status is the same - do not let the key to expire(!)
+        self._saveToRedis(statusKey, currentStatus)     # even when the status is the same - do not let the key to expire(!)
 
 
 class BeaconProcessor(object):
