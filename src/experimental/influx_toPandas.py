@@ -83,9 +83,9 @@ if __name__ == '__main__':
     # ADDR = 'DDA391'  # F-CIJL (LFLE) where gliders never land
     # ADDR = 'D006D0'  # F-PVVA (LFLE) where gliders never land
 
-    # ADDR = 'DDA816'    # random address from the log
+    ADDR = 'DDD9F5'    # random address from the log
 
-    startDate = '2020-08-13'
+    startDate = '2020-08-14'
 
     dt: datetime = datetime.strptime(startDate, '%Y-%m-%d')
     ts = dt.timestamp()     # [s]
@@ -125,15 +125,26 @@ if __name__ == '__main__':
     # airborne flag / status detection:
     min = int(df['gsf'].min())
     max = int(df['gsf'].max())
-    df['airborneGs'] = df['gsf'].apply(lambda val: max if val > 60 else min)
+    df['airborneGs'] = df['gsf'].apply(lambda val: 1 if val > 50 else 0)
     min = int(df['agl'].min())
     max = int(df['agl'].max())
-    df['airborneAgl'] = df['agl'].apply(lambda val: max if val > 20 else min)
+    df['airborneAgl'] = df['agl'].apply(lambda val: 1 if val > 40 else 0)
+
+    # --
+
+    airborne = False
+    for i in range(len(df)):
+        if df['airborneGs'].iloc[i] != airborne:
+            airborne = not airborne
+            event = 'T' if airborne else 'L'
+            print(f'[{i}] {event}', df.index[i])
+
+    # --
 
     # superPlot(df)
 
-    keys1 = ['alt', 'altf']
-    keys2 = ['gs', 'gsf']
+    # keys1 = ['alt', 'altf']
+    # keys2 = ['gs', 'gsf']
     # keys3 = ['vs', 'vsf']
     # keys4 = ['tr', 'trf']
     # df[keys].plot(figsize=(20, 15))
@@ -160,21 +171,23 @@ if __name__ == '__main__':
     df.plot(y=['agl'], ax=axes[1], rot=0, ls='', marker='.', markersize=2)
     df.plot(y=['aglf'], ax=axes[1], rot=0)
     df.plot(y=['aglk'], ax=axes[1], rot=0)
-    df.plot(y=['airborneAgl'], ax=axes[1], rot=0)
+    ax2 = axes[1].twinx()
+    df.plot(y=['airborneAgl'], ax=ax2, rot=0)
 
     df.plot(y=['gs'], ax=axes[2], rot=0, ls='', marker='.', markersize=2)
     df.plot(y=['gsf'], ax=axes[2], rot=0)
     df.plot(y=['gsk'], ax=axes[2], rot=0)
-    df.plot(y=['airborneGs'], ax=axes[2], rot=0)
+    ax2 = axes[2].twinx()
+    df.plot(y=['airborneGs'], ax=ax2, rot=0)
 
     # df[keys3].plot(figsize=(20, 15), ax=axes[2], rot=0)
     # df[keys4].plot(figsize=(20, 15), ax=axes[3], rot=0)
     plt.show()
 
-
-
     # dfx = df[df['gs'] < 50]
     # dfx['gs'].plot(ls='', marker='+', markersize=4)
     # plt.show()
+
+    # --
 
     print('KOHEU.')
