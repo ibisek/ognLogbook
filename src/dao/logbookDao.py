@@ -44,11 +44,12 @@ def listDepartures(address=None, icaoCode=None, registration=None, forDay=None, 
 
     with DbSource(dbConnectionInfo).getConnection() as c:
 
+        # (d.tracked != false OR d.tracked IS NULL) AND (d.identified != false OR d.identified IS NULL)
         strSql = f"""SELECT l.ts, l.address, l.address_type, l.aircraft_type, l.lat, l.lon, l.location_icao, 
                     d.device_type,	d.aircraft_type, d.aircraft_registration, d.aircraft_cn 
                     FROM logbook_events AS l 
                     LEFT JOIN ddb AS d ON l.address = d.device_id 
-                    WHERE l.event = 'T' AND (d.tracked != false OR d.tracked IS NULL) AND (d.identified != false OR d.identified IS NULL) {cond} {condTs} {condIcao}
+                    WHERE l.event = 'T' AND 1 {cond} {condTs} {condIcao}
                     ORDER by ts {sortTs} {condLimit};"""
 
         c.execute(strSql)
@@ -104,11 +105,12 @@ def listArrivals(address=None, icaoCode=None, registration=None, forDay=None, li
 
     with DbSource(dbConnectionInfo).getConnection() as c:
 
+        # (d.tracked != false OR d.tracked IS NULL) AND (d.identified != false OR d.identified IS NULL)
         strSql = f"""SELECT l.ts, l.address, l.address_type, l.aircraft_type, l.lat, l.lon, l.location_icao, l.flight_time,
                     d.device_type,	d.aircraft_type, d.aircraft_registration, d.aircraft_cn 
                     FROM logbook_events AS l 
                     LEFT JOIN ddb AS d ON l.address = d.device_id 
-                    WHERE l.event = 'L' AND (d.tracked != false OR d.tracked IS NULL) AND (d.identified != false OR d.identified IS NULL) {cond} {condTs} {condIcao}
+                    WHERE l.event = 'L' AND 1 {cond} {condTs} {condIcao}
                     ORDER by ts {sortTs} {condLimit};"""
 
         c.execute(strSql)
@@ -171,12 +173,13 @@ def listFlights(address=None, icaoCode=None, registration=None, forDay=None, lim
 
     with DbSource(dbConnectionInfo).getConnection() as c:
 
+        # (d.tracked != false OR d.tracked IS NULL) AND (d.identified != false OR d.identified IS NULL)
         strSql = f"""SELECT l.address, l.takeoff_ts, l.takeoff_lat, l.takeoff_lon, l.takeoff_icao, 
                     l.landing_ts, l.landing_lat, l.landing_lon, l.landing_icao, l.flight_time,
                     d.device_type, d.aircraft_type, d.aircraft_registration, d.aircraft_cn
                     FROM logbook_entries as l 
                     LEFT JOIN ddb AS d ON l.address = d.device_id
-                    WHERE (d.tracked != false OR d.tracked IS NULL) AND (d.identified != false OR d.identified IS NULL) {cond} {condTs} {condIcao}
+                    WHERE 1 {cond} {condTs} {condIcao}
                     ORDER by {orderByCol} {sortTs} {condLimit};"""
 
         c.execute(strSql)
