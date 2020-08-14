@@ -184,7 +184,7 @@ class RawWorker(Thread):
             flightTime = 0
 
             if event == 'L':
-                # flightTime = currentStatus.ts - prevStatus.ts   # [s]
+                flightTime = currentStatus.ts - prevStatus.ts   # [s]
                 # if flightTime < 120:    # [s]
                 #     return
 
