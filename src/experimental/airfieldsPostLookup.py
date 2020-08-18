@@ -44,7 +44,7 @@ if __name__ == '__main__':
                 dbt.addStatement(strSql)
                 numUpdatedRecords += 1
 
-    print('numUpdatedRecords:', 0)
+    print('numUpdatedRecords:', numUpdatedRecords)
 
     while len(dbt.toDoStatements) > 0:
         print('len DB toDoStatements:', len(dbt.toDoStatements))
