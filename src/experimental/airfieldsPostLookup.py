@@ -25,7 +25,7 @@ if __name__ == '__main__':
 
     numUpdatedRecords = 0
 
-    for row in cur.fetchall():
+    for row in cur:
         (id, takeoffIcao, takeoffLat, takeoffLon, landingIcao, landingLat, landingLon) = row
 
         if not takeoffIcao and takeoffLat and takeoffLon:
