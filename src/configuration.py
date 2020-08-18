@@ -1,8 +1,8 @@
 
 import os
 
-APRS_FILTER = 'r/+49.3678/+16.1145/1100'    # 1100 km ~ eastern Romania
-# APRS_FILTER = None
+# APRS_FILTER = 'r/+49.3678/+16.1145/1100'    # 1100 km ~ eastern Romania
+APRS_FILTER = None
 
 GEOFILE_PATH = '/home/jaja/data/download/ognLogbook/500m/mosaic-500m.TIF'
 
