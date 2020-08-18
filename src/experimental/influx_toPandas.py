@@ -70,7 +70,7 @@ if __name__ == '__main__':
 
     # ADDR = '074812'     # IBI CUBE3
     # ADDR = 'DDDDFE'     # kabrda ventus
-    ADDR = 'DDD530'  # hUSKy
+    # ADDR = 'DDD530'  # hUSKy
     # ADDR = '034819'  # ROBIN
     # ADDR = '4AD706'  # 'SE-UXF', Kjell, 'Duo Discus xlt'
     # ADDR = 'DDA80A'  # 'DS' (TT)
@@ -83,9 +83,9 @@ if __name__ == '__main__':
     # ADDR = 'DDA391'  # F-CIJL (LFLE) where gliders never land
     # ADDR = 'D006D0'  # F-PVVA (LFLE) where gliders never land
 
-    ADDR = 'DDD9F5'    # random address from the log
+    # ADDR = 'DDD9F5'    # random address from the log
 
-    startDate = '2020-08-14'
+    startDate = '2020-08-18'
 
     dt: datetime = datetime.strptime(startDate, '%Y-%m-%d')
     ts = dt.timestamp()     # [s]
@@ -115,9 +115,10 @@ if __name__ == '__main__':
     # df['vsf'] = df['vs'].rolling(window=windowsSize, center=True).mean()
     # df['trf'] = df['tr'].rolling(window=windowsSize, center=True).mean()
 
-    df['aglf'] = df['agl'].rolling(window=windowsSize, center=False).mean()
-    kalman = Kalman()
-    df['aglk'] = df['agl'].apply(lambda val: kalman.predict(val))
+    if 'agl' in df:
+        df['aglf'] = df['agl'].rolling(window=windowsSize, center=False).mean()
+        kalman = Kalman()
+        df['aglk'] = df['agl'].apply(lambda val: kalman.predict(val))
 
     # altitude delta:
     # df['dAlt'] = df['alt'].diff()
@@ -126,9 +127,11 @@ if __name__ == '__main__':
     min = int(df['gsf'].min())
     max = int(df['gsf'].max())
     df['airborneGs'] = df['gsf'].apply(lambda val: 1 if val > 50 else 0)
-    min = int(df['agl'].min())
-    max = int(df['agl'].max())
-    df['airborneAgl'] = df['agl'].apply(lambda val: 1 if val > 40 else 0)
+
+    if 'agl' in df:
+        min = int(df['agl'].min())
+        max = int(df['agl'].max())
+        df['airborneAgl'] = df['agl'].apply(lambda val: 1 if val > 40 else 0)
 
     # --
 
@@ -150,9 +153,10 @@ if __name__ == '__main__':
     # df[keys].plot(figsize=(20, 15))
 
     fig = plt.figure()
-    gs = fig.add_gridspec(3, hspace=0)
-    axes = gs.subplots(sharex=True, sharey=False)
-    # fig, axes = plt.subplots(nrows=3, ncols=1)
+    nRows = 2 if 'agl' not in df else 3
+    gs = fig.add_gridspec(nrows=nRows, ncols=1, hspace=0)
+    # axes = gs.subplots(sharex=True, sharey=False)
+    fig, axes = plt.subplots(nrows=nRows, ncols=1)
     for ax in axes:
         ax.minorticks_on()
 
@@ -162,23 +166,26 @@ if __name__ == '__main__':
         ax.grid(b=True, which='major', color='#666666', linestyle='-')
         ax.grid(b=True, which='minor', color='#999999', linestyle='--', alpha=0.5)
 
+    plt.title(f"addr: {ADDR}")
     plt.subplots_adjust(left=0.05, right=0.95, top=0.95)
 
-    df.plot(y=['alt'], figsize=(20, 15), ax=axes[0], rot=0, ls='', marker='.', markersize=2)
-    df.plot(y=['altf'], ax=axes[0], rot=0)
-    df.plot(y=['altk'], ax=axes[0], rot=0)
-
-    df.plot(y=['agl'], ax=axes[1], rot=0, ls='', marker='.', markersize=2)
-    df.plot(y=['aglf'], ax=axes[1], rot=0)
-    df.plot(y=['aglk'], ax=axes[1], rot=0)
-    ax2 = axes[1].twinx()
-    df.plot(y=['airborneAgl'], ax=ax2, rot=0)
-
-    df.plot(y=['gs'], ax=axes[2], rot=0, ls='', marker='.', markersize=2)
-    df.plot(y=['gsf'], ax=axes[2], rot=0)
-    df.plot(y=['gsk'], ax=axes[2], rot=0)
-    ax2 = axes[2].twinx()
+    df.plot(y=['gs'], ax=axes[0], rot=0, ls='', marker='.', markersize=2)
+    df.plot(y=['gsf'], ax=axes[0], rot=0)
+    df.plot(y=['gsk'], ax=axes[0], rot=0)
+    ax2 = axes[0].twinx()
     df.plot(y=['airborneGs'], ax=ax2, rot=0)
+
+    df.plot(y=['alt'], figsize=(20, 15), ax=axes[1], rot=0, ls='', marker='.', markersize=2)
+    df.plot(y=['altf'], ax=axes[1], rot=0)
+    df.plot(y=['altk'], ax=axes[1], rot=0)
+
+    if 'agl' in df:
+        df.plot(y=['agl'], ax=axes[2], rot=0, ls='', marker='.', markersize=2)
+        df.plot(y=['aglf'], ax=axes[2], rot=0)
+        df.plot(y=['aglk'], ax=axes[2], rot=0)
+        ax2 = axes[2].twinx()
+        df.plot(y=['airborneAgl'], ax=ax2, rot=0)
+
 
     # df[keys3].plot(figsize=(20, 15), ax=axes[2], rot=0)
     # df[keys4].plot(figsize=(20, 15), ax=axes[3], rot=0)
