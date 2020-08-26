@@ -163,7 +163,7 @@ class RawWorker(Thread):
         prevGroundSpeed = float(self._getFromRedis(gsKey, 0))
         if prevGroundSpeed > 0:
             # filter speed change a bit (sometimes there are glitches in speed with badly placed gps antenna):
-            groundSpeed = groundSpeed * 0.6 + prevGroundSpeed * 0.4
+            groundSpeed = groundSpeed * 0.8 + prevGroundSpeed * 0.2
 
         self._saveToRedis(gsKey, groundSpeed, 3600)
 
