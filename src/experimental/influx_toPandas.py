@@ -72,6 +72,7 @@ if __name__ == '__main__':
     # ADDR = 'DDDDFE'     # kabrda ventus
     # ADDR = 'DDD530'  # hUSKy
     # ADDR = '034819'  # ROBIN
+    ADDR = '232855'  # ECHO
     # ADDR = '4AD706'  # 'SE-UXF', Kjell, 'Duo Discus xlt'
     # ADDR = 'DDA80A'  # 'DS' (TT)
     # ADDR = '151035'  # A1 2020-08-10
@@ -85,7 +86,7 @@ if __name__ == '__main__':
 
     # ADDR = 'DDD9F5'    # random address from the log
 
-    startDate = '2020-08-18'
+    startDate = '2020-08-28'
 
     dt: datetime = datetime.strptime(startDate, '%Y-%m-%d')
     ts = dt.timestamp()     # [s]
