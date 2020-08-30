@@ -39,10 +39,13 @@ class DbThread(threading.Thread):
             self.toDoStatements.append(sql)
             
     def run(self):
+        numEmptyLoops = 0
         connection = DbSource(self.dbConnectionInfo).getConnection()
 
         while self.doRun or len(self.toDoStatements) > 0:
             if len(self.toDoStatements) > 0:
+                numEmptyLoops = 0
+
                 with self.toDoStatementsLock:
                     sql = None
                     try:
@@ -61,13 +64,24 @@ class DbThread(threading.Thread):
 
                         cur.close()
 
-                    except Exception as e:
-                        print('[ERROR] in DbThread:', e)
+                    except Exception as ex:
+                        print('[ERROR] in DbThread (1):', ex)
                         connection = DbSource(self.dbConnectionInfo).getConnection()
                         self.toDoStatements.append(sql)  # requeue for retry
 
             else:
                 time.sleep(1)
+
+                numEmptyLoops += 1
+                if numEmptyLoops > 60:
+                    numEmptyLoops = 0
+
+                    try:
+                        cur = connection.cursor()
+                        cur.execute('SELECT 1;')    # to prevent connection timeouts
+                        cur.close()
+                    except ex:
+                        print(f"[ERROR] in DbThread (2):", ex)
 
         if connection:
             connection.commit()
