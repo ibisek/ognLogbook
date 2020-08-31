@@ -37,7 +37,7 @@ class Geofile(object):
         x = (xy[0] - self.geotransform[0]) / self.geotransform[1]  # geotransform : (ulx, xres, xskew, uly, yskew, yres)
         y = (xy[1] - self.geotransform[3]) / self.geotransform[5]
 
-        if x >= 0 and y >= 0:
+        if 0 <= x < self.dataset.RasterXSize and 0 <= y < self.dataset.RasterYSize:
             try:  # in case raster isn't full extent
                 structval = self.band.ReadRaster(xoff=int(x), yoff=int(y), xsize=1, ysize=1, buf_type=self.band.DataType)
                 intval = struct.unpack('f', structval)  # assume float
