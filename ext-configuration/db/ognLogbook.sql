@@ -22,6 +22,7 @@ CREATE INDEX logbook_events_location_icao ON logbook_events(location_icao);
 --SHOW INDEXES FROM logbook_events;
 
 
+-- creation of flight entry:
 -- (!) MYSQL ONLY (!)
 --DROP TRIGGER IF EXISTS logbook_events_after_insert;
 DELIMITER //
@@ -62,6 +63,26 @@ CREATE INDEX logbook_entries_address ON logbook_entries(address);
 CREATE INDEX logbook_entries_takeoff_ts ON logbook_entries(takeoff_ts);
 CREATE INDEX logbook_entries_landing_ts ON logbook_entries(landing_ts);
 --SHOW INDEXES FROM logbook_entries;
+
+-- lookup tow plane for gliders and gliders for tug planes:
+-- (!) MYSQL ONLY (!)
+--DROP TRIGGER IF EXISTS logbook_entries_aerotow_lookup;
+DELIMITER //
+CREATE TRIGGER IF NOT EXISTS logbook_entries_aerotow_lookup 
+AFTER INSERT ON logbook_entries FOR EACH ROW
+BEGIN
+IF (new.aircraft_type = 1 AND new.takeoff_icao IS NOT NULL) THEN	-- landing of a glider which took-off from a known airfield
+SELECT e.id INTO @t_id
+FROM logbook_entries AS e 
+WHERE e.takeoff_icao = new.takeoff_icao AND e.aircraft_type IN (2,8) AND e.takeoff_ts between (new.takeoff_ts - 4) AND (new.takeoff_ts + 4) AND tow_id IS NULL
+LIMIT 1; 
+IF (@t_id IS NOT NULL) THEN
+UPDATE logbook_entries set tow_id = @t_id where id = new.id;	-- update glider record
+UPDATE logbook_entries set tow_id = new.id where id = @t_id;	-- update tow plane record
+END IF;
+END IF;
+END;//
+DELIMITER ;
 
 
 --DROP TABLE IF EXISTS ddb;
@@ -135,17 +156,24 @@ select * from ddb;
 select * from ddb where device_id = 'DDD530';
 
 
---
-
+-- AEROTOW DETECTION:
 
 select * from logbook_entries as l LEFT JOIN ddb AS d ON l.address = d.device_id 
 	WHERE (d.tracked != false OR d.tracked IS NULL) AND (d.identified != false OR d.identified IS NULL) AND (d.aircraft_cn = 'IBI')
 	ORDER BY l.takeoff_ts desc;
 
-select * from logbook_entries where takeoff_icao = 'LKKA' and aircraft_type = 1;
+select * from logbook_entries where takeoff_icao = 'LKKA' and address = '072921' order by takeoff_ts desc limit 20;
+select * from logbook_entries where takeoff_icao = 'LKKA' and aircraft_type = 1 order by takeoff_ts desc limit 10;
+select * from logbook_entries where takeoff_icao = 'LKKA' and aircraft_type IN (2,8) order by takeoff_ts desc limit 10;
 
-select * from logbook_entries where takeoff_icao = 'LKKA' and takeoff_ts between (1593332598 - 10) AND (1593332598 + 10); 
-select * from logbook_events where aircraft_type IN (2,8) AND location_icao = 'LKKA' and ts between (1593332598 - 10) AND (1593332598 + 10); 
+--1599383688
+--1599380316
+--1599378722
+-- vetron:
+select * from logbook_entries where takeoff_icao = 'LKKA' and takeoff_ts between (1599383688 - 60) AND (1599383688 + 60); 
+--vlekovka:
+select * from logbook_events where aircraft_type IN (2,8) AND location_icao = 'LKKA' and ts between (1599378722 - 4) AND (1599378722 + 4); 
+select * from logbook_entries where takeoff_icao = 'LKKA' AND aircraft_type IN (2,8) AND takeoff_ts between (1599378722 - 4) AND (1599378722 + 4) AND tow_id IS NULL; 
 
 select * from logbook_entries order by landing_ts DESC limit 10; 
 
@@ -156,5 +184,3 @@ select * from logbook_entries order by landing_ts DESC limit 10;
 --alter table logbook_entries add column tow_id BIGINT references logbook_entries.id;
 
 
-
-select count(*) from logbook_entries where aircraft_type=1;
