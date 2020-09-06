@@ -84,7 +84,7 @@ def getGroundSpeedThreshold(aircraftType: int, forEvent: str):
 
     if forEvent == 'L':
         if aircraftType in [1, 3, 4, 6, 7, 11, 12, 13, 15]:
-            return 30   # [km/h] glider
+            return 20   # [km/h] glider
         else:
             return 50   # [km/h] tow
 
