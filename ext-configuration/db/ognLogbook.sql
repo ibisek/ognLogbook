@@ -126,7 +126,7 @@ CREATE INDEX logbook_entries_tow_id ON logbook_entries(tow_id);
 --END;//
 --DELIMITER ;
 
---DROP PROCEDURE create_flight_entry;
+DROP PROCEDURE create_flight_entry;
 DELIMITER //
 CREATE PROCEDURE create_flight_entry (
 	IN new_ts BIGINT, 
@@ -140,10 +140,10 @@ BEGIN
 SELECT e.ts, e.aircraft_type, e.lat, e.lon, e.location_icao
 INTO @t_ts, @t_type, @t_lat, @t_lon, @t_loc
 FROM logbook_events as e 
-WHERE e.address = new_address and e.event='T' and e.ts < new_ts and e_ts > (new_ts - 16*60*60)
+WHERE e.address = new_address and e.event='T' and e.ts < new_ts and e.ts > (new_ts - 16*60*60)
 ORDER BY e.ts DESC LIMIT 1;
 INSERT INTO logbook_entries (address, aircraft_type, takeoff_ts, takeoff_lat, takeoff_lon, takeoff_icao, landing_ts, landing_lat, landing_lon, landing_icao, flight_time, tow_id) 
-VALUES (new.address, @t_type, @t_ts, @t_lat, @t_lon, @t_loc, new.ts, new.lat, new.lon, new.location_icao, new.ts-@t_ts, null);
+VALUES (new_address, @t_type, @t_ts, @t_lat, @t_lon, @t_loc, new_ts, new_lat, new_lon, new_location_icao, new_ts-@t_ts, null);
 -- store the new id.. will be needed soon:
 SELECT LAST_INSERT_ID() INTO @glider_entry_id;
 -- look up aerotow:
