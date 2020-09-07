@@ -25,22 +25,31 @@ CREATE INDEX logbook_events_location_icao ON logbook_events(location_icao);
 -- creation of flight entry:
 -- (!) MYSQL ONLY (!)
 --DROP TRIGGER IF EXISTS logbook_events_after_insert;
+--DELIMITER //
+--CREATE TRIGGER IF NOT EXISTS logbook_events_after_insert
+--AFTER INSERT ON logbook_events FOR EACH ROW
+--BEGIN
+--IF (new.event = 'L') THEN
+--SELECT e.ts, e.aircraft_type, e.lat, e.lon, e.location_icao
+--INTO @t_ts, @t_type, @t_lat, @t_lon, @t_loc
+--FROM logbook_events as e
+--WHERE e.address = new.address and e.event='T' and e.ts < new.ts and e.ts > (new.ts - 16*60*60)
+--ORDER BY e.ts DESC LIMIT 1;
+--INSERT INTO logbook_entries (address, aircraft_type, takeoff_ts, takeoff_lat, takeoff_lon, takeoff_icao, landing_ts, landing_lat, landing_lon, landing_icao, flight_time, tow_id)
+--VALUES (new.address, @t_type, @t_ts, @t_lat, @t_lon, @t_loc, new.ts, new.lat, new.lon, new.location_icao, new.ts-@t_ts, null);
+--END IF;
+--END;//
+--DELIMITER ;
+
 DELIMITER //
 CREATE TRIGGER IF NOT EXISTS logbook_events_after_insert 
 AFTER INSERT ON logbook_events FOR EACH ROW
 BEGIN
 IF (new.event = 'L') THEN
-SELECT e.ts, e.aircraft_type, e.lat, e.lon, e.location_icao
-INTO @t_ts, @t_type, @t_lat, @t_lon, @t_loc
-FROM logbook_events as e 
-WHERE e.address = new.address and e.event='T' and e.ts < new.ts and e.ts > (new.ts - 16*60*60)
-ORDER BY e.ts DESC LIMIT 1;
-INSERT INTO logbook_entries (address, aircraft_type, takeoff_ts, takeoff_lat, takeoff_lon, takeoff_icao, landing_ts, landing_lat, landing_lon, landing_icao, flight_time, tow_id) 
-VALUES (new.address, @t_type, @t_ts, @t_lat, @t_lon, @t_loc, new.ts, new.lat, new.lon, new.location_icao, new.ts-@t_ts, null);
+CALL create_flight_entry(new.ts, new.address, new.lat, new.lon, new.location_icao);
 END IF;
 END;//
 DELIMITER ;
-
 
 --DROP TABLE IF EXISTS logbook_entries;
 CREATE TABLE logbook_entries (
@@ -89,34 +98,66 @@ CREATE INDEX logbook_entries_tow_id ON logbook_entries(tow_id);
 --DELIMITER ;
 
 --DROP TRIGGER IF EXISTS logbook_entries_aerotow_lookup_step1;
-DELIMITER //
-CREATE TRIGGER IF NOT EXISTS logbook_entries_aerotow_lookup_step1
-BEFORE INSERT ON logbook_entries FOR EACH ROW
-BEGIN
-IF (new.aircraft_type = 1 AND new.takeoff_icao IS NOT NULL) THEN	-- landing of a glider which took-off from a known airfield
-SELECT e.id INTO @t_id
-FROM logbook_entries AS e 
-WHERE e.takeoff_icao = new.takeoff_icao AND e.aircraft_type IN (2,8) AND e.takeoff_ts between (new.takeoff_ts - 4) AND (new.takeoff_ts + 4) AND tow_id IS NULL
-LIMIT 1; 
-IF (@t_id IS NOT NULL) THEN
-SET NEW.tow_id = @t_id;	-- amend glider's record
-END IF;
-END IF;
-END;//
-DELIMITER ;
+--DELIMITER //
+--CREATE TRIGGER IF NOT EXISTS logbook_entries_aerotow_lookup_step1
+--BEFORE INSERT ON logbook_entries FOR EACH ROW
+--BEGIN
+--IF (new.aircraft_type = 1 AND new.takeoff_icao IS NOT NULL) THEN	-- landing of a glider which took-off from a known airfield
+--SELECT e.id INTO @t_id
+--FROM logbook_entries AS e
+--WHERE e.takeoff_icao = new.takeoff_icao AND e.aircraft_type IN (2,8) AND e.takeoff_ts between (new.takeoff_ts - 4) AND (new.takeoff_ts + 4) AND tow_id IS NULL
+--LIMIT 1;
+--IF (@t_id IS NOT NULL) THEN
+--SET new.tow_id = @t_id;	-- amend glider's record
+--END IF;
+--END IF;
+--END;//
+--DELIMITER ;
 
 --DROP TRIGGER IF EXISTS logbook_entries_aerotow_lookup_step2;
-DELIMITER //
-CREATE TRIGGER IF NOT EXISTS logbook_entries_aerotow_lookup_step2
-AFTER INSERT ON logbook_entries FOR EACH ROW
-BEGIN
-IF (new.aircraft_type = 1 AND new.takeoff_icao IS NOT NULL AND new.tow_id IS NOT NULL) THEN	-- landing of a glider which took-off from a known airfield
-SELECT LAST_INSERT_ID() INTO @glider_entry_id;
-UPDATE logbook_entries set tow_id = @glider_entry_id where id = new.tow_id;	-- update tow plane record
-END IF;
-END;//
-DELIMITER ;
+--DELIMITER //
+--CREATE TRIGGER IF NOT EXISTS logbook_entries_aerotow_lookup_step2
+--AFTER INSERT ON logbook_entries FOR EACH ROW
+--BEGIN
+--IF (new.aircraft_type = 1 AND new.takeoff_icao IS NOT NULL AND new.tow_id IS NOT NULL) THEN	-- landing of a glider which took-off from a known airfield
+--SELECT LAST_INSERT_ID() INTO @glider_entry_id;
+--UPDATE logbook_entries set tow_id = @glider_entry_id where id = new.tow_id;	-- update tow plane record
+--END IF;
+--END;//
+--DELIMITER ;
 
+-- DELETE PROCEDURE create_flight_entry;
+DELIMITER //
+CREATE PROCEDURE create_flight_entry (
+	IN new_ts BIGINT, 
+	IN new_address VARCHAR(6), 
+	IN new_lat DECIMAL(8,5), 
+	IN new_lon DECIMAL(8,5), 
+	IN new_location_icao VARCHAR(8)
+	)
+BEGIN
+-- create the entry:
+SELECT e.ts, e.aircraft_type, e.lat, e.lon, e.location_icao
+INTO @t_ts, @t_type, @t_lat, @t_lon, @t_loc
+FROM logbook_events as e 
+WHERE e.address = new_address and e.event='T' and e.ts < new_ts and e_ts > (new_ts - 16*60*60)
+ORDER BY e.ts DESC LIMIT 1;
+INSERT INTO logbook_entries (address, aircraft_type, takeoff_ts, takeoff_lat, takeoff_lon, takeoff_icao, landing_ts, landing_lat, landing_lon, landing_icao, flight_time, tow_id) 
+VALUES (new.address, @t_type, @t_ts, @t_lat, @t_lon, @t_loc, new.ts, new.lat, new.lon, new.location_icao, new.ts-@t_ts, null);
+-- look up aerotow:
+IF (@t_type = 1 AND @t_loc IS NOT NULL) THEN	-- landing of a glider which took-off from a known airfield
+SELECT e.id INTO @tow_id
+FROM logbook_entries AS e
+WHERE e.takeoff_icao = @t_loc AND e.aircraft_type IN (2,8) AND e.takeoff_ts between (@t_ts - 4) AND (@t_ts + 4) AND e.tow_id IS NULL
+LIMIT 1;
+IF (@tow_id IS NOT NULL) THEN
+SELECT LAST_INSERT_ID() INTO @glider_entry_id;
+UPDATE logbook_entries set tow_id = @tow_id where id = glider_entry_id.id;	-- update glider record
+UPDATE logbook_entries set tow_id = @glider_entry_id where id = @tow_id;	-- update tow plane record
+END IF;
+END IF;
+END; //
+DELIMITER ;
 
 
 --DROP TABLE IF EXISTS ddb;
@@ -184,7 +225,6 @@ select * from logbook_entries where takeoff_icao='LKKA' and landing_icao like 'E
 select * from logbook_entries where takeoff_icao='LKKA' group by takeoff_ts order by takeoff_ts desc;
 
 select * from logbook_events where location_icao = 'LKKA' order by ts desc;
-
 
 select * from ddb;
 select * from ddb where device_id = 'DDD530';
