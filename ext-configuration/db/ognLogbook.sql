@@ -126,7 +126,7 @@ CREATE INDEX logbook_entries_tow_id ON logbook_entries(tow_id);
 --END;//
 --DELIMITER ;
 
--- DELETE PROCEDURE create_flight_entry;
+--DROP PROCEDURE create_flight_entry;
 DELIMITER //
 CREATE PROCEDURE create_flight_entry (
 	IN new_ts BIGINT, 
@@ -144,6 +144,8 @@ WHERE e.address = new_address and e.event='T' and e.ts < new_ts and e_ts > (new_
 ORDER BY e.ts DESC LIMIT 1;
 INSERT INTO logbook_entries (address, aircraft_type, takeoff_ts, takeoff_lat, takeoff_lon, takeoff_icao, landing_ts, landing_lat, landing_lon, landing_icao, flight_time, tow_id) 
 VALUES (new.address, @t_type, @t_ts, @t_lat, @t_lon, @t_loc, new.ts, new.lat, new.lon, new.location_icao, new.ts-@t_ts, null);
+-- store the new id.. will be needed soon:
+SELECT LAST_INSERT_ID() INTO @glider_entry_id;
 -- look up aerotow:
 IF (@t_type = 1 AND @t_loc IS NOT NULL) THEN	-- landing of a glider which took-off from a known airfield
 SELECT e.id INTO @tow_id
@@ -151,7 +153,6 @@ FROM logbook_entries AS e
 WHERE e.takeoff_icao = @t_loc AND e.aircraft_type IN (2,8) AND e.takeoff_ts between (@t_ts - 4) AND (@t_ts + 4) AND e.tow_id IS NULL
 LIMIT 1;
 IF (@tow_id IS NOT NULL) THEN
-SELECT LAST_INSERT_ID() INTO @glider_entry_id;
 UPDATE logbook_entries set tow_id = @tow_id where id = glider_entry_id.id;	-- update glider record
 UPDATE logbook_entries set tow_id = @glider_entry_id where id = @tow_id;	-- update tow plane record
 END IF;
