@@ -13,7 +13,17 @@
                     <span>{% if linkNextDay %} <a href="{{linkNextDay}}" style="font-size:12px;">></a> {% endif %}</span>
                 </span>
                 {% if icaoCode %}
-                <span class="menuitem">{% if date %}<a href="/csv/{{icaoCode}}/{{date.strftime('%Y-%m-%d')}}">{{icaoCode}}</a>{% else %}{{icaoCode}}{% endif %}</span>
+                <span class="menuitem">
+                    {% if date %}
+                        <a href="/csv/{{icaoCode}}/{{date.strftime('%Y-%m-%d')}}">{{icaoCode}}
+                            {% if flights|length > 0 %}
+                            <img src="/static/img/csv-file-icon.svg" style="width: 25px; height:25px; vertical-align: middle; padding-left: 5px;"/>
+                            {% endif %}
+                        </a>
+                    {% else %}
+                        {{icaoCode}}
+                    {% endif %}
+                </span>
                 {% endif %}
                 {% if registration %}
                 <span class="menuitem">{{registration}}</span>
