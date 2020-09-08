@@ -211,7 +211,7 @@ class RawWorker(Thread):
 
             icaoLocation = f"'{icaoLocation}'" if icaoLocation else 'null'
 
-            strSql = f"START TRANSATION; INSERT INTO logbook_events " \
+            strSql = f"START TRANSACTION; INSERT INTO logbook_events " \
                 f"(ts, address, address_type, aircraft_type, event, lat, lon, location_icao, flight_time) " \
                 f"VALUES " \
                 f"({ts}, '{address}', {addressType}, '{aircraftType}', " \
