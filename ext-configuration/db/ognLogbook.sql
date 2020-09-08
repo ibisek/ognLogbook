@@ -24,32 +24,32 @@ CREATE INDEX logbook_events_location_icao ON logbook_events(location_icao);
 
 -- creation of flight entry:
 -- (!) MYSQL ONLY (!)
---DROP TRIGGER IF EXISTS logbook_events_after_insert;
+DROP TRIGGER IF EXISTS logbook_events_after_insert;
+DELIMITER //
+CREATE TRIGGER IF NOT EXISTS logbook_events_after_insert
+AFTER INSERT ON logbook_events FOR EACH ROW
+BEGIN
+IF (new.event = 'L') THEN
+SELECT e.ts, e.aircraft_type, e.lat, e.lon, e.location_icao
+INTO @t_ts, @t_type, @t_lat, @t_lon, @t_loc
+FROM logbook_events as e
+WHERE e.address = new.address and e.event='T' and e.ts < new.ts and e.ts > (new.ts - 16*60*60)
+ORDER BY e.ts DESC LIMIT 1;
+INSERT INTO logbook_entries (address, aircraft_type, takeoff_ts, takeoff_lat, takeoff_lon, takeoff_icao, landing_ts, landing_lat, landing_lon, landing_icao, flight_time, tow_id)
+VALUES (new.address, @t_type, @t_ts, @t_lat, @t_lon, @t_loc, new.ts, new.lat, new.lon, new.location_icao, new.ts-@t_ts, null);
+END IF;
+END;//
+DELIMITER ;
+
 --DELIMITER //
 --CREATE TRIGGER IF NOT EXISTS logbook_events_after_insert
 --AFTER INSERT ON logbook_events FOR EACH ROW
 --BEGIN
 --IF (new.event = 'L') THEN
---SELECT e.ts, e.aircraft_type, e.lat, e.lon, e.location_icao
---INTO @t_ts, @t_type, @t_lat, @t_lon, @t_loc
---FROM logbook_events as e
---WHERE e.address = new.address and e.event='T' and e.ts < new.ts and e.ts > (new.ts - 16*60*60)
---ORDER BY e.ts DESC LIMIT 1;
---INSERT INTO logbook_entries (address, aircraft_type, takeoff_ts, takeoff_lat, takeoff_lon, takeoff_icao, landing_ts, landing_lat, landing_lon, landing_icao, flight_time, tow_id)
---VALUES (new.address, @t_type, @t_ts, @t_lat, @t_lon, @t_loc, new.ts, new.lat, new.lon, new.location_icao, new.ts-@t_ts, null);
+--CALL create_flight_entry(new.ts, new.address, new.lat, new.lon, new.location_icao);
 --END IF;
 --END;//
 --DELIMITER ;
-
-DELIMITER //
-CREATE TRIGGER IF NOT EXISTS logbook_events_after_insert 
-AFTER INSERT ON logbook_events FOR EACH ROW
-BEGIN
-IF (new.event = 'L') THEN
-CALL create_flight_entry(new.ts, new.address, new.lat, new.lon, new.location_icao);
-END IF;
-END;//
-DELIMITER ;
 
 --DROP TABLE IF EXISTS logbook_entries;
 CREATE TABLE logbook_entries (
@@ -126,42 +126,45 @@ CREATE INDEX logbook_entries_tow_id ON logbook_entries(tow_id);
 --END;//
 --DELIMITER ;
 
--- called upon landing from logbook_events trigger
-DROP PROCEDURE create_flight_entry;
-DELIMITER //
-CREATE PROCEDURE create_flight_entry (
-	IN new_ts BIGINT, 
-	IN new_address VARCHAR(6), 
-	IN new_lat DECIMAL(8,5), 
-	IN new_lon DECIMAL(8,5), 
-	IN new_location_icao VARCHAR(8)
-	)
-BEGIN
--- create the entry:
-SELECT e.ts, e.aircraft_type, e.lat, e.lon, e.location_icao
-INTO @t_ts, @t_type, @t_lat, @t_lon, @t_loc
-FROM logbook_events as e 
-WHERE e.address = new_address and e.event='T' and e.ts < new_ts and e.ts > (new_ts - 16*60*60)
-ORDER BY e.ts DESC LIMIT 1;
-INSERT INTO logbook_entries (address, aircraft_type, takeoff_ts, takeoff_lat, takeoff_lon, takeoff_icao, landing_ts, landing_lat, landing_lon, landing_icao, flight_time, tow_id) 
-VALUES (new_address, @t_type, @t_ts, @t_lat, @t_lon, @t_loc, new_ts, new_lat, new_lon, new_location_icao, new_ts-@t_ts, null);
--- look up aerotow:
-IF (@t_type = 1 AND @t_loc IS NOT NULL) THEN	-- landing of a glider which took-off from a known airfield
-SELECT e.id INTO @tow_id
-FROM logbook_entries AS e
-WHERE e.takeoff_icao = @t_loc AND e.aircraft_type IN (2,8) AND e.takeoff_ts between (@t_ts - 4) AND (@t_ts + 4) AND e.tow_id IS NULL
-LIMIT 1;
-IF (@tow_id IS NOT NULL) THEN
--- Find the glider's ID (LAST_INSERT_ID() doesn't really work due to insert races):
-SELECT id INTO @glider_entry_id FROM logbook_entries
-WHERE address=new_address AND takeoff_ts=@t_ts AND landing_ts=new_ts AND takeoff_icao = @t_loc AND landing_icao = new_location_icao
-LIMIT 1;
-UPDATE logbook_entries set tow_id = @tow_id where id = @glider_entry_id;	-- update glider record
-UPDATE logbook_entries set tow_id = @glider_entry_id where id = @tow_id;	-- update tow plane record
-END IF;
-END IF;
-END; //
-DELIMITER ;
+-- Called upon landing from logbook_events trigger
+-- !! the original SQL needs to be transactional !!
+--DROP PROCEDURE create_flight_entry;
+--DELIMITER //
+--CREATE PROCEDURE create_flight_entry (
+--	IN new_ts BIGINT,
+--	IN new_address VARCHAR(6),
+--	IN new_lat DECIMAL(8,5),
+--	IN new_lon DECIMAL(8,5),
+--	IN new_location_icao VARCHAR(8)
+--	)
+--BEGIN
+---- create the entry:
+--SELECT e.ts, e.aircraft_type, e.lat, e.lon, e.location_icao
+--INTO @t_ts, @t_type, @t_lat, @t_lon, @t_loc
+--FROM logbook_events as e
+--WHERE e.address = new_address and e.event='T' and e.ts < new_ts and e.ts > (new_ts - 16*60*60)
+--ORDER BY e.ts DESC LIMIT 1;
+--INSERT INTO logbook_entries (address, aircraft_type, takeoff_ts, takeoff_lat, takeoff_lon, takeoff_icao, landing_ts, landing_lat, landing_lon, landing_icao, flight_time, tow_id)
+--VALUES (new_address, @t_type, @t_ts, @t_lat, @t_lon, @t_loc, new_ts, new_lat, new_lon, new_location_icao, new_ts-@t_ts, null);
+---- look up aerotow:
+--IF (@t_type = 1 AND @t_loc IS NOT NULL) THEN	-- landing of a glider which took-off from a known airfield
+--SELECT e.id INTO @tow_id
+--FROM logbook_entries AS e
+--WHERE e.takeoff_icao = @t_loc AND e.aircraft_type IN (2,8) AND e.takeoff_ts between (@t_ts - 4) AND (@t_ts + 4) AND e.tow_id IS NULL
+--LIMIT 1;
+--IF (@tow_id IS NOT NULL) THEN
+---- Find the glider's ID (LAST_INSERT_ID() doesn't really work due to transaction/insert races):
+--SELECT id INTO @glider_entry_id FROM logbook_entries
+--WHERE address=new_address AND takeoff_ts=@t_ts AND landing_ts=new_ts AND takeoff_icao = @t_loc AND landing_icao = new_location_icao
+--LIMIT 1;
+--IF (@glider_entry_id IS NOT NULL) THEN
+--UPDATE logbook_entries set tow_id = @tow_id where id = @glider_entry_id;	-- update glider record
+---- UPDATE logbook_entries set tow_id = @glider_entry_id where id = @tow_id;	-- update tow plane record
+--END IF;
+--END IF;
+--END IF;
+--END; //
+--DELIMITER ;
 
 
 --DROP TABLE IF EXISTS ddb;
