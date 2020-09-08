@@ -150,10 +150,10 @@ SELECT LAST_INSERT_ID() INTO @glider_entry_id;
 IF (@t_type = 1 AND @t_loc IS NOT NULL) THEN	-- landing of a glider which took-off from a known airfield
 SELECT e.id INTO @tow_id
 FROM logbook_entries AS e
-WHERE e.takeoff_icao = @t_loc AND e.aircraft_type IN (2,8) AND e.takeoff_ts between (@t_ts - 4) AND (@t_ts + 4) AND e.tow_id IS NULL
+WHERE e.takeoff_icao = @t_loc AND e.aircraft_type IN (2,8) AND e.takeoff_ts between (@t_ts - 10) AND (@t_ts + 10) AND e.tow_id IS NULL
 LIMIT 1;
 IF (@tow_id IS NOT NULL) THEN
-UPDATE logbook_entries set tow_id = @tow_id where id = glider_entry_id.id;	-- update glider record
+UPDATE logbook_entries set tow_id = @tow_id where id = @glider_entry_id;	-- update glider record
 UPDATE logbook_entries set tow_id = @glider_entry_id where id = @tow_id;	-- update tow plane record
 END IF;
 END IF;
