@@ -238,7 +238,7 @@ def _toFlightOfficeCsv(flights: list):
         row.append('')    # DAY_DIFFERENCE
         row.append('')    # LAUNCH_METHOD
         row.append('')    # INITIAL_CLIMBRATE
-        row.append('')    # TOW_ID
+        row.append(flight.tow_id)    # TOW_ID
         row.append('')    # TOW_CALLSIGN
         row.append('')    # TOW_COMPETITION_NUMBER
         row.append('')    # TOW_SEQUENCE_NUMBER

@@ -35,7 +35,7 @@ class LogbookItem(object):
                  takeoff_ts=0, takeoff_lat=0, takeoff_lon=0, takeoff_icao=None,
                  landing_ts=0, landing_lat=0, landing_lon=0, landing_icao=None,
                  flight_time=0, device_type=None,
-                 registration=None, cn=None, aircraft_type=None):
+                 registration=None, cn=None, aircraft_type=None, tow_id=None):
         self.address = address
 
         self.takeoff_ts = takeoff_ts
@@ -60,3 +60,5 @@ class LogbookItem(object):
         self.landing_dt = datetime.fromtimestamp(landing_ts) if self.landing_ts else None
 
         self.flight_time = formatDuration(self.flight_time)
+
+        self.tow_id = tow_id
