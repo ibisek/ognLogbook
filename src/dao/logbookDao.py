@@ -45,7 +45,7 @@ def listDepartures(address=None, icaoCode=None, registration=None, forDay=None, 
     with DbSource(dbConnectionInfo).getConnection() as c:
 
         # (d.tracked != false OR d.tracked IS NULL) AND (d.identified != false OR d.identified IS NULL)
-        strSql = f"""SELECT l.ts, l.address, l.address_type, l.aircraft_type, l.lat, l.lon, l.location_icao, 
+        strSql = f"""SELECT l.ts, l.address, l.address_type, l.aircraft_type, l.lat, l.lon, l.location_icao 
                     d.device_type,	d.aircraft_type, d.aircraft_registration, d.aircraft_cn 
                     FROM logbook_events AS l 
                     LEFT JOIN ddb AS d ON l.address = d.device_id 
@@ -175,7 +175,7 @@ def listFlights(address=None, icaoCode=None, registration=None, forDay=None, lim
 
         # (d.tracked != false OR d.tracked IS NULL) AND (d.identified != false OR d.identified IS NULL)
         strSql = f"""SELECT l.address, l.takeoff_ts, l.takeoff_lat, l.takeoff_lon, l.takeoff_icao, 
-                    l.landing_ts, l.landing_lat, l.landing_lon, l.landing_icao, l.flight_time,
+                    l.landing_ts, l.landing_lat, l.landing_lon, l.landing_icao, l.flight_time, l.tow_id,
                     d.device_type, d.aircraft_type, d.aircraft_registration, d.aircraft_cn
                     FROM logbook_entries as l 
                     LEFT JOIN ddb AS d ON l.address = d.device_id
@@ -186,7 +186,7 @@ def listFlights(address=None, icaoCode=None, registration=None, forDay=None, lim
 
         rows = c.fetchall()
         for row in rows:
-            (address, ts1, lat1, lon1, locationIcao1, ts2, lat2, lon2, locationIcao2, flightTime, devType, aircraftType, registration, cn) = row
+            (address, ts1, lat1, lon1, locationIcao1, ts2, lat2, lon2, locationIcao2, flightTime, towId, devType, aircraftType, registration, cn) = row
 
             item = LogbookItem(address=address,
                                takeoff_ts=ts1 if ts1 else None,
@@ -201,7 +201,8 @@ def listFlights(address=None, icaoCode=None, registration=None, forDay=None, lim
                                device_type=devType,
                                registration=registration,
                                cn=cn,
-                               aircraft_type=aircraftType)
+                               aircraft_type=aircraftType,
+                               tow_id=towId)
 
             records.append(item)
 
