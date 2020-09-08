@@ -42,8 +42,8 @@ class TowLookup(object):
 
         strSql = f"SELECT id, address, takeoff_ts, takeoff_icao " \
                  f"FROM logbook_entries " \
-                 f"WHERE tow_id IS NULL AND aircraft_type = 1 ;"
-                 # f"AND landing_ts >= {ts};"
+                 f"WHERE tow_id IS NULL AND aircraft_type = 1 ;" \
+                 f"AND landing_ts >= {ts};"
 
         with DbSource(dbConnectionInfo).getConnection() as cur:
             cur.execute(strSql)
@@ -77,11 +77,3 @@ class CronJobs(object):
     def stop(self):
         self.towLookup.stop()
         print("[INFO] Cron terminated.")
-
-
-if __name__ == '__main__':
-
-    tl = TowLookup()
-    tl.gliderTowLookup()
-
-    print('KOHEU.')
