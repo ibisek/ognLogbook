@@ -54,7 +54,7 @@ class TowLookup(object):
                 towFlightId = self._findTowFor(takeoffTs, takeoffIcao)
 
                 if towFlightId:
-                    print(f"[INFO] found tow {towFlightId} for glider {gliderFlightId}")
+                    print(f"[INFO] Found tow {towFlightId} for glider {gliderFlightId}")
                     self.queue.put(f"UPDATE logbook_entries set tow_id = {towFlightId} where id = {gliderFlightId};")    # update glider
                     self.queue.put(f"UPDATE logbook_entries set tow_id = {gliderFlightId} where id = {towFlightId};")    # update tow
 
