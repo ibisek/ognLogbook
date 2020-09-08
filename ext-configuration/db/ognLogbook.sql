@@ -126,6 +126,7 @@ CREATE INDEX logbook_entries_tow_id ON logbook_entries(tow_id);
 --END;//
 --DELIMITER ;
 
+-- called upon landing from logbook_events trigger
 DROP PROCEDURE create_flight_entry;
 DELIMITER //
 CREATE PROCEDURE create_flight_entry (
