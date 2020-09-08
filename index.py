@@ -216,7 +216,7 @@ def _toFlightOfficeCsv(flights: list):
 
         row = list()  # csv items
         row.append(flight.takeoff_dt.strftime('%Y-%m-%d'))  # date
-        row.append(flight.takeoff_ts)    # SEQ_NR
+        row.append(flight.id)    # SEQ_NR
         row.append(f"{idPrefix}")    # ID   :{flight.address}
         row.append(registration)    # CALLSIGN
         row.append(flight.cn if flight.cn else '')    # COMPETITION_NUMBER
@@ -238,7 +238,7 @@ def _toFlightOfficeCsv(flights: list):
         row.append('')    # DAY_DIFFERENCE
         row.append('')    # LAUNCH_METHOD
         row.append('')    # INITIAL_CLIMBRATE
-        row.append(flight.tow_id)    # TOW_ID
+        row.append(flight.tow_id if flight.tow_id else '')    # TOW_ID
         row.append('')    # TOW_CALLSIGN
         row.append('')    # TOW_COMPETITION_NUMBER
         row.append('')    # TOW_SEQUENCE_NUMBER

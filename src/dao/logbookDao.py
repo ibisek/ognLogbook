@@ -58,7 +58,8 @@ def listDepartures(address=None, icaoCode=None, registration=None, forDay=None, 
         for row in rows:
             (ts, address, addrType, aircraftTypeCode, lat, lon, locationIcao, devType, aircraftType, registration, cn) = row
 
-            item = LogbookItem(address=address,
+            item = LogbookItem(id=None,
+                               address=address,
                                takeoff_ts=ts,
                                takeoff_lat=float(lat),
                                takeoff_lon=float(lon),
@@ -119,7 +120,8 @@ def listArrivals(address=None, icaoCode=None, registration=None, forDay=None, li
         for row in rows:
             (ts, address, addrType, aircraftTypeCode, lat, lon, locationIcao, flightTime, devType, aircraftType, registration, cn) = row
 
-            item = LogbookItem(address=address,
+            item = LogbookItem(id=None,
+                               address=address,
                                takeoff_ts=0,
                                takeoff_lat=0,
                                takeoff_lon=0,
@@ -174,7 +176,7 @@ def listFlights(address=None, icaoCode=None, registration=None, forDay=None, lim
     with DbSource(dbConnectionInfo).getConnection() as c:
 
         # (d.tracked != false OR d.tracked IS NULL) AND (d.identified != false OR d.identified IS NULL)
-        strSql = f"""SELECT l.address, l.takeoff_ts, l.takeoff_lat, l.takeoff_lon, l.takeoff_icao, 
+        strSql = f"""SELECT l.id, l.address, l.takeoff_ts, l.takeoff_lat, l.takeoff_lon, l.takeoff_icao, 
                     l.landing_ts, l.landing_lat, l.landing_lon, l.landing_icao, l.flight_time, l.tow_id,
                     d.device_type, d.aircraft_type, d.aircraft_registration, d.aircraft_cn
                     FROM logbook_entries as l 
@@ -186,9 +188,10 @@ def listFlights(address=None, icaoCode=None, registration=None, forDay=None, lim
 
         rows = c.fetchall()
         for row in rows:
-            (address, ts1, lat1, lon1, locationIcao1, ts2, lat2, lon2, locationIcao2, flightTime, towId, devType, aircraftType, registration, cn) = row
+            (id, address, ts1, lat1, lon1, locationIcao1, ts2, lat2, lon2, locationIcao2, flightTime, towId, devType, aircraftType, registration, cn) = row
 
-            item = LogbookItem(address=address,
+            item = LogbookItem(id=id,
+                               address=address,
                                takeoff_ts=ts1 if ts1 else None,
                                takeoff_lat=float(lat1) if lat1 else None,
                                takeoff_lon=float(lon1) if lon1 else None,
