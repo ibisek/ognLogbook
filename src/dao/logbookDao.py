@@ -45,7 +45,7 @@ def listDepartures(address=None, icaoCode=None, registration=None, forDay=None, 
     with DbSource(dbConnectionInfo).getConnection() as c:
 
         # (d.tracked != false OR d.tracked IS NULL) AND (d.identified != false OR d.identified IS NULL)
-        strSql = f"""SELECT l.ts, l.address, l.address_type, l.aircraft_type, l.lat, l.lon, l.location_icao 
+        strSql = f"""SELECT l.ts, l.address, l.address_type, l.aircraft_type, l.lat, l.lon, l.location_icao, 
                     d.device_type,	d.aircraft_type, d.aircraft_registration, d.aircraft_cn 
                     FROM logbook_events AS l 
                     LEFT JOIN ddb AS d ON l.address = d.device_id 
