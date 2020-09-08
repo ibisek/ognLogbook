@@ -144,11 +144,6 @@ WHERE e.address = new_address and e.event='T' and e.ts < new_ts and e.ts > (new_
 ORDER BY e.ts DESC LIMIT 1;
 INSERT INTO logbook_entries (address, aircraft_type, takeoff_ts, takeoff_lat, takeoff_lon, takeoff_icao, landing_ts, landing_lat, landing_lon, landing_icao, flight_time, tow_id) 
 VALUES (new_address, @t_type, @t_ts, @t_lat, @t_lon, @t_loc, new_ts, new_lat, new_lon, new_location_icao, new_ts-@t_ts, null);
--- store the new id.. will be needed soon:
--- SELECT LAST_INSERT_ID() INTO @glider_entry_id;  -- might get ID from another update that happened in the mean time
-SELECT id INTO @glider_entry_id FROM logbook_entries
-WHERE address=new_address AND takeoff_ts=@t_ts AND landing_ts=new_ts AND takeoff_icao = @t_loc AND landing_icao = new_location_icao
-LIMIT 1;
 -- look up aerotow:
 IF (@t_type = 1 AND @t_loc IS NOT NULL) THEN	-- landing of a glider which took-off from a known airfield
 SELECT e.id INTO @tow_id
@@ -156,6 +151,10 @@ FROM logbook_entries AS e
 WHERE e.takeoff_icao = @t_loc AND e.aircraft_type IN (2,8) AND e.takeoff_ts between (@t_ts - 4) AND (@t_ts + 4) AND e.tow_id IS NULL
 LIMIT 1;
 IF (@tow_id IS NOT NULL) THEN
+-- Find the glider's ID (LAST_INSERT_ID() doesn't really work due to insert races):
+SELECT id INTO @glider_entry_id FROM logbook_entries
+WHERE address=new_address AND takeoff_ts=@t_ts AND landing_ts=new_ts AND takeoff_icao = @t_loc AND landing_icao = new_location_icao
+LIMIT 1;
 UPDATE logbook_entries set tow_id = @tow_id where id = @glider_entry_id;	-- update glider record
 UPDATE logbook_entries set tow_id = @glider_entry_id where id = @tow_id;	-- update tow plane record
 END IF;
