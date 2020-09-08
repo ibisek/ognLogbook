@@ -211,11 +211,11 @@ class RawWorker(Thread):
 
             icaoLocation = f"'{icaoLocation}'" if icaoLocation else 'null'
 
-            strSql = f"INSERT INTO logbook_events " \
+            strSql = f"START TRANSATION; INSERT INTO logbook_events " \
                 f"(ts, address, address_type, aircraft_type, event, lat, lon, location_icao, flight_time) " \
                 f"VALUES " \
                 f"({ts}, '{address}', {addressType}, '{aircraftType}', " \
-                f"'{event}', {lat:.5f}, {lon:.5f}, {icaoLocation}, {flightTime});"
+                f"'{event}', {lat:.5f}, {lon:.5f}, {icaoLocation}, {flightTime});COMMIT;"
 
             # print('strSql:', strSql)
 
