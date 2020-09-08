@@ -79,6 +79,6 @@ class DbSource(object):
             conn = sqlite3.connect(dbFilename)
         except sqlite3.OperationalError as e:
             print("ARCHIVE_DB_FILENAME:", dbFilename)
-            sys.stderr.write("Error: {}\n".format(str(e)))
+            sys.stderr.write("DbSource Error: {}\n".format(str(e)))
 
         return conn
