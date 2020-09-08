@@ -9,10 +9,12 @@ from ogn.client import AprsClient
 
 from configuration import APRS_FILTER
 from beaconProcessor import BeaconProcessor
+from cronJobs import CronJobs
 
 bp = BeaconProcessor()
 doRun = True
 client: AprsClient = AprsClient(aprs_user='ibisek', aprs_filter=APRS_FILTER)
+cron = CronJobs()
 
 
 def process_beacon(raw_message):
@@ -27,6 +29,7 @@ def process_beacon(raw_message):
 
 def _cleanup():
     bp.stop()
+    cron.stop()
 
     global doRun
     doRun = False
