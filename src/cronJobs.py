@@ -17,8 +17,8 @@ class TowLookup(object):
 
     def __init__(self):
         self.queue = Queue()
-        print(f"[INFO] TowLookup scheduled to run every {self.INTERVAL} s with window "
-              f"of {int(self.TOW_TIME_WINDOW/60)} min and detection range of +/- {self.TOW_TIME_RANGE} s.")
+        print(f"[INFO] TowLookup scheduled to run every {self.INTERVAL}s with window "
+              f"of {int(self.TOW_TIME_WINDOW/60)} min and detection range of +/- {self.TOW_TIME_RANGE}s.")
 
     def _findTowFor(self, ts, icao):
         strSql = f"SELECT id FROM logbook_entries " \
@@ -59,7 +59,7 @@ class TowLookup(object):
                     self.queue.put(f"UPDATE logbook_entries set tow_id = {gliderFlightId} where id = {towFlightId};")    # update tow
 
         if self.queue.qsize() > 0:
-            print("[INFO] Num tows discovered: {}".format(self.queue.qsize()/2))    # /2 ~ it's a pair glider-tow plane
+            print("[INFO] Num tows discovered: {}".format(int(self.queue.qsize()/2)))    # /2 ~ it's a pair glider-tow plane
             with DbSource(dbConnectionInfo).getConnection() as cur:
                 try:
                     for item in iter(self.queue.get_nowait, None):
