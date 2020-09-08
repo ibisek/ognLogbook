@@ -42,7 +42,7 @@ class TowLookup(object):
 
         strSql = f"SELECT id, address, takeoff_ts, takeoff_icao " \
                  f"FROM logbook_entries " \
-                 f"WHERE tow_id IS NULL AND aircraft_type = 1 ;" \
+                 f"WHERE tow_id IS NULL AND aircraft_type = 1 " \
                  f"AND landing_ts >= {ts};"
 
         with DbSource(dbConnectionInfo).getConnection() as cur:
