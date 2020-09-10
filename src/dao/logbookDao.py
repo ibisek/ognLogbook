@@ -240,3 +240,29 @@ def getSums(registration, forDay=None, limit=None):
             totalFlightTime = row[0][1]    # [s]
 
     return numFlights, totalFlightTime
+
+
+def findMostRecentTakeoff(address: str) -> LogbookItem:
+    strSql = f"SELECT id, ts, address, address_type, aircraft_type, event, lat, lon, location_icao " \
+             f"FROM logbook_events " \
+             f"WHERE address = '{address}' AND event='T' " \
+             f"ORDER by ts DESC LIMIT 1;"
+
+    with DbSource(dbConnectionInfo).getConnection() as cur:
+        cur.execute(strSql)
+        row = cur.fetchone()
+        if row:
+            id, ts, address, addressType, aircraftType, event, lat, lon, location = row
+
+            item = LogbookItem(id=id,
+                               address=address,
+                               address_type=addressType,
+                               aircraft_type=aircraftType,
+                               takeoff_ts=ts,
+                               takeoff_lat=lat,
+                               takeoff_lon=lon,
+                               takeoff_icao=location)
+
+            return item
+
+    return None
