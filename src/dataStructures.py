@@ -31,7 +31,7 @@ class Status(object):
 
 class LogbookItem(object):
 
-    def __init__(self, id, address,
+    def __init__(self, id, address, address_type=None,
                  takeoff_ts=0, takeoff_lat=0, takeoff_lon=0, takeoff_icao=None,
                  landing_ts=0, landing_lat=0, landing_lon=0, landing_icao=None,
                  flight_time=0, device_type=None,
@@ -39,6 +39,7 @@ class LogbookItem(object):
 
         self.id = id
         self.address = address
+        self.address_type = address_type
 
         self.takeoff_ts = takeoff_ts
         self.takeoff_lat = takeoff_lat
