@@ -10,11 +10,11 @@ from cron.redisReaper import RedisReaper
 class CronJobs(object):
     def __init__(self):
         tl = TowLookup()
-        self.towLookupTimer = PeriodicTimer(TowLookup.INTERVAL, tl.gliderTowLookup)
+        self.towLookupTimer = PeriodicTimer(TowLookup.RUN_INTERVAL, tl.gliderTowLookup)
         self.towLookupTimer.start()
 
         # self.rr = RedisReaper()
-        # self.redisReaperTimer = PeriodicTimer(RedisReaper.INTERVAL, self.doWork())
+        # self.redisReaperTimer = PeriodicTimer(RedisReaper.RUN_INTERVAL, self.doWork())
 
     def stop(self):
         self.towLookupTimer.stop()

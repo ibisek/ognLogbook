@@ -7,7 +7,7 @@ from db.DbSource import DbSource
 
 
 class TowLookup(object):
-    INTERVAL = 60   # [s]
+    RUN_INTERVAL = 60   # [s]
     TOW_TIME_RANGE = 2  # +/-[s]
     TOW_TIME_WINDOW = 10 * 60  # [s]
 
