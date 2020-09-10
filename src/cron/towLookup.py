@@ -1,13 +1,9 @@
-"""
-General periodic tasks are defined and executed from here.
-"""
 
 from queue import Queue, Empty
 from datetime import datetime
 
 from configuration import dbConnectionInfo
 from db.DbSource import DbSource
-from periodicTimer import PeriodicTimer
 
 
 class TowLookup(object):
@@ -66,14 +62,3 @@ class TowLookup(object):
                         cur.execute(item)
                 except Empty:
                     pass
-
-
-class CronJobs(object):
-    def __init__(self):
-        tl = TowLookup()
-        self.towLookup = PeriodicTimer(TowLookup.INTERVAL, tl.gliderTowLookup)
-        self.towLookup.start()
-
-    def stop(self):
-        self.towLookup.stop()
-        print("[INFO] Cron terminated.")

@@ -9,7 +9,7 @@ from ogn.client import AprsClient
 
 from configuration import APRS_FILTER
 from beaconProcessor import BeaconProcessor
-from cronJobs import CronJobs
+from cron.cronJobs import CronJobs
 
 bp = BeaconProcessor()
 doRun = True
