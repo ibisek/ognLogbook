@@ -16,13 +16,14 @@ from airfieldManager import AirfieldManager
 from dao.logbookDao import findMostRecentTakeoff
 from dataStructures import LogbookItem
 
-REDIS_STALE_INTERVAL_1 = 10*60  # [s]
-REDIS_STALE_INTERVAL_2 = 20*60  # [s]
-REDIS_TTL_LIMIT = REDIS_RECORD_EXPIRATION - REDIS_STALE_INTERVAL_1
-GS_THRESHOLD = getGroundSpeedThreshold(1, 'L')
-
 
 class RedisReaper(object):
+    RUN_INTERVAL = 2*60  # [s]
+
+    REDIS_STALE_INTERVAL_1 = 10 * 60  # [s]
+    REDIS_STALE_INTERVAL_2 = 20 * 60  # [s]
+    REDIS_TTL_LIMIT = REDIS_RECORD_EXPIRATION - REDIS_STALE_INTERVAL_1
+    GS_THRESHOLD = getGroundSpeedThreshold(1, 'L')
 
     def __init__(self):
         self.dbt = DbThread(dbConnectionInfo=dbConnectionInfo)
@@ -42,7 +43,7 @@ class RedisReaper(object):
             ttl = self.redis.ttl(key)
             status = int(self.redis.get(key).decode('ascii').split(';')[0])
 
-            if status == 1 and ttl < REDIS_TTL_LIMIT:  # 1 = airborne
+            if status == 1 and ttl < self.REDIS_TTL_LIMIT:  # 1 = airborne
                 # print(f"status: {status}; {key} -> {ttl}")
                 addr = key.split('-')[0]
                 staleRecords[addr] = ttl
@@ -63,11 +64,11 @@ class RedisReaper(object):
                 lon = res[0]['lon']
 
                 landingSuspected = False
-                if 0 < agl < 100 and gs < GS_THRESHOLD:
+                if 0 < agl < 100 and gs < self.GS_THRESHOLD:
                     landingSuspected = True
                 else:
                     dt = REDIS_RECORD_EXPIRATION - ttl  # [s] time since last beacon update
-                    if dt > REDIS_STALE_INTERVAL_2:
+                    if dt > self.REDIS_STALE_INTERVAL_2:
                         landingSuspected = True
 
                 if landingSuspected:
