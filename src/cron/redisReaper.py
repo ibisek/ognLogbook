@@ -26,6 +26,8 @@ class RedisReaper(object):
     GS_THRESHOLD = getGroundSpeedThreshold(1, 'L')
 
     def __init__(self):
+        print(f"[INFO] RedisReaper(lite) scheduled to run every {self.RUN_INTERVAL}s.")
+
         self.dbt = DbThread(dbConnectionInfo=dbConnectionInfo)
         self.dbt.start()
 
