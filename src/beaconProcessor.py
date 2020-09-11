@@ -130,10 +130,8 @@ class RawWorker(Thread):
         lon = beacon['longitude']
         altitude = int(beacon['altitude'])
         groundSpeed = beacon['ground_speed']
-        verticalSpeed = beacon['climb_rate']
-        turnRate = beacon['turn_rate']
-        if not turnRate:
-            turnRate = 0
+        verticalSpeed = beacon.get('climb_rate') or 0
+        turnRate = beacon.get('turn_rate') or 0
 
         # get altitude above ground level (AGL):
         agl = self._getAgl(lat, lon, altitude)  # [m]
@@ -141,11 +139,8 @@ class RawWorker(Thread):
         # insert into influx:
         # pos ~ position, vs = vertical speed, tr = turn rate
         if agl < 128000:    # groundSpeed > 0 and
-            try:
-                q = f"pos,addr={address} lat={lat:.6f},lon={lon:.6f},alt={altitude:.0f},gs={groundSpeed:.2f},vs={verticalSpeed:.2f},tr={turnRate:.2f},agl={agl:.0f} {ts}000000000"
-                self.influxDb.addStatement(q)
-            except TypeError as ex:
-                print(f"[ERROR] some field of this is null: {address}; {lat}; {lon}; {alt}; {groundSpeed}; {verticalSpeed}; {turnRate}; {agl}; {ts};")
+            q = f"pos,addr={address} lat={lat:.6f},lon={lon:.6f},alt={altitude:.0f},gs={groundSpeed:.2f},vs={verticalSpeed:.2f},tr={turnRate:.2f},agl={agl:.0f} {ts}000000000"
+            self.influxDb.addStatement(q)
 
         prevStatus: Status = None
         statusKey = f"{address}-status"
