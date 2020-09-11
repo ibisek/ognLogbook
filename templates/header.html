@@ -17,7 +17,7 @@
                     {% if date %}
                         <a href="/csv/{{icaoCode}}/{{date.strftime('%Y-%m-%d')}}">{{icaoCode}}
                             {% if flights|length > 0 %}
-                            <img src="/static/img/csv-file-icon.svg" style="width: 25px; height:25px; vertical-align: middle; padding-left: 5px;"/>
+                            <img src="/static/img/csv-file-icon-green.svg" style="width: 25px; height:25px; vertical-align: middle; padding-left: 5px;"/>
                             {% endif %}
                         </a>
                     {% else %}
