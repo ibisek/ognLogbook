@@ -72,7 +72,10 @@ if __name__ == '__main__':
     # ADDR = 'DDDDFE'     # kabrda ventus
     # ADDR = 'DDD530'  # hUSKy
     # ADDR = '034819'  # ROBIN
-    ADDR = '232855'  # ECHO
+    # ADDR = '232855'  # ECHO
+    # ADDR = '072921' # L23
+    ADDR = '255929'  # VEGA
+    # ADDR = '062024'  # FOX
     # ADDR = '4AD706'  # 'SE-UXF', Kjell, 'Duo Discus xlt'
     # ADDR = 'DDA80A'  # 'DS' (TT)
     # ADDR = '151035'  # A1 2020-08-10
@@ -86,7 +89,7 @@ if __name__ == '__main__':
 
     # ADDR = 'DDD9F5'    # random address from the log
 
-    startDate = '2020-08-28'
+    startDate = '2020-09-11'
 
     dt: datetime = datetime.strptime(startDate, '%Y-%m-%d')
     ts = dt.timestamp()     # [s]
@@ -171,10 +174,10 @@ if __name__ == '__main__':
     plt.subplots_adjust(left=0.05, right=0.95, top=0.95)
 
     df.plot(y=['gs'], ax=axes[0], rot=0, ls='', marker='.', markersize=2)
-    df.plot(y=['gsf'], ax=axes[0], rot=0)
-    df.plot(y=['gsk'], ax=axes[0], rot=0)
-    ax2 = axes[0].twinx()
-    df.plot(y=['airborneGs'], ax=ax2, rot=0)
+    # df.plot(y=['gsf'], ax=axes[0], rot=0)
+    # df.plot(y=['gsk'], ax=axes[0], rot=0)
+    ax1 = axes[0].twinx()
+    df.plot(y=['airborneGs'], ax=ax1, rot=0)
 
     df.plot(y=['alt'], figsize=(20, 15), ax=axes[1], rot=0, ls='', marker='.', markersize=2)
     df.plot(y=['altf'], ax=axes[1], rot=0)
