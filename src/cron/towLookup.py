@@ -13,7 +13,7 @@ class TowLookup(object):
 
     def __init__(self):
         self.queue = Queue()
-        print(f"[INFO] TowLookup scheduled to run every {self.INTERVAL}s with window "
+        print(f"[INFO] TowLookup scheduled to run every {self.RUN_INTERVAL}s with window "
               f"of {int(self.TOW_TIME_WINDOW/60)} min and detection range of +/- {self.TOW_TIME_RANGE}s.")
 
     def _findTowFor(self, ts, icao):
