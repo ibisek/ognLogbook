@@ -13,13 +13,13 @@ class CronJobs(object):
         self.towLookupTimer = PeriodicTimer(TowLookup.RUN_INTERVAL, tl.gliderTowLookup)
         self.towLookupTimer.start()
 
-        # self.rr = RedisReaper()
-        # self.redisReaperTimer = PeriodicTimer(RedisReaper.RUN_INTERVAL, self.doWork())
+        self.rr = RedisReaper()
+        self.redisReaperTimer = PeriodicTimer(RedisReaper.RUN_INTERVAL, self.rr.doWork)
 
     def stop(self):
         self.towLookupTimer.stop()
 
-        # self.redisReaperTimer.stop()
-        # self.rr.stop()
+        self.redisReaperTimer.stop()
+        self.rr.stop()
 
         print("[INFO] Cron terminated.")
