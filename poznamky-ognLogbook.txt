@@ -79,6 +79,8 @@ https://python-rq.org/docs/
 
 https://codepen.io/huange/pen/rbqsD
 
+https://en.wikipedia.org/wiki/List_of_airports_by_ICAO_code:_L
+
 --
 
 PIP:
