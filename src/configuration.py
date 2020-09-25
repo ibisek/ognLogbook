@@ -9,6 +9,8 @@ GEOFILE_PATH = '/home/jaja/data/download/ognLogbook/500m/mosaic-500m.TIF'
 redisConfig = {"host": "127.0.0.1", "password": "", "port": 6379}
 REDIS_RECORD_EXPIRATION = 8*60*60     # [s]
 
+AGL_LANDING_LIMIT = 100
+
 # DB_HOST = '10.8.0.18'   # 127.0.0.1
 DB_HOST = '127.0.0.1'
 DB_PORT = 3306
