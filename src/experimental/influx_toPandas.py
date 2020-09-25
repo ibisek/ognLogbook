@@ -74,7 +74,7 @@ if __name__ == '__main__':
     # ADDR = '034819'  # ROBIN
     # ADDR = '232855'  # ECHO
     # ADDR = '072921' # L23
-    ADDR = '255929'  # VEGA
+    # ADDR = '255929'  # VEGA
     # ADDR = '062024'  # FOX
     # ADDR = '4AD706'  # 'SE-UXF', Kjell, 'Duo Discus xlt'
     # ADDR = 'DDA80A'  # 'DS' (TT)
@@ -87,9 +87,9 @@ if __name__ == '__main__':
     # ADDR = 'DDA391'  # F-CIJL (LFLE) where gliders never land
     # ADDR = 'D006D0'  # F-PVVA (LFLE) where gliders never land
 
-    # ADDR = 'DDD9F5'    # random address from the log
+    ADDR = '4AD282'    # random address from the log
 
-    startDate = '2020-09-11'
+    startDate = '2020-09-23'
 
     dt: datetime = datetime.strptime(startDate, '%Y-%m-%d')
     ts = dt.timestamp()     # [s]
@@ -156,11 +156,11 @@ if __name__ == '__main__':
     # keys4 = ['tr', 'trf']
     # df[keys].plot(figsize=(20, 15))
 
-    fig = plt.figure()
+    # fig = plt.figure()
     nRows = 2 if 'agl' not in df else 3
-    gs = fig.add_gridspec(nrows=nRows, ncols=1, hspace=0)
-    # axes = gs.subplots(sharex=True, sharey=False)
     fig, axes = plt.subplots(nrows=nRows, ncols=1)
+    # axes = gs.subplots(sharex=True, sharey=False)
+    gs = fig.add_gridspec(nrows=nRows, ncols=1, hspace=0)
     for ax in axes:
         ax.minorticks_on()
 
@@ -180,13 +180,13 @@ if __name__ == '__main__':
     df.plot(y=['airborneGs'], ax=ax1, rot=0)
 
     df.plot(y=['alt'], figsize=(20, 15), ax=axes[1], rot=0, ls='', marker='.', markersize=2)
-    df.plot(y=['altf'], ax=axes[1], rot=0)
-    df.plot(y=['altk'], ax=axes[1], rot=0)
+    # df.plot(y=['altf'], ax=axes[1], rot=0)
+    # df.plot(y=['altk'], ax=axes[1], rot=0)
 
     if 'agl' in df:
         df.plot(y=['agl'], ax=axes[2], rot=0, ls='', marker='.', markersize=2)
-        df.plot(y=['aglf'], ax=axes[2], rot=0)
-        df.plot(y=['aglk'], ax=axes[2], rot=0)
+        # df.plot(y=['aglf'], ax=axes[2], rot=0)
+        # df.plot(y=['aglk'], ax=axes[2], rot=0)
         ax2 = axes[2].twinx()
         df.plot(y=['airborneAgl'], ax=ax2, rot=0)
 
