@@ -16,7 +16,7 @@ from ogn.parser import parse
 from ogn.parser.exceptions import ParseError
 
 from configuration import debugMode, redisConfig, \
-    dbConnectionInfo, REDIS_RECORD_EXPIRATION, MQ_HOST, MQ_PORT, MQ_USER, MQ_PASSWORD, INFLUX_DB_NAME, INFLUX_DB_HOST, GEOFILE_PATH
+    dbConnectionInfo, REDIS_RECORD_EXPIRATION, MQ_HOST, MQ_PORT, MQ_USER, MQ_PASSWORD, INFLUX_DB_NAME, INFLUX_DB_HOST, GEOFILE_PATH, AGL_LANDING_LIMIT
 from geofile import Geofile
 from db.DbThread import DbThread
 from db.InfluxDbThread import InfluxDbThread
@@ -173,8 +173,6 @@ class RawWorker(Thread):
             currentStatus.s = 0 if groundSpeed <= getGroundSpeedThreshold(aircraftType, forEvent='L') else 1
 
         if currentStatus.s != prevStatus.s:
-            self._saveToRedis(statusKey, currentStatus)
-
             addressType = beacon['address_type']
             addressTypeStr = self.ADDRESS_TYPES.get(addressType, 'X')
 
@@ -192,7 +190,7 @@ class RawWorker(Thread):
                     return
 
                 # check altitude above ground level:
-                if agl and agl > 100:   # [m]
+                if agl and agl > AGL_LANDING_LIMIT:   # [m]
                     return  # most likely a false detection
 
             # if event == 'T':
@@ -200,6 +198,8 @@ class RawWorker(Thread):
             #     agl = self._getAgl(lat, lon, altitude)
             #     if agl and agl < 50:  # [m]
             #         return  # most likely a false detection
+
+            self._saveToRedis(statusKey, currentStatus)
 
             icaoLocation = self.airfieldManager.getNearest(lat, lon)
 
