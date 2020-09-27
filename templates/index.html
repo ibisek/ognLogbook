@@ -34,7 +34,7 @@
 		{% for item in list %}
 		<div class="row">
 			<div class="cell">{{item.takeoff_dt.strftime('%d.%m.')}}</div>
-			<div class="cell">{{item.takeoff_dt.strftime('%H:%M')}}</div>
+			<div class="cell">{{formatTsToHHMM(item.takeoff_dt)}}</div>
 			<div class="cell">{% if item.takeoff_icao %}<a href="/loc/{{item.takeoff_icao}}">{{item.takeoff_icao}}</a>{% else %}<a href="https://mapy.cz/zakladni?x={{item.takeoff_lon}}&y={{item.takeoff_lat}}&z=14&source=coor&id={{item.takeoff_lon}}%2C{{item.takeoff_lat}}" target="_blank">{{ gettext('main.map') }}</a>{% endif %}</div>
 			<div class="cell">{% if item.registration %}<a href="/reg/{{item.registration}}">{{item.registration}}</a>{% else %}{{ gettext('tab.hidden') }}{% endif %}</div>
 			<div class="cell">{% if item.cn %}<a href="https://glideandseek.com/?aircraft={{item.address}}" target="_blank">{{item.cn}}</a>{% endif %}</div>
@@ -58,7 +58,7 @@
 		{% for item in list %}
 		<div class="row">
 			<div class="cell">{{item.landing_dt.strftime('%d.%m.')}}</div>
-			<div class="cell">{{item.landing_dt.strftime('%H:%M')}}</div>
+			<div class="cell">{{formatTsToHHMM(item.landing_dt)}}</div>
 			<div class="cell">{% if item.landing_icao %}<a href="/loc/{{item.landing_icao}}">{{item.landing_icao}}</a>{% else %}<a href="https://mapy.cz/zakladni?x={{item.landing_lon}}&y={{item.landing_lat}}&z=14&source=coor&id={{item.landing_lon}}%2C{{item.landing_lat}}" target="_blank">{{ gettext('main.map') }}</a>{% endif %}</div>
 			<div class="cell">{% if item.registration %}<a href="/reg/{{item.registration}}/{{item.landing_dt.strftime('%Y-%m-%d')}}">{{item.registration}}</a>{% else %}{{ gettext('tab.hidden') }}{% endif %}</div>
 			<div class="cell">{% if item.cn %}{{item.cn}}{% endif %}</div>
@@ -90,9 +90,9 @@
 				<div class="cell">{% if item.cn %}{{item.cn}}{% endif %}</div>
 				<div class="cell">{% if item.aircraft_type %}{{item.aircraft_type}}{% endif %}</div>
 				<div class="cell">{% if item.takeoff_icao %}<a href="/loc/{{item.takeoff_icao}}">{{item.takeoff_icao}}</a>{% else %}<a href="https://mapy.cz/zakladni?x={{item.takeoff_lon}}&y={{item.takeoff_lat}}&z=14&source=coor&id={{item.takeoff_lon}}%2C{{item.takeoff_lat}}" target="_blank">{{ gettext('main.map') }}</a>{% endif %}</div>
-				<div class="cell">{% if item.takeoff_dt %} {{item.takeoff_dt.strftime('%H:%M')}} {% else %} ? {% endif %}</div>
+				<div class="cell">{% if item.takeoff_dt %} {{formatTsToHHMM(item.takeoff_dt)}} {% else %} ? {% endif %}</div>
 				<div class="cell">{% if item.landing_icao %}<a href="/loc/{{item.landing_icao}}">{{item.landing_icao}}</a>{% else %}<a href="https://mapy.cz/zakladni?x={{item.landing_lon}}&y={{item.landing_lat}}&z=14&source=coor&id={{item.landing_lon}}%2C{{item.landing_lat}}" target="_blank">{{ gettext('main.map') }}</a>{% endif %}</div>
-				<div class="cell">{{item.landing_dt.strftime('%H:%M')}}</div>
+				<div class="cell">{{formatTsToHHMM(item.landing_dt)}}</div>
 				<div class="cell">{{item.flight_time}}</div>
 			</div>
 			{% endfor %}

@@ -14,11 +14,12 @@ from flask import request
 from configuration import debugMode
 from dao.logbookDao import listDepartures, listArrivals, listFlights, getSums
 from dao.stats import getNumFlightsToday, getTotNumFlights, getLongestFlightTimeToday, getHighestTrafficToday
-from utils import getDaysLinks, formatDuration
+from utils import getDaysLinks, formatDuration, formatTsToHHMM
 from translations import gettext
 
 app = flask.Flask(__name__)
 app.jinja_env.globals.update(gettext=gettext)
+app.jinja_env.globals.update(formatTsToHHMM=formatTsToHHMM)
 app.jinja_env.globals.update(node=node)
 
 

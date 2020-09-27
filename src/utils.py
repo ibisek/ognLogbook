@@ -90,3 +90,27 @@ def getGroundSpeedThreshold(aircraftType: int, forEvent: str):
 
     else:   # takeoff threshold
         return 80  # [km/h] all
+
+
+def formatTsToHHMM(ts: datetime):
+    """
+    Formats ts rounded HH:MM.
+    To be used in tepmlates in form {{ formatTsHHMM(ts) }}
+    """
+    if ts:
+        hour = ts.hour
+        min = ts.minute
+        sec = ts.second
+
+        if sec >= 30:
+            min += 1
+            if min > 59:
+                min = 0
+                hour += 1
+                if hour > 23:
+                    hour = 0
+
+        return f"{hour}:{min:02d}"
+
+    else:
+        return '?'
