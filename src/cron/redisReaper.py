@@ -8,7 +8,7 @@
 from datetime import datetime
 from redis import StrictRedis
 
-from configuration import dbConnectionInfo, redisConfig, INFLUX_DB_NAME, INFLUX_DB_HOST, REDIS_RECORD_EXPIRATION
+from configuration import dbConnectionInfo, redisConfig, INFLUX_DB_NAME, INFLUX_DB_HOST, REDIS_RECORD_EXPIRATION, REVERSE_ADDRESS_TYPE_PREFIX
 from db.DbThread import DbThread
 from db.InfluxDbThread import InfluxDbThread
 from utils import getGroundSpeedThreshold
@@ -47,14 +47,21 @@ class RedisReaper(object):
 
             if status == 1 and ttl < self.REDIS_TTL_LIMIT:  # 1 = airborne
                 # print(f"status: {status}; {key} -> {ttl}")
-                addr = key.split('-')[0]
+                addr = key.split('-')[0]    # in fact addressTypeStr + addr (e.g. I123456, F123456, O123456, ..)
                 staleRecords[addr] = ttl
 
         numLanded = 0
         for addr, ttl in staleRecords.items():
-            # print(f"{addr}: {ttl}; {dt/60:.1f}")
+            # print(f"{addr}: {ttl}")    # ;{dt/60:.1f}
 
-            rs = self.influx.client.query(f"SELECT * FROM pos WHERE addr='{addr}' ORDER BY time DESC LIMIT 1;")
+            prefix = addr[:3]
+            addr = addr[3:]
+            addrType = REVERSE_ADDRESS_TYPE_PREFIX.get(prefix, None)
+
+            if not addrType:
+                continue
+
+            rs = self.influx.client.query(f"SELECT * FROM pos WHERE addr='{prefix}{addr}' ORDER BY time DESC LIMIT 1;")
             for res in rs:
                 # print('res:', res)
                 time = res[0]['time']
@@ -81,11 +88,11 @@ class RedisReaper(object):
                     # print(f"addr: {addr}; dt: {dt / 60:.0f}min ; agl: {agl:.0f}m near {icaoLocation}")
 
                     # set status as Landed in redis (or delete?):
-                    self.redis.set(f"{addr}-status", '0;0')  # 0 = on-ground; ts=0 to indicate forced landing
+                    self.redis.set(f"{prefix}{addr}-status", '0;0')  # 0 = on-ground; ts=0 to indicate forced landing
                     self.redis.expire(key, REDIS_RECORD_EXPIRATION)
 
                     # look-up related takeoff data:
-                    logbookItem: LogbookItem = findMostRecentTakeoff(addr)
+                    logbookItem: LogbookItem = findMostRecentTakeoff(addr, addrType)
 
                     # create a LANDING logbook_event -> a stored procedure then creates a logbook_entry:
                     flightTime = ts - logbookItem.takeoff_ts
