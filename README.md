@@ -5,6 +5,7 @@ Observes traffic data from the OGN network and maps take-offs and landings of sm
 https://logbook.ibisek.com/
 
 ## #TODO#
-* avoid using GDAL from cmdline by opening the geotiff files in python and thus processing them way faster
-* create getAgl(latitude: float, longitude: float) function to get AGL [m] based on py-gdal
+* ~~advanced flight analysis based on influx-stored data~~
+* ~~avoid using GDAL from cmdline by opening the geotiff files in python and thus processing them way faster~~
+* ~~create getAgl(latitude: float, longitude: float) function to get AGL [m] based on py-gdal~~
 * process orphaned records in REDIS before they expire - detect possible field landings and out-of-signal situaltions 
