@@ -16,7 +16,8 @@ from ogn.parser import parse
 from ogn.parser.exceptions import ParseError
 
 from configuration import debugMode, redisConfig, \
-    dbConnectionInfo, REDIS_RECORD_EXPIRATION, MQ_HOST, MQ_PORT, MQ_USER, MQ_PASSWORD, INFLUX_DB_NAME, INFLUX_DB_HOST, GEOFILE_PATH, AGL_LANDING_LIMIT
+    dbConnectionInfo, REDIS_RECORD_EXPIRATION, MQ_HOST, MQ_PORT, MQ_USER, MQ_PASSWORD, INFLUX_DB_NAME, INFLUX_DB_HOST, \
+    GEOFILE_PATH, AGL_LANDING_LIMIT, ADDRESS_TYPES, ADDRESS_TYPE_PREFIX
 from geofile import Geofile
 from db.DbThread import DbThread
 from db.InfluxDbThread import InfluxDbThread
@@ -27,8 +28,6 @@ from periodicTimer import PeriodicTimer
 
 
 class RawWorker(Thread):
-
-    ADDRESS_TYPES = {1: 'I', 2: 'F', 3: 'O'}
 
     redis = StrictRedis(**redisConfig)
 
@@ -113,6 +112,7 @@ class RawWorker(Thread):
         self.numProcessed += 1
 
         addressType = beacon.get('address_type', 1)     # 1 = icao, 2 = flarm, 3 = ogn
+        addressTypeStr = ADDRESS_TYPES.get(addressType, 'X')
         aircraftType = beacon.get('aircraft_type', 8)   # icao-crafts are often 'powered aircraft's
 
         if 'address' not in beacon:
@@ -132,10 +132,10 @@ class RawWorker(Thread):
             print(f"[WARN] Timestamp from the future: {dt}, now is {now}")
             return
 
-        lat = beacon['latitude']
-        lon = beacon['longitude']
-        altitude = int(beacon['altitude'])
-        groundSpeed = beacon['ground_speed']
+        lat = beacon.get('latitude') or None
+        lon = beacon.get('longitude') or None
+        altitude = int(beacon.get('altitude')) or 0
+        groundSpeed = beacon.get('ground_speed') or 0
         verticalSpeed = beacon.get('climb_rate') or 0
         turnRate = beacon.get('turn_rate') or 0
 
@@ -145,11 +145,11 @@ class RawWorker(Thread):
         # insert into influx:
         # pos ~ position, vs = vertical speed, tr = turn rate
         if agl < 128000:    # groundSpeed > 0 and
-            q = f"pos,addr={address} lat={lat:.6f},lon={lon:.6f},alt={altitude:.0f},gs={groundSpeed:.2f},vs={verticalSpeed:.2f},tr={turnRate:.2f},agl={agl:.0f} {ts}000000000"
+            q = f"pos,addr={ADDRESS_TYPE_PREFIX[addressType]}{address} lat={lat:.6f},lon={lon:.6f},alt={altitude:.0f},gs={groundSpeed:.2f},vs={verticalSpeed:.2f},tr={turnRate:.2f},agl={agl:.0f} {ts}000000000"
             self.influxDb.addStatement(q)
 
         prevStatus: Status = None
-        statusKey = f"{address}-status"
+        statusKey = f"{addressTypeStr}{address}-status"
         ps = self._getFromRedis(statusKey)
         if ps:
             try:
@@ -157,7 +157,7 @@ class RawWorker(Thread):
             except ValueError as e:
                 print('[ERROR] when parsing prev. status: ', e)
 
-        gsKey = f"{address}-gs"
+        gsKey = f"{addressTypeStr}{address}-gs"
 
         if not prevStatus:  # we have no prior information
             self._saveToRedis(statusKey, Status(s=0, ts=ts))    # 0 = on ground, 1 = airborne, -1 = unknown
@@ -179,8 +179,6 @@ class RawWorker(Thread):
             currentStatus.s = 0 if groundSpeed <= getGroundSpeedThreshold(aircraftType, forEvent='L') else 1
 
         if currentStatus.s != prevStatus.s:
-            addressTypeStr = self.ADDRESS_TYPES.get(addressType, 'X')
-
             event = 'L' if currentStatus.s == 0 else 'T'  # L = landing, T = take-off
             flightTime = 0
 
