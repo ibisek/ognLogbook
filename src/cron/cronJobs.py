@@ -15,6 +15,7 @@ class CronJobs(object):
 
         self.rr = RedisReaper()
         self.redisReaperTimer = PeriodicTimer(RedisReaper.RUN_INTERVAL, self.rr.doWork)
+        self.redisReaperTimer.start()
 
     def stop(self):
         self.towLookupTimer.stop()
