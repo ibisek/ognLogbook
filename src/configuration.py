@@ -54,3 +54,6 @@ except NameError:
 #     SQLITE_DB_FILENAME = '/home/ibisek/wqz/prog/python/ognLogbook/data/ognLogbook.sqlite'
 #     os.environ.setdefault('SQLITE_DB_FILENAME', SQLITE_DB_FILENAME)
 
+ADDRESS_TYPES = {1: 'I', 2: 'F', 3: 'O'}
+ADDRESS_TYPE_PREFIX = {1: 'ICA', 2: 'FLR', 3: 'OGN'}
+REVERSE_ADDRESS_TYPE_PREFIX = {'ICA': 1, 'FLR': 2, 'OGN': 3}
