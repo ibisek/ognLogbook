@@ -310,8 +310,10 @@ class BeaconProcessor(object):
             self.rawQueueOGN.put(raw_message)
         elif prefix == 'FLR':
             self.rawQueueFLR.put(raw_message)
-        else:   # 'ICA'
+        elif prefix == 'ICA':
             self.rawQueueICA.put(raw_message)
+        else:
+            raise NotImplementedError('Worker for "{prefix}" not implemented!', raw_message)
 
         self.numEnquedTasks += 1
 
