@@ -97,9 +97,9 @@ class RawWorker(Thread):
         beacon = None
         try:
             beacon = parse(raw_message)
-            if not beacon or 'beacon_type' not in beacon.keys() \
-                    or beacon['beacon_type'] not in ['aprs_aircraft', 'flarm', 'tracker']:
+            if not beacon or 'aprs_type' not in beacon.keys() or (beacon.get('aprs_type', None) != 'position'):
                 # print('[WARN] cannot process:', raw_message)
+                # print('bt:', beacon.get('beacon_type', None), str(beacon))
                 return
 
         except ParseError as e:
@@ -112,8 +112,16 @@ class RawWorker(Thread):
 
         self.numProcessed += 1
 
+        addressType = beacon.get('address_type', 1)     # 1 = icao, 2 = flarm, 3 = ogn
+        aircraftType = beacon.get('aircraft_type', 8)   # icao-crafts are often 'powered aircraft's
+
+        if 'address' not in beacon:
+            address = beacon['name'][3:]
+            beacon['address_type'] = 1
+        else:
+            address = beacon['address']
+
         # we are not interested in para, baloons, uavs and other crazy flying stuff:
-        aircraftType = beacon.get('aircraft_type', -1)
         if aircraftType not in [1, 2, 6, 8, 9, 10]:
             return
 
@@ -124,7 +132,6 @@ class RawWorker(Thread):
             print(f"[WARN] Timestamp from the future: {dt}, now is {now}")
             return
 
-        address = beacon['address']
         lat = beacon['latitude']
         lon = beacon['longitude']
         altitude = int(beacon['altitude'])
@@ -172,7 +179,6 @@ class RawWorker(Thread):
             currentStatus.s = 0 if groundSpeed <= getGroundSpeedThreshold(aircraftType, forEvent='L') else 1
 
         if currentStatus.s != prevStatus.s:
-            addressType = beacon['address_type']
             addressTypeStr = self.ADDRESS_TYPES.get(addressType, 'X')
 
             event = 'L' if currentStatus.s == 0 else 'T'  # L = landing, T = take-off
