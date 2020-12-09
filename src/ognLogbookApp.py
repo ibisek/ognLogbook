@@ -21,7 +21,7 @@ def process_beacon(raw_message):
     # print("RAW:", raw_message)
 
     # throw away other types of messages to increase performance:
-    if raw_message[:3] not in ['OGN', 'FLR', 'ICA']:
+    if raw_message[:3] not in ['OGN', 'FLR', 'ICA']:    # PAW, RND?
         return
 
     bp.enqueueForProcessing(raw_message)
