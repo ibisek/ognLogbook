@@ -97,25 +97,24 @@ class RawWorker(Thread):
         beacon = None
         try:
             beacon = parse(raw_message)
-            if not beacon or 'beacon_type' not in beacon.keys() or beacon['beacon_type'] != 'aprs_aircraft':
+            if not beacon or 'beacon_type' not in beacon.keys() \
+                    or beacon['beacon_type'] not in ['aprs_aircraft', 'flarm', 'tracker']:
+                # print('[WARN] cannot process:', raw_message)
                 return
 
         except ParseError as e:
-            # print('[ERROR] when parsing a beacon: {}'.format(e.message))
-            # print("Failed BEACON:", raw_message)
+            # print(f'[ERROR] when parsing a beacon: {str(e)}', raw_message)
             return
 
         except Exception as e:
-            # print('[ERROR] {}'.format(e))
-            # if beacon:
-            #     print("Failed BEACON:", beacon)
+            # print(f'[ERROR] Some other error in _processMessage() {str(e)}', raw_message)
             return
 
         self.numProcessed += 1
 
         # we are not interested in para, baloons, uavs and other crazy flying stuff:
-        aircraftType = beacon['aircraft_type']
-        if aircraftType not in [1, 2, 6, 8, 9]:
+        aircraftType = beacon.get('aircraft_type', -1)
+        if aircraftType not in [1, 2, 6, 8, 9, 10]:
             return
 
         dt = beacon['timestamp'].replace(tzinfo=pytz.UTC)
