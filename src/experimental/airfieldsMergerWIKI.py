@@ -33,6 +33,9 @@ if __name__ == '__main__':
             lat = float(item.get('lat', 0))
             lon = float(item.get('lon', 0))
 
+            lat = float(f'{lat:.4f}')
+            lon = float(f'{lon:.4f}')
+
             if code not in airfields:
                 airfields[code] = {'lat': lat, 'lon': lon}
 
