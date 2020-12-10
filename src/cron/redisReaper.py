@@ -111,7 +111,8 @@ class RedisReaper(object):
 
                     numLanded += 1
 
-        print(f"[INFO] RedisReaper: cleared {numLanded} stale records")
+        if numLanded > 0:
+            print(f"[INFO] RedisReaper: cleared {numLanded} stale records")
 
     def stop(self):
         self.dbt.stop()
