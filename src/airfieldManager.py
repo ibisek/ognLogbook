@@ -1,8 +1,7 @@
-
 import json
 import math
 
-from singleton import Singleton
+from typing import Dict, List
 
 
 class AirfieldRecord(object):
@@ -27,10 +26,29 @@ class AirfieldManager(object):  # , metaclass=Singleton
                 ar = AirfieldRecord(item)
                 self.airfields.append(ar)
 
+        print(f"[INFO] num airfields: {len(self.airfields)}")
+
         # sort airfields by latitude:
         self.airfields.sort(key=lambda af: af.lat)
+        # split into four sections for faster lookup:
+        self.airfields = self._splitAirfieldsIntoQuadrants(self.airfields)
 
-        print(f"[INFO] num airfields: {len(self.airfields)}")
+    @staticmethod
+    def _splitAirfieldsIntoQuadrants(airfields: List[AirfieldRecord]) -> Dict:
+        """
+        Splits AirfieldRecords into quadrants - NE, NW, SE, SW for faster lookup.
+        :param airfields:
+        :return: dict addressable as d[latSign][lonSign] -> [] of AirfieldRecord-s
+        """
+        afDict = {1: {1: [], -1: []}, -1: {1: [], -1: []}}
+
+        for af in airfields:
+            latSign = 1 if af.lat >= 0 else -1
+            lonSign = 1 if af.lon >= 0 else -1
+
+            afDict[latSign][lonSign].append(af)
+
+        return afDict
 
     @staticmethod
     def getDistanceInKm(lat1: float, lon1: float, lat2: float, lon2: float):
@@ -62,30 +80,35 @@ class AirfieldManager(object):  # , metaclass=Singleton
         latRad = math.radians(lat)
         lonRad = math.radians(lon)
 
+        # pick the appropriate airfields list (NE / NW / SE / SW):
+        latSign = 1 if latRad >= 0 else -1
+        lonSign = 1 if lonRad >= 0 else -1
+        airfields = self.airfields[latSign][lonSign]
+
         startI = 0
-        endI = len(self.airfields)
+        endI = len(airfields)
         n = 0
         while True:
-            i = startI + int((endI-startI) / 2)
-            if latRad < self.airfields[i].lat:
+            i = startI + int((endI - startI) / 2)
+            if latRad < airfields[i].lat:
                 endI = i
             else:
                 startI = i
 
-            if endI - startI <= 200:
+            if endI - startI <= 80:
                 break
 
             n += 1
-            if n > 200:
+            if n > 80:
                 break
 
-        for rec in self.airfields[startI:endI]:
+        for rec in airfields[startI:endI]:
             dist = AirfieldManager.getDistanceInKm(latRad, lonRad, rec.lat, rec.lon)
             if dist < minDist:
                 minDist = dist
                 code = rec.code
 
-        if minDist < 4:   # [km]
+        if minDist < 4:  # [km]
             return code
         else:
             return None
@@ -109,6 +132,10 @@ if __name__ == '__main__':
     # lon = 17.0384183
     lat = 52.4396
     lon = 17.0553
+
+    # Naromine YNRM
+    lat = -32.2144
+    lon = 148.2247
 
     icao = am.getNearest(lat, lon)
     print(icao)
