@@ -12,6 +12,7 @@ from datetime import datetime
 from flask import request
 
 from configuration import debugMode
+from airfieldManager import AirfieldManager
 from dao.logbookDao import listDepartures, listArrivals, listFlights, getSums
 from dao.stats import getNumFlightsToday, getTotNumFlights, getLongestFlightTimeToday, getHighestTrafficToday
 from utils import getDaysLinks, formatDuration, formatTsToHHMM
@@ -21,6 +22,8 @@ app = flask.Flask(__name__)
 app.jinja_env.globals.update(gettext=gettext)
 app.jinja_env.globals.update(formatTsToHHMM=formatTsToHHMM)
 app.jinja_env.globals.update(node=node)
+
+afCountryCodes = AirfieldManager().afCountryCodes
 
 
 @app.route('/')
@@ -130,8 +133,7 @@ def _prepareData(icaoCode=None, registration=None, forDay=None, limit=None, icao
 def search(text=None):
     text = _saninitise(text)
 
-    if len(text) == 4 and text.upper()[0:2] in ['EB', 'ED', 'EF', 'EH', 'EK', 'EP', 'ES',
-                                                'LB', 'LH', 'LI', 'LJ', 'LK', 'LO', 'LS', 'LZ']:
+    if len(text) == 4 and text.upper()[0:2] in afCountryCodes:
         return flask.redirect(f"/loc/{text.upper()}")
     else:
         return flask.redirect(f"/reg/{text}")

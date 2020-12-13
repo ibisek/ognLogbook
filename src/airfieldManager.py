@@ -2,6 +2,7 @@ import json
 import math
 
 from typing import Dict, List
+from configuration import AIRFIELDS_FILE
 
 
 class AirfieldRecord(object):
@@ -20,7 +21,7 @@ class AirfieldManager(object):  # , metaclass=Singleton
     def __init__(self):
         self.airfields = []
 
-        with open('../data/airfields.json', 'r') as f:
+        with open(AIRFIELDS_FILE, 'r') as f:
             j = json.load(f)
             for item in j:
                 ar = AirfieldRecord(item)
@@ -30,8 +31,25 @@ class AirfieldManager(object):  # , metaclass=Singleton
 
         # sort airfields by latitude:
         self.airfields.sort(key=lambda af: af.lat)
+        # get airfields country codes:
+        self.afCountryCodes = self._getCountryCodes(self.airfields)
         # split into four sections for faster lookup:
         self.airfields = self._splitAirfieldsIntoQuadrants(self.airfields)
+
+    @staticmethod
+    def _getCountryCodes(airfields: List[AirfieldRecord]) -> Dict:
+        """
+        Used on homepage to identify meaning of searched string -> ICAO code vs. airplane's registration
+        :param airfields:
+        :return: dict(keys) of airfields' country codes (LK, ..)
+        """
+        d = {}
+        for af in airfields:
+            code2 = af.code[:2]
+            if code2 not in d:
+                d[code2] = 1
+
+        return d
 
     @staticmethod
     def _splitAirfieldsIntoQuadrants(airfields: List[AirfieldRecord]) -> Dict:
