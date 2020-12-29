@@ -19,17 +19,7 @@ class AirfieldRecord(object):
 class AirfieldManager(object):  # , metaclass=Singleton
 
     def __init__(self):
-        self.airfields = []
-        self.airfieldsDict = {}
-
-        with open(AIRFIELDS_FILE, 'r') as f:
-            j = json.load(f)
-            for item in j:
-                ar = AirfieldRecord(item)
-                self.airfields.append(ar)
-                self.airfieldsDict[ar.code] = ar
-
-        print(f"[INFO] num airfields: {len(self.airfields)}")
+        self.airfields, _ = self.loadAirfieldsFromFile()
 
         # sort airfields by latitude:
         self.airfields.sort(key=lambda af: af.lat)
@@ -37,6 +27,22 @@ class AirfieldManager(object):  # , metaclass=Singleton
         self.afCountryCodes = self._getCountryCodes(self.airfields)
         # split into four sections for faster lookup:
         self.airfields = self._splitAirfieldsIntoQuadrants(self.airfields)
+
+    @staticmethod
+    def loadAirfieldsFromFile():
+        airfields = []
+        airfieldsDict = {}
+
+        with open(AIRFIELDS_FILE, 'r') as f:
+            j = json.load(f)
+            for item in j:
+                ar = AirfieldRecord(item)
+                airfields.append(ar)
+                airfieldsDict[ar.code] = ar
+
+        print(f"[INFO] num airfields: {len(airfields)}")
+
+        return airfields, airfieldsDict
 
     @staticmethod
     def _getCountryCodes(airfields: List[AirfieldRecord]) -> Dict:

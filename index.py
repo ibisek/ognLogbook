@@ -13,7 +13,7 @@ from datetime import datetime
 from flask import request
 
 from configuration import debugMode
-from airfieldManager import AirfieldManager
+from airfieldManager import AirfieldManager, AirfieldRecord
 from dao.logbookDao import listDepartures, listArrivals, listFlights, getSums
 from dao.stats import getNumFlightsToday, getTotNumFlights, getLongestFlightTimeToday, getHighestTrafficToday
 from utils import getDaysLinks, formatDuration, formatTsToHHMM
@@ -80,8 +80,9 @@ def filterByIcaoCode(icaoCode, date=None):
 
     linkPrevDay, linkNextDay = getDaysLinks(f"/loc/{icaoCode}", date)
 
-    # strasna prasarna - this reloads the entire DB from file every time the page is refreshed(!)
-    ar = AirfieldManager().airfieldsDict[icaoCode]
+    # This reloads the entire file every time the page is refreshed (!) However, perhaps still faster then querying and maintaining the DB.
+    _, airfieldsDict = AirfieldManager.loadAirfieldsFromFile()
+    ar: AirfieldRecord = airfieldsDict[icaoCode]
     lat, lon = math.degrees(ar.lat), math.degrees(ar.lon)
 
     return flask.render_template('index.html', debugMode=debugMode, date=date, icaoCode=icaoCode,
