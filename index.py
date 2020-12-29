@@ -5,6 +5,7 @@ Created on 20. 5. 2020
 """
 
 import sys
+import math
 import flask
 import getopt
 from platform import node
@@ -79,9 +80,13 @@ def filterByIcaoCode(icaoCode, date=None):
 
     linkPrevDay, linkNextDay = getDaysLinks(f"/loc/{icaoCode}", date)
 
+    # strasna prasarna - this reloads the entire DB from file every time the page is refreshed(!)
+    ar = AirfieldManager().airfieldsDict[icaoCode]
+    lat, lon = math.degrees(ar.lat), math.degrees(ar.lon)
+
     return flask.render_template('index.html', debugMode=debugMode, date=date, icaoCode=icaoCode,
                                  linkPrevDay=linkPrevDay, linkNextDay=linkNextDay,
-                                 departures=departures, arrivals=arrivals, flights=flights)
+                                 departures=departures, arrivals=arrivals, flights=flights, lat=lat, lon=lon)
 
 
 @app.route('/reg/<registration>', methods=['GET'])
