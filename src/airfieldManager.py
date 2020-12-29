@@ -20,12 +20,14 @@ class AirfieldManager(object):  # , metaclass=Singleton
 
     def __init__(self):
         self.airfields = []
+        self.airfieldsDict = {}
 
         with open(AIRFIELDS_FILE, 'r') as f:
             j = json.load(f)
             for item in j:
                 ar = AirfieldRecord(item)
                 self.airfields.append(ar)
+                self.airfieldsDict[ar.code] = ar
 
         print(f"[INFO] num airfields: {len(self.airfields)}")
 
