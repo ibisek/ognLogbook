@@ -121,11 +121,11 @@ class AirfieldManager(object):  # , metaclass=Singleton
             else:
                 startI = i
 
-            if endI - startI <= 120:
+            if endI - startI <= 150:
                 break
 
             n += 1
-            if n > 120:
+            if n > 150:
                 break
 
         for rec in airfields[startI:endI]:
@@ -163,7 +163,7 @@ if __name__ == '__main__':
     # lat = -32.2144
     # lon = 148.2247
 
-    # Innsbruck LOWI
+    # # Innsbruck LOWI
     lat = 47.2620200
     lon = 11.3483200
 
