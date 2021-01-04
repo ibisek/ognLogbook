@@ -121,11 +121,11 @@ class AirfieldManager(object):  # , metaclass=Singleton
             else:
                 startI = i
 
-            if endI - startI <= 80:
+            if endI - startI <= 120:
                 break
 
             n += 1
-            if n > 80:
+            if n > 120:
                 break
 
         for rec in airfields[startI:endI]:
@@ -159,9 +159,13 @@ if __name__ == '__main__':
     lat = 52.4396
     lon = 17.0553
 
-    # Naromine YNRM
-    lat = -32.2144
-    lon = 148.2247
+    # # Naromine YNRM
+    # lat = -32.2144
+    # lon = 148.2247
+
+    # Innsbruck LOWI
+    lat = 47.2620200
+    lon = 11.3483200
 
     icao = am.getNearest(lat, lon)
     print(icao)
