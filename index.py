@@ -81,13 +81,17 @@ def filterByIcaoCode(icaoCode, date=None):
     linkPrevDay, linkNextDay = getDaysLinks(f"/loc/{icaoCode}", date)
 
     # This reloads the entire file every time the page is refreshed (!) However, perhaps still faster then querying and maintaining the DB.
-    _, airfieldsDict = AirfieldManager.loadAirfieldsFromFile()
-    ar: AirfieldRecord = airfieldsDict[icaoCode]
-    lat, lon = math.degrees(ar.lat), math.degrees(ar.lon)
+    try:
+        _, airfieldsDict = AirfieldManager.loadAirfieldsFromFile()
+        ar: AirfieldRecord = airfieldsDict[icaoCode]
+        lat, lon = math.degrees(ar.lat), math.degrees(ar.lon)
 
-    return flask.render_template('index.html', debugMode=debugMode, date=date, icaoCode=icaoCode,
-                                 linkPrevDay=linkPrevDay, linkNextDay=linkNextDay,
-                                 departures=departures, arrivals=arrivals, flights=flights, lat=lat, lon=lon)
+        return flask.render_template('index.html', debugMode=debugMode, date=date, icaoCode=icaoCode,
+                                     linkPrevDay=linkPrevDay, linkNextDay=linkNextDay,
+                                     departures=departures, arrivals=arrivals, flights=flights, lat=lat, lon=lon)
+
+    except KeyError as e:
+        return flask.redirect('/')
 
 
 @app.route('/reg/<registration>', methods=['GET'])
@@ -138,6 +142,8 @@ def _prepareData(icaoCode=None, registration=None, forDay=None, limit=None, icao
 @app.route('/search/<text>', methods=['GET'])
 def search(text=None):
     text = _saninitise(text)
+
+    # TODO determine if that is an ICAO code or registration!
 
     if len(text) == 4 and text.upper()[0:2] in afCountryCodes:
         return flask.redirect(f"/loc/{text.upper()}")
