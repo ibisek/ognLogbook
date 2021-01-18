@@ -72,8 +72,8 @@ if __name__ == '__main__':
 
     dbs = DbSource(dbConnectionInfo=dbConnectionInfo)
 
-    _processLogbookEntries()    # take-offs and landings
-    _processLogbookEvents()     # flights
+    _processLogbookEvents()     # take-offs and landings
+    _processLogbookEntries()    # flights
 
     while len(dbt.toDoStatements) > 0:
         print('len DB toDoStatements:', len(dbt.toDoStatements))
