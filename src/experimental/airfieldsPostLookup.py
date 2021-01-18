@@ -10,16 +10,32 @@ from configuration import dbConnectionInfo
 from db.DbSource import DbSource
 from db.DbThread import DbThread
 
-if __name__ == '__main__':
 
-    afm = AirfieldManager()
+def _processLogbookEvents():
+    strSql = 'SELECT id, location_icao, lat, lon FROM logbook_events WHERE location_icao IS null;'
 
-    dbt = DbThread(dbConnectionInfo=dbConnectionInfo)
-    dbt.start()
+    cur = dbs.getConnection().cursor()
+    cur.execute(strSql)
 
-    dbs = DbSource(dbConnectionInfo=dbConnectionInfo)
+    numUpdatedRecords = 0
 
-    strSql = 'select id, takeoff_icao, takeoff_lat, takeoff_lon, landing_icao, landing_lat, landing_lon from logbook_entries where takeoff_icao is null or landing_icao is null;'
+    for row in cur:
+        (id, icao, lat, lon) = row
+
+        if not icao and lat and lon:
+            icao = afm.getNearest(lat, lon)
+            if icao:
+                print('locationIcao:', icao)
+                strSql = f"UPDATE logbook_events set location_icao = '{icao}' where id = {id}"
+                dbt.addStatement(strSql)
+                numUpdatedRecords += 1
+
+    print('LE numUpdatedRecords:', numUpdatedRecords)
+
+
+def _processLogbookEntries():
+    strSql = 'SELECT id, takeoff_icao, takeoff_lat, takeoff_lon, landing_icao, landing_lat, landing_lon FROM logbook_entries ' \
+             'WHERE takeoff_icao IS null OR landing_icao IS null;'
     cur = dbs.getConnection().cursor()
     cur.execute(strSql)
 
@@ -45,6 +61,19 @@ if __name__ == '__main__':
                 numUpdatedRecords += 1
 
     print('numUpdatedRecords:', numUpdatedRecords)
+
+
+if __name__ == '__main__':
+
+    afm = AirfieldManager()
+
+    dbt = DbThread(dbConnectionInfo=dbConnectionInfo)
+    dbt.start()
+
+    dbs = DbSource(dbConnectionInfo=dbConnectionInfo)
+
+    _processLogbookEntries()    # take-offs and landings
+    _processLogbookEvents()     # flights
 
     while len(dbt.toDoStatements) > 0:
         print('len DB toDoStatements:', len(dbt.toDoStatements))
