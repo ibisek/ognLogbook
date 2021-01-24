@@ -1,6 +1,8 @@
 
 import os
 
+DEBUG = True
+
 # APRS_FILTER = 'r/+49.3678/+16.1145/1100'    # 1100 km ~ eastern Romania
 APRS_FILTER = None
 
@@ -58,3 +60,5 @@ except NameError:
 ADDRESS_TYPES = {1: 'I', 2: 'F', 3: 'O'}
 ADDRESS_TYPE_PREFIX = {1: 'ICA', 2: 'FLR', 3: 'OGN'}
 REVERSE_ADDRESS_TYPE_PREFIX = {'ICA': 1, 'FLR': 2, 'OGN': 3}
+
+MAX_DAYS_IN_RANGE = 14
