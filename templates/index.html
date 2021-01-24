@@ -22,7 +22,6 @@
 
 
 {% macro formatDepartures(list) -%}
-	<h2>{{ gettext('main.departures') }}</h2>
 	<div class="table">
 		<div class="row header">
 			<div class="cell">{{ gettext('tab.date') }}</div>
@@ -41,12 +40,14 @@
 		</div>
 		{% endfor %}
 	</div>
+	{% if list|length == 0 %}
+	<div class="cellNoData">{{ gettext('search.notFound.short') }}</div>
+	{% endif %}
+
 {%- endmacro %}
 
 
 {% macro formatArrivals(list) -%}
-	<h2>{{ gettext('main.arrivals') }}</h2>
-
 	<div class="table">
 		<div class="row header green">
 			<div class="cell">{{ gettext('tab.date') }}</div>
@@ -65,54 +66,56 @@
 		</div>
 		{% endfor %}
 	</div>
+	{% if list|length == 0 %}
+	<div class="cellNoData">{{ gettext('search.notFound.short') }}</div>
+	{% endif %}
+
 {%- endmacro %}
 
 {% macro formatFlights(dayRecord) -%}
-	{% if dayRecord.flights|length > 0 %}
-		<div class="table">
-			<div class="row header blue">
-				<div class="cell">{{ gettext('tab.date') }}</div>
-				<div class="cell">{{ gettext('tab.reg') }}</div>
-				<div class="cell">{{ gettext('tab.cn') }}</div>
-				<div class="cell">{{ gettext('tab.acftType') }}</div>
-				<div class="cell">{{ gettext('tab.to') }}</div>
-				<div class="cell"></div>
-				<div class="cell">{{ gettext('tab.land') }}</div>
-				<div class="cell"></div>
-				<div class="cell">{{ gettext('tab.ft') }}</div>
-			</div>
-			{% for item in dayRecord.flights %}
-			<div class="row">
-				<div class="cell">{% if item.takeoff_dt %} {{item.takeoff_dt.strftime('%d.%m.')}} {% else %} {{item.landing_dt.strftime('%d.%m.')}} {% endif %}</div>
-				<div class="cell">{% if item.registration %}<a href="/reg/{{item.registration}}/{{item.landing_dt.strftime('%Y-%m-%d')}}">{{item.registration}}</a>{% else %}{{ gettext('tab.hidden') }}{% endif %}</a></div>
-				<div class="cell">{% if item.cn %}{{item.cn}}{% endif %}</div>
-				<div class="cell">{% if item.aircraft_type %}{{item.aircraft_type}}{% endif %}</div>
-				<div class="cell">{% if item.takeoff_icao %}<a href="/loc/{{item.takeoff_icao}}">{{item.takeoff_icao}}</a>{% else %}<a href="https://mapy.cz/zakladni?x={{item.takeoff_lon}}&y={{item.takeoff_lat}}&z=14&source=coor&id={{item.takeoff_lon}}%2C{{item.takeoff_lat}}" target="_blank">{{ gettext('main.map') }}</a>{% endif %}</div>
-				<div class="cell">{% if item.takeoff_dt %} {{formatTsToHHMM(item.takeoff_dt)}} {% else %} ? {% endif %}</div>
-				<div class="cell">{% if item.landing_icao %}<a href="/loc/{{item.landing_icao}}">{{item.landing_icao}}</a>{% else %}<a href="https://mapy.cz/zakladni?x={{item.landing_lon}}&y={{item.landing_lat}}&z=14&source=coor&id={{item.landing_lon}}%2C{{item.landing_lat}}" target="_blank">{{ gettext('main.map') }}</a>{% endif %}</div>
-				<div class="cell">{{formatTsToHHMM(item.landing_dt)}}</div>
-				<div class="cell">{{item.flight_time}}</div>
-			</div>
-			{% endfor %}
+	<div class="table">
+		<div class="row header blue">
+			<div class="cell">{{ gettext('tab.date') }}</div>
+			<div class="cell">{{ gettext('tab.reg') }}</div>
+			<div class="cell">{{ gettext('tab.cn') }}</div>
+			<div class="cell">{{ gettext('tab.acftType') }}</div>
+			<div class="cell">{{ gettext('tab.to') }}</div>
+			<div class="cell"></div>
+			<div class="cell">{{ gettext('tab.land') }}</div>
+			<div class="cell"></div>
+			<div class="cell">{{ gettext('tab.ft') }}</div>
+		</div>
+		{% for item in dayRecord.flights %}
+		<div class="row">
+			<div class="cell">{% if item.takeoff_dt %} {{item.takeoff_dt.strftime('%d.%m.')}} {% else %} {{item.landing_dt.strftime('%d.%m.')}} {% endif %}</div>
+			<div class="cell">{% if item.registration %}<a href="/reg/{{item.registration}}/{{item.landing_dt.strftime('%Y-%m-%d')}}">{{item.registration}}</a>{% else %}{{ gettext('tab.hidden') }}{% endif %}</a></div>
+			<div class="cell">{% if item.cn %}{{item.cn}}{% endif %}</div>
+			<div class="cell">{% if item.aircraft_type %}{{item.aircraft_type}}{% endif %}</div>
+			<div class="cell">{% if item.takeoff_icao %}<a href="/loc/{{item.takeoff_icao}}">{{item.takeoff_icao}}</a>{% else %}<a href="https://mapy.cz/zakladni?x={{item.takeoff_lon}}&y={{item.takeoff_lat}}&z=14&source=coor&id={{item.takeoff_lon}}%2C{{item.takeoff_lat}}" target="_blank">{{ gettext('main.map') }}</a>{% endif %}</div>
+			<div class="cell">{% if item.takeoff_dt %} {{formatTsToHHMM(item.takeoff_dt)}} {% else %} ? {% endif %}</div>
+			<div class="cell">{% if item.landing_icao %}<a href="/loc/{{item.landing_icao}}">{{item.landing_icao}}</a>{% else %}<a href="https://mapy.cz/zakladni?x={{item.landing_lon}}&y={{item.landing_lat}}&z=14&source=coor&id={{item.landing_lon}}%2C{{item.landing_lat}}" target="_blank">{{ gettext('main.map') }}</a>{% endif %}</div>
+			<div class="cell">{{formatTsToHHMM(item.landing_dt)}}</div>
+			<div class="cell">{{item.flight_time}}</div>
+		</div>
+		{% endfor %}
 
-			{% if dayRecord.numFlights and dayRecord.totalFlightTime %}
-			<div class="row">
-				<div class="cell sum"></div>
-				<div class="cell sum"></div>
-				<div class="cell sum"></div>
-				<div class="cell sum"></div>
-				<div class="cell sum"></div>
-				<div class="cell sum">{{ gettext('sum.flights') }}:</div>
-				<div class="cell sum">{{dayRecord.numFlights}}</div>
-				<div class="cell sum">{{ gettext('sum.hours') }}:</div>
-				<div class="cell sum">{{dayRecord.totalFlightTime}}</div>
-			</div>
-			{% endif %}
-
-		{% else %}
-			{{ gettext('search.notFound') }}
+		{% if dayRecord.numFlights and dayRecord.totalFlightTime %}
+		<div class="row">
+			<div class="cell sum"></div>
+			<div class="cell sum"></div>
+			<div class="cell sum"></div>
+			<div class="cell sum"></div>
+			<div class="cell sum"></div>
+			<div class="cell sum">{{ gettext('sum.flights') }}:</div>
+			<div class="cell sum">{{dayRecord.numFlights}}</div>
+			<div class="cell sum">{{ gettext('sum.hours') }}:</div>
+			<div class="cell sum">{{dayRecord.totalFlightTime}}</div>
+		</div>
 		{% endif %}
 	</div>
+	{% if dayRecord.flights|length == 0 %}
+	<div class="cellNoData">{{ gettext('search.notFound') }}</div>
+	{% endif %}
 {%- endmacro %}
 
 <body onload="onLoad()">
@@ -134,15 +137,22 @@
 		</div>
 		{% else %}
 		<div class="threeCols">
+			<div><h2>{{ gettext('main.departures') }}</h2></div>
+			<div><h2>{{ gettext('main.arrivals') }}</h2></div>
+			<div><h2>{{ gettext('main.flights') }}</h2></div>
+		</div>
+		<div class="threeCols">
+			{% for dayRecord in dayRecords %}
 			<div>
-				{{ formatDepartures(departures) }}
+				{{ formatDepartures(dayRecord.departures) }}
 			</div>
 			<div>
-				{{ formatArrivals(arrivals) }}
+				{{ formatArrivals(dayRecord.arrivals) }}
 			</div>
 			<div>
-				{{ formatFlights(flights) }}
+				{{ formatFlights(dayRecord) }}
 			</div>
+			{% endfor %}
 		</div>
 		{% endif %}
 

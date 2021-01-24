@@ -13,7 +13,7 @@ from datetime import datetime, timedelta
 from flask import request
 from collections import namedtuple
 
-from configuration import debugMode
+from configuration import debugMode, MAX_DAYS_IN_RANGE
 from airfieldManager import AirfieldManager, AirfieldRecord
 from dao.logbookDao import listDepartures, listArrivals, listFlights, getSums
 from dao.stats import getNumFlightsToday, getTotNumFlights, getLongestFlightTimeToday, getHighestTrafficToday
@@ -49,13 +49,16 @@ def index():
 
     departures, arrivals, flights = _prepareData(limit=25, icaoFilter=icaoFilter, sortTsDesc=True, orderByCol='landing_ts')
 
+    dayRecord: DayRecord = DayRecord(date=None, numFlights=None, totalFlightTime=None,
+                                     departures=departures, arrivals=arrivals, flights=flights)
+
     totNumFlights = getTotNumFlights()
     numFlightsToday = getNumFlightsToday()
     longestFlightTime = getLongestFlightTimeToday()
     highestTrafficLocation, highestTrafficCount = getHighestTrafficToday()
 
     return flask.render_template('index.html', debugMode=debugMode, date=datetime.now(),
-                                 departures=departures, arrivals=arrivals, flights=flights,
+                                 dayRecords=[dayRecord],
                                  numFlightsToday=numFlightsToday, totNumFlights=totNumFlights,
                                  longestFlightTime=longestFlightTime, highestTrafficLocation=highestTrafficLocation,
                                  highestTrafficCount=highestTrafficCount)
@@ -63,7 +66,8 @@ def index():
 
 @app.route('/loc/<icaoCode>', methods=['GET'])
 @app.route('/loc/<icaoCode>/<date>', methods=['GET'])
-def filterByIcaoCode(icaoCode, date=None):
+@app.route('/loc/<icaoCode>/<date>/<dateTo>', methods=['GET'])
+def filterByIcaoCode(icaoCode, date=None, dateTo=None):
     if icaoCode:
         icaoCode = _saninitise(icaoCode)
 
@@ -71,10 +75,28 @@ def filterByIcaoCode(icaoCode, date=None):
         return flask.redirect('/')
 
     date = _parseDate(date)
+    dateTo = _parseDate(dateTo) if dateTo else None
+    dateNow = datetime.now()
+    if dateTo and dateTo > dateNow:
+        dateTo = dateNow
 
-    departures, arrivals, flights = _prepareData(icaoCode=icaoCode, forDay=date)
+    numDays = numDays = (dateTo - date).days if dateTo else 1
+    if numDays > MAX_DAYS_IN_RANGE:
+        numDays = MAX_DAYS_IN_RANGE
 
     linkPrevDay, linkNextDay = getDaysLinks(f"/loc/{icaoCode}", date)
+
+    dayRecords = []
+    for i in range(numDays + 1):
+        currentDate = date + timedelta(days=i)
+
+        departures, arrivals, flights = _prepareData(icaoCode=icaoCode, forDay=currentDate)
+
+        dayRecord: DayRecord = DayRecord(date=currentDate, numFlights=None, totalFlightTime=None,
+                                         departures=departures, arrivals=arrivals, flights=flights)
+
+        if len(departures) > 0 or len(arrivals) > 0 or len(flights) > 0:
+            dayRecords.append(dayRecord)
 
     # This reloads the entire file every time the page is refreshed (!) However, perhaps still faster then querying and maintaining the DB.
     try:
@@ -84,7 +106,8 @@ def filterByIcaoCode(icaoCode, date=None):
 
         return flask.render_template('index.html', debugMode=debugMode, date=date, icaoCode=icaoCode,
                                      linkPrevDay=linkPrevDay, linkNextDay=linkNextDay,
-                                     departures=departures, arrivals=arrivals, flights=flights, lat=lat, lon=lon)
+                                     dayRecords=dayRecords,
+                                     lat=lat, lon=lon)
 
     except KeyError as e:
         return flask.redirect('/')
@@ -101,7 +124,14 @@ def filterByRegistration(registration, date=None, dateTo=None):
 
     date = _parseDate(date)
     dateTo = _parseDate(dateTo) if dateTo else None
+
+    dateNow = datetime.now()
+    if dateTo and dateTo > dateNow:
+        dateTo = dateNow
+
     numDays = numDays = (dateTo - date).days if dateTo else 1
+    if numDays > MAX_DAYS_IN_RANGE:
+        numDays = MAX_DAYS_IN_RANGE
 
     linkPrevDay, linkNextDay = getDaysLinks(f"/reg/{registration}", date)
 
