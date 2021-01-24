@@ -9,8 +9,9 @@ import math
 import flask
 import getopt
 from platform import node
-from datetime import datetime
+from datetime import datetime, timedelta
 from flask import request
+from collections import namedtuple
 
 from configuration import debugMode
 from airfieldManager import AirfieldManager, AirfieldRecord
@@ -23,6 +24,8 @@ app = flask.Flask(__name__)
 app.jinja_env.globals.update(gettext=gettext)
 app.jinja_env.globals.update(formatTsToHHMM=formatTsToHHMM)
 app.jinja_env.globals.update(node=node)
+
+DayRecord = namedtuple('DayRecords', ['date', 'numFlights', 'totalFlightTime', 'departures', 'arrivals', 'flights'])
 
 afCountryCodes = AirfieldManager().afCountryCodes
 
@@ -67,14 +70,7 @@ def filterByIcaoCode(icaoCode, date=None):
     if not icaoCode:
         return flask.redirect('/')
 
-    if date:
-        date = _saninitise(date)
-        try:
-            date = datetime.strptime(date, '%Y-%m-%d')
-        except ValueError:
-            date = datetime.now()
-    else:
-        date = datetime.now()
+    date = _parseDate(date)
 
     departures, arrivals, flights = _prepareData(icaoCode=icaoCode, forDay=date)
 
@@ -96,31 +92,36 @@ def filterByIcaoCode(icaoCode, date=None):
 
 @app.route('/reg/<registration>', methods=['GET'])
 @app.route('/reg/<registration>/<date>', methods=['GET'])
-def filterByRegistration(registration, date=None):
+@app.route('/reg/<registration>/<date>/<dateTo>', methods=['GET'])
+def filterByRegistration(registration, date=None, dateTo=None):
     registration = _saninitise(registration)
 
     if not registration:
         return flask.redirect('/')
 
-    if date:
-        date = _saninitise(date)
-        try:
-            date = datetime.strptime(date, '%Y-%m-%d')
-        except ValueError:
-            date = datetime.now()
-    else:
-        date = datetime.now()
+    date = _parseDate(date)
+    dateTo = _parseDate(dateTo) if dateTo else None
+    numDays = numDays = (dateTo - date).days if dateTo else 1
 
     linkPrevDay, linkNextDay = getDaysLinks(f"/reg/{registration}", date)
-    numFlights, totalFlightTime = getSums(registration=registration, forDay=date)
-    departures, arrivals, flights = _prepareData(registration=registration, forDay=date)
 
-    totalFlightTime = formatDuration(totalFlightTime)
+    dayRecords = []
+    for i in range(numDays + 1):
+        currentDate = date + timedelta(days=i)
+
+        numFlights, totalFlightTime = getSums(registration=registration, forDay=currentDate)
+        totalFlightTime = formatDuration(totalFlightTime)
+        departures, arrivals, flights = _prepareData(registration=registration, forDay=currentDate)
+
+        dayRecord: DayRecord = DayRecord(date=currentDate, numFlights=numFlights, totalFlightTime=totalFlightTime,
+                                         departures=departures, arrivals=arrivals, flights=flights)
+        if numFlights > 0:
+            dayRecords.append(dayRecord)
 
     return flask.render_template('index.html', debugMode=debugMode, date=date, registration=registration,
                                  linkPrevDay=linkPrevDay, linkNextDay=linkNextDay,
-                                 numFlights=numFlights, totalFlightTime=totalFlightTime,
-                                 departures=departures, arrivals=arrivals, flights=flights, showFlightsOnly=True)
+                                 dayRecords=dayRecords,
+                                 showFlightsOnly=True)
 
 
 def _prepareData(icaoCode=None, registration=None, forDay=None, limit=None, icaoFilter=[], sortTsDesc=False, orderByCol='takeoff_ts'):
@@ -193,6 +194,22 @@ def handle_error(error):
 #     # logger.error(msg)
 #     # app.logger.error(msg)
 #     return flask.render_template('error40x.html', code=500), 500
+
+def _parseDate(date: str):
+    """
+    :param date: parsed date or current date in case of wrong format or None
+    :return:
+    """
+    if date:
+        date = _saninitise(date)
+        try:
+            date = datetime.strptime(date, '%Y-%m-%d')
+        except ValueError:
+            date = datetime.now()
+    else:
+        date = datetime.now()
+
+    return date
 
 
 def _saninitise(s):
@@ -284,5 +301,8 @@ if __name__ == '__main__':
         print("Argument error: " + e.msg, file=sys.stderr)
         # exit application
         sys.exit(1)
+
+    if debugMode:
+        app.config['TEMPLATES_AUTO_RELOAD'] = True
 
     app.run(debug=debugMode)
