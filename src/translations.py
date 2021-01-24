@@ -33,6 +33,7 @@ i10n['stat.none2'] = ['none', 'není', 'keiner']
 
 i10n['search.hint'] = ['ICAO code or registration', 'ICAO kód nebo registrace', 'ICAO-Code oder Registrierung']
 i10n['search.notFound'] = ['No records have been found, recorded or we just don\'t know :P', 'Nic jsme nenašli, nezaznamenali, nebo prostě nevíme :P', 'Wir haben nichts gefunden, nichts bemerkt oder wir wissen einfach nicht :P']
+i10n['search.notFound.short'] = ['no data', 'nejsou data', 'keine daten']
 
 i10n['sum.flights'] = ['Flights', 'Letů', 'Anzahl der Flüge']
 i10n['sum.hours'] = ['Hours', 'Hodin', 'Gesamtflugzeit']
