@@ -87,9 +87,9 @@ if __name__ == '__main__':
     # ADDR = 'DDA391'  # F-CIJL (LFLE) where gliders never land
     # ADDR = 'D006D0'  # F-PVVA (LFLE) where gliders never land
 
-    ADDR = '4AD282'    # random address from the log
+    ADDR = 'OGNFCB203'    # random address from the log
 
-    startDate = '2020-09-23'
+    startDate = '2021-01-24'
 
     dt: datetime = datetime.strptime(startDate, '%Y-%m-%d')
     ts = dt.timestamp()     # [s]
