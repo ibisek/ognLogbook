@@ -1,3 +1,4 @@
+import sys
 import json
 import math
 
@@ -121,11 +122,11 @@ class AirfieldManager(object):  # , metaclass=Singleton
             else:
                 startI = i
 
-            if endI - startI <= 50:
+            if endI - startI <= 100:
                 break
 
             n += 1
-            if n > 50:
+            if n > 100:
                 break
 
         for rec in airfields[startI:endI + 1]:  # the +1 makes a HUGE difference - the location is often at the last index position(!)
@@ -143,35 +144,17 @@ class AirfieldManager(object):  # , metaclass=Singleton
 if __name__ == '__main__':
     am = AirfieldManager()
 
-    # LKNA
-    # lat = 49.16
-    # lon = 16.11
+    recs = []
+    recs.append(AirfieldRecord({'lat': 49.16, 'lon': 16.11, 'code': 'LKNA'}))
+    recs.append(AirfieldRecord({'lat': 52.4396, 'lon': 17.0553, 'code': 'EPPK'}))
+    recs.append(AirfieldRecord({'lat': -32.2144, 'lon': 148.2247, 'code': 'YNRM'}))
+    recs.append(AirfieldRecord({'lat': 47.2620200, 'lon': 11.3483200, 'code': 'LOWI'}))
+    recs.append(AirfieldRecord({'lat': -32.5488500, 'lon': 151.0252500, 'code': 'YWKW'}))
+    # recs.append(AirfieldRecord({'lat': , 'lon': , 'code': ''}))
 
-    # lat = 49.3697147
-    # lon = 16.1141575
+    for rec in recs:
+        icao = am.getNearest(math.degrees(rec.lat), math.degrees(rec.lon))
+        match = rec.code == icao
+        out = sys.stderr if not match else sys.stdout
+        print(f"match: {match}, {rec.code} -> found: {icao}", file=out)
 
-    # lat = 50.32798
-    # lon = 15.95643
-
-    # Poznan EPPK:
-    # lat = 52.4335667
-    # lon = 17.0384183
-    lat = 52.4396
-    lon = 17.0553
-
-    # # Naromine YNRM
-    # lat = -32.2144
-    # lon = 148.2247
-
-    # # Innsbruck LOWI
-    # lat = 47.2620200
-    # lon = 11.3483200
-
-    # Warkworth Airport YWKW
-    # lat = -32.5483958
-    # lon = 151.0243844
-    lat = -32.5488500
-    lon = 151.0252500
-
-    icao = am.getNearest(lat, lon)
-    print(icao)
