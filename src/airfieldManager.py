@@ -121,14 +121,14 @@ class AirfieldManager(object):  # , metaclass=Singleton
             else:
                 startI = i
 
-            if endI - startI <= 150:
+            if endI - startI <= 50:
                 break
 
             n += 1
-            if n > 150:
+            if n > 50:
                 break
 
-        for rec in airfields[startI:endI]:
+        for rec in airfields[startI:endI + 1]:  # the +1 makes a HUGE difference - the location is often at the last index position(!)
             dist = AirfieldManager.getDistanceInKm(latRad, lonRad, rec.lat, rec.lon)
             if dist < minDist:
                 minDist = dist
@@ -164,8 +164,14 @@ if __name__ == '__main__':
     # lon = 148.2247
 
     # # Innsbruck LOWI
-    lat = 47.2620200
-    lon = 11.3483200
+    # lat = 47.2620200
+    # lon = 11.3483200
+
+    # Warkworth Airport YWKW
+    # lat = -32.5483958
+    # lon = 151.0243844
+    lat = -32.5488500
+    lon = 151.0252500
 
     icao = am.getNearest(lat, lon)
     print(icao)
