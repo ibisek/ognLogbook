@@ -18,7 +18,7 @@ from dataStructures import LogbookItem
 
 
 class RedisReaper(object):
-    RUN_INTERVAL = 2*60  # [s]
+    RUN_INTERVAL = 5*60  # [s]
 
     REDIS_STALE_INTERVAL_1 = 10 * 60  # [s]
     REDIS_STALE_INTERVAL_2 = 20 * 60  # [s]
