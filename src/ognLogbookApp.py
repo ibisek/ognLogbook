@@ -25,7 +25,7 @@ def process_beacon(raw_message):
 
     elif DEBUG:
         try:
-            if raw_message[:3] in ['PAW', 'RND']:  # # PAW (PilotAWare), RND? (not decided if there are worth processing yet)
+            if raw_message[:3] in ['PAW', 'RND']:  # # PAW (PilotAWare), RND(?) (not decided if they are worth processing yet)
                 return
 
             beacon = parse(raw_message)
