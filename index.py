@@ -13,7 +13,7 @@ from datetime import datetime, timedelta
 from flask import request
 from collections import namedtuple
 
-from configuration import debugMode, MAX_DAYS_IN_RANGE
+from configuration import DEBUG, MAX_DAYS_IN_RANGE
 from airfieldManager import AirfieldManager, AirfieldRecord
 from dao.logbookDao import listDepartures, listArrivals, listFlights, getSums
 from dao.stats import getNumFlightsToday, getTotNumFlights, getLongestFlightTimeToday, getHighestTrafficToday
@@ -57,7 +57,7 @@ def index():
     longestFlightTime = getLongestFlightTimeToday()
     highestTrafficLocation, highestTrafficCount = getHighestTrafficToday()
 
-    return flask.render_template('index.html', debugMode=debugMode, date=datetime.now(),
+    return flask.render_template('index.html', debugMode=DEBUG, date=datetime.now(),
                                  dayRecords=[dayRecord],
                                  numFlightsToday=numFlightsToday, totNumFlights=totNumFlights,
                                  longestFlightTime=longestFlightTime, highestTrafficLocation=highestTrafficLocation,
@@ -104,7 +104,7 @@ def filterByIcaoCode(icaoCode, date=None, dateTo=None):
         ar: AirfieldRecord = airfieldsDict[icaoCode]
         lat, lon = math.degrees(ar.lat), math.degrees(ar.lon)
 
-        return flask.render_template('index.html', debugMode=debugMode, date=date, icaoCode=icaoCode,
+        return flask.render_template('index.html', debugMode=DEBUG, date=date, icaoCode=icaoCode,
                                      linkPrevDay=linkPrevDay, linkNextDay=linkNextDay,
                                      dayRecords=dayRecords,
                                      lat=lat, lon=lon)
@@ -148,7 +148,7 @@ def filterByRegistration(registration, date=None, dateTo=None):
         if numFlights > 0:
             dayRecords.append(dayRecord)
 
-    return flask.render_template('index.html', debugMode=debugMode, date=date, registration=registration,
+    return flask.render_template('index.html', debugMode=DEBUG, date=date, registration=registration,
                                  linkPrevDay=linkPrevDay, linkNextDay=linkNextDay,
                                  dayRecords=dayRecords,
                                  showFlightsOnly=True)
@@ -322,7 +322,7 @@ if __name__ == '__main__':
 
             if optPair[0] == "-d":
 
-                debugMode = True
+                DEBUG = True
 
     # handle invalid script arguments
     except getopt.GetoptError as e:
@@ -332,7 +332,7 @@ if __name__ == '__main__':
         # exit application
         sys.exit(1)
 
-    if debugMode:
+    if DEBUG:
         app.config['TEMPLATES_AUTO_RELOAD'] = True
 
-    app.run(debug=debugMode)
+    app.run(debug=DEBUG)

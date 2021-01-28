@@ -2,7 +2,7 @@
 import os
 import sys
 
-# detect we are in debug mode:
+# detect we are in debug/dev mode:
 DEBUG = False
 val = sys.gettrace()
 if val:
@@ -52,14 +52,6 @@ if MQ_PASSWORD != '**':
     os.environ.setdefault('MQ_PORT', str(MQ_PORT))
     os.environ.setdefault('MQ_USER', MQ_USER)
     os.environ.setdefault('MQ_PASSWORD', MQ_PASSWORD)
-
-
-try:
-    global debugMode
-    print('[INFO] debugMode', debugMode)
-except NameError:
-    debugMode = False
-
 
 # this enforces the SQLITE to be used:
 # if 'SQLITE_DB_FILENAME' not in os.environ:
