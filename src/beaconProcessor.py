@@ -316,7 +316,8 @@ class BeaconProcessor(object):
         elif prefix == 'ICA':
             self.rawQueueICA.put(raw_message)
         else:
-            raise NotImplementedError('Worker for "{prefix}" not implemented!', raw_message)
+            print(f'[WARN] Worker for "{prefix}" not implemented!', raw_message, file=sys.stderr)
+            return
 
         self.numEnquedTasks += 1
 
