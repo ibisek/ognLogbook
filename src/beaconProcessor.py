@@ -16,7 +16,7 @@ from queue import Queue, Empty
 from ogn.parser import parse
 from ogn.parser.exceptions import ParseError
 
-from configuration import debugMode, redisConfig, \
+from configuration import DEBUG, redisConfig, \
     dbConnectionInfo, REDIS_RECORD_EXPIRATION, MQ_HOST, MQ_PORT, MQ_USER, MQ_PASSWORD, INFLUX_DB_NAME, INFLUX_DB_HOST, \
     GEOFILE_PATH, AGL_LANDING_LIMIT, ADDRESS_TYPES, ADDRESS_TYPE_PREFIX
 from geofile import Geofile
@@ -297,7 +297,7 @@ class BeaconProcessor(object):
             traffic[worker.id] = worker.numProcessed
             worker.numProcessed = 0
 
-        if not debugMode and numTasksPerMin >= 400:
+        if not DEBUG and numTasksPerMin >= 400:
             cmd = f"mosquitto_pub -h {MQ_HOST} -p {MQ_PORT} -u {MQ_USER} -P {MQ_PASSWORD} -t ognLogbook/rate -m '{round(numTasksPerMin)}'; " \
                   f"mosquitto_pub -h {MQ_HOST} -p {MQ_PORT} -u {MQ_USER} -P {MQ_PASSWORD} -t ognLogbook/queued -m '{round(numQueuedTasks)}'; " \
                   f"mosquitto_pub -h {MQ_HOST} -p {MQ_PORT} -u {MQ_USER} -P {MQ_PASSWORD} -t ognLogbook/ogn -m '{traffic['ogn']}'; " \
