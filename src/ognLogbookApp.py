@@ -1,13 +1,12 @@
 
-import os
 import sys
-import signal
 import time
 from socket import SHUT_RDWR
 
 from ogn.client import AprsClient
+from ogn.parser import parse, AprsParseError
 
-from configuration import APRS_FILTER
+from configuration import APRS_FILTER, DEBUG
 from beaconProcessor import BeaconProcessor
 from cron.cronJobs import CronJobs
 
@@ -20,11 +19,26 @@ cron = CronJobs()
 def process_beacon(raw_message):
     # print("RAW:", raw_message)
 
-    # throw away other types of messages to increase performance:
-    if raw_message[:3] not in ['OGN', 'FLR', 'ICA']:    # PAW, RND?
-        return
+    # accept only supported types of messages:
+    if raw_message[:3] in ['OGN', 'FLR', 'ICA']:
+        bp.enqueueForProcessing(raw_message)
 
-    bp.enqueueForProcessing(raw_message)
+    elif DEBUG:
+        try:
+            if raw_message[:3] in ['PAW', 'RND']:  # # PAW (PilotAWare), RND? (not decided if there are worth processing yet)
+                return
+
+            beacon = parse(raw_message)
+            if 'beacon_type' in beacon:
+                bType = beacon['beacon_type']
+                if bType in ['aprs_aircraft']:  # still an aircraft, right?
+                    print('## ACFT BCN:', beacon)
+
+                elif bType not in ('unknown', 'receiver', 'fanet', 'aprs_receiver', 'pilot_aware', 'flymaster'):
+                    print('## TYPE:', bType, '\t\t', beacon)
+
+        except AprsParseError:
+            pass
 
 
 def _cleanup():
