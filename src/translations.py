@@ -46,6 +46,10 @@ i10n[''] = ['', '']
 
 def gettext(key='x'):
     lan = request.accept_languages.best
+
+    if not lan:
+        return i10n[key][0]
+
     if 'cz' in lan:
         return i10n[key][1]
     elif 'cs' in lan:
