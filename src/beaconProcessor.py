@@ -109,11 +109,11 @@ class RawWorker(Thread):
                 return
 
         except ParseError as e:
-            # print(f'[ERROR] when parsing a beacon: {str(e)}', raw_message)
+            print(f'[ERROR] when parsing a beacon: {str(e)}', raw_message, file=sys.stderr)
             return
 
         except Exception as e:
-            # print(f'[ERROR] Some other error in _processMessage() {str(e)}', raw_message)
+            print(f'[ERROR] Some other error in _processMessage() {str(e)}', raw_message, file=sys.stderr)
             return
 
         self.numProcessed += 1
@@ -139,14 +139,14 @@ class RawWorker(Thread):
             print(f"[WARN] Timestamp from the future: {dt}, now is {now}")
             return
 
-        lat = beacon.get('latitude') or None
-        lon = beacon.get('longitude') or None
-        altitude = int(beacon.get('altitude')) or 0
-        groundSpeed = beacon.get('ground_speed') or 0
-        verticalSpeed = beacon.get('climb_rate') or 0
-        turnRate = beacon.get('turn_rate') or 0
+        lat = beacon.get('latitude') or None            # [deg]
+        lon = beacon.get('longitude') or None           # [deg]
+        altitude = int(beacon.get('altitude')) or 0     # [m]
+        groundSpeed = beacon.get('ground_speed') or 0   # [km/h]
+        verticalSpeed = beacon.get('climb_rate') or 0   # [m/s]
+        turnRate = beacon.get('turn_rate') or 0         # [deg/s]
 
-        if addressType == 1 and groundSpeed > 600:  # ignore fast (icao) airliners and jets
+        if addressType == 1 and groundSpeed > 400:  # ignore fast (icao) airliners and jets
             return
 
         # get altitude above ground level (AGL):
