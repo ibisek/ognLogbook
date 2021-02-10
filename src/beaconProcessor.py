@@ -81,8 +81,14 @@ class RawWorker(Thread):
             return res.decode('utf-8')
 
     def _getAgl(self, lat, lon,  altitude):
+        """
+        :param lat:
+        :param lon:
+        :param altitude:
+        :return:
+        """
         elev = self.geofile.getValue(lat, lon)
-        if elev and elev <= 100000:  # 100 km is the edge of space ;)
+        if elev and 100000 >= elev > -100:  # 100 km is the edge of space ;)
             if elev:
                 agl = altitude - elev
 
@@ -91,7 +97,7 @@ class RawWorker(Thread):
 
                 return agl
 
-        return 0
+        return None
 
     def _processMessage(self, raw_message: str):
         beacon = None
@@ -140,13 +146,17 @@ class RawWorker(Thread):
         verticalSpeed = beacon.get('climb_rate') or 0
         turnRate = beacon.get('turn_rate') or 0
 
+        if addressType == 1 and groundSpeed > 600:  # ignore fast (icao) airliners and jets
+            return
+
         # get altitude above ground level (AGL):
         agl = self._getAgl(lat, lon, altitude)  # [m]
 
         # insert into influx:
         # pos ~ position, vs = vertical speed, tr = turn rate
-        if agl < 128000:    # groundSpeed > 0 and
-            q = f"pos,addr={ADDRESS_TYPE_PREFIX[addressType]}{address} lat={lat:.6f},lon={lon:.6f},alt={altitude:.0f},gs={groundSpeed:.2f},vs={verticalSpeed:.2f},tr={turnRate:.2f},agl={agl:.0f} {ts}000000000"
+        if agl is None or agl < 128000:    # groundSpeed > 0 and
+            aglStr = 0 if agl is None else f"{agl:.0f}"
+            q = f"pos,addr={ADDRESS_TYPE_PREFIX[addressType]}{address} lat={lat:.6f},lon={lon:.6f},alt={altitude:.0f},gs={groundSpeed:.2f},vs={verticalSpeed:.2f},tr={turnRate:.2f},agl={aglStr} {ts}000000000"
             self.influxDb.addStatement(q)
 
         prevStatus: Status = None
@@ -197,11 +207,10 @@ class RawWorker(Thread):
                 if agl and agl > AGL_LANDING_LIMIT:   # [m]
                     return  # most likely a false detection
 
-            # if event == 'T':
-            #     # check altitude above ground level:
-            #     agl = self._getAgl(lat, lon, altitude)
-            #     if agl and agl < 50:  # [m]
-            #         return  # most likely a false detection
+            elif event == 'T':
+                # check altitude above ground level:
+                if agl is not None and agl < 50:  # [m]
+                    return  # most likely a false detection
 
             self._saveToRedis(statusKey, currentStatus)
 
