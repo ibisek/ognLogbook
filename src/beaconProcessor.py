@@ -109,11 +109,11 @@ class RawWorker(Thread):
                 return
 
         except ParseError as e:
-            print(f'[ERROR] when parsing a beacon: {str(e)}', raw_message, file=sys.stderr)
+            # print(f'[ERROR] when parsing a beacon: {str(e)}', raw_message, file=sys.stderr)
             return
 
         except Exception as e:
-            print(f'[ERROR] Some other error in _processMessage() {str(e)}', raw_message, file=sys.stderr)
+            # print(f'[ERROR] Some other error in _processMessage() {str(e)}', raw_message, file=sys.stderr)
             return
 
         self.numProcessed += 1
