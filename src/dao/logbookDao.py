@@ -50,6 +50,7 @@ def listDepartures(address=None, icaoCode=None, registration=None, forDay=None, 
                     FROM logbook_events AS l 
                     LEFT JOIN ddb AS d ON l.address = d.device_id 
                     WHERE l.event = 'T' AND 1 {cond} {condTs} {condIcao}
+                    AND not (l.location_icao is null AND d.aircraft_registration is null)
                     ORDER by ts {sortTs} {condLimit};"""
 
         c.execute(strSql)
@@ -112,6 +113,7 @@ def listArrivals(address=None, icaoCode=None, registration=None, forDay=None, li
                     FROM logbook_events AS l 
                     LEFT JOIN ddb AS d ON l.address = d.device_id 
                     WHERE l.event = 'L' AND 1 {cond} {condTs} {condIcao}
+                    AND not (l.location_icao is null AND d.aircraft_registration is null)
                     ORDER by ts {sortTs} {condLimit};"""
 
         c.execute(strSql)
@@ -181,7 +183,8 @@ def listFlights(address=None, icaoCode=None, registration=None, forDay=None, lim
                     d.device_type, d.aircraft_type, d.aircraft_registration, d.aircraft_cn
                     FROM logbook_entries as l 
                     LEFT JOIN ddb AS d ON l.address = d.device_id
-                    WHERE 1 {cond} {condTs} {condIcao}
+                    WHERE 1 {cond} {condTs} {condIcao} 
+                    AND not (l.takeoff_icao is null AND l.landing_icao is null AND d.aircraft_registration is null)
                     ORDER by {orderByCol} {sortTs} {condLimit};"""
 
         c.execute(strSql)
