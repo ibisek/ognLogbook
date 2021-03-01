@@ -77,17 +77,21 @@ def filterByIcaoCode(icaoCode, date=None, dateTo=None):
     date = _parseDate(date)
     dateTo = _parseDate(dateTo) if dateTo else None
     dateNow = datetime.now()
-    if dateTo and dateTo > dateNow:
-        dateTo = dateNow
+    if dateTo:
+        if dateTo > dateNow:
+            dateTo = dateNow
 
-    numDays = numDays = (dateTo - date).days if dateTo else 1
+        # set last second of the day:
+        dateTo += timedelta(hours=23, minutes=59, seconds=59)
+
+    numDays = round((dateTo.timestamp() - date.timestamp()) / 86400) if dateTo else 1   # timedelta.seconds doesn't work correctly
     if numDays > MAX_DAYS_IN_RANGE:
         numDays = MAX_DAYS_IN_RANGE
 
     linkPrevDay, linkNextDay = getDaysLinks(f"/loc/{icaoCode}", date)
 
     dayRecords = []
-    for i in range(numDays + 1):
+    for i in range(numDays):
         currentDate = date + timedelta(days=i)
 
         departures, arrivals, flights = _prepareData(icaoCode=icaoCode, forDay=currentDate)
@@ -126,17 +130,21 @@ def filterByRegistration(registration, date=None, dateTo=None):
     dateTo = _parseDate(dateTo) if dateTo else None
 
     dateNow = datetime.now()
-    if dateTo and dateTo > dateNow:
-        dateTo = dateNow
+    if dateTo:
+        if dateTo > dateNow:
+            dateTo = dateNow
 
-    numDays = numDays = (dateTo - date).days if dateTo else 1
+        # set last second of the day:
+        dateTo += timedelta(hours=23, minutes=59, seconds=59)
+
+    numDays = round((dateTo.timestamp() - date.timestamp()) / 86400) if dateTo else 1  # timedelta.seconds doesn't work correctly
     if numDays > MAX_DAYS_IN_RANGE:
         numDays = MAX_DAYS_IN_RANGE
 
     linkPrevDay, linkNextDay = getDaysLinks(f"/reg/{registration}", date)
 
     dayRecords = []
-    for i in range(numDays + 1):
+    for i in range(numDays):
         currentDate = date + timedelta(days=i)
 
         numFlights, totalFlightTime = getSums(registration=registration, forDay=currentDate)
