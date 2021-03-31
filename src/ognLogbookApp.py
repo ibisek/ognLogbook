@@ -69,9 +69,10 @@ def _cleanup():
 
 
 if __name__ == '__main__':
-
     # disabled as this obviously prevents the client to be terminated:
     # signal.signal(signal.SIGINT, signal_handler)
+
+    client.settings.APRS_KEEPALIVE_TIME = 10
 
     while doRun:
         try:
