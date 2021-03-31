@@ -1,6 +1,7 @@
 
 import sys
 import time
+import socket
 from socket import SHUT_RDWR
 
 from ogn.client import AprsClient
@@ -72,12 +73,11 @@ if __name__ == '__main__':
     # disabled as this obviously prevents the client to be terminated:
     # signal.signal(signal.SIGINT, signal_handler)
 
-    client.settings.APRS_KEEPALIVE_TIME = 10
-
     while doRun:
         try:
             print('[INFO] Connecting to OGN APRS server..')
             client.connect()
+            client.sock.setsockopt(socket.SOL_SOCKET, socket.SO_KEEPALIVE, 0)
             client.run(callback=process_beacon, autoreconnect=False)
             print('[WARN] Connection to OGN APRS server lost!')
             time.sleep(4)   # not to cause a DDOS on the OGN servers
