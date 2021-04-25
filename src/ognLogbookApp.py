@@ -78,7 +78,6 @@ if __name__ == '__main__':
             client.connect()
             client.run(callback=process_beacon, autoreconnect=False)
             print('[WARN] Connection to OGN APRS server lost!')
-            time.sleep(4)   # not to cause a DDOS on the OGN servers
         except KeyboardInterrupt:
             print('\n[INFO] Application interrupted.')
             try:
