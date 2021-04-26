@@ -241,7 +241,7 @@ class BeaconProcessor(object):
     rawQueueFLR = Queue(maxsize=0)
     rawQueueICA = Queue(maxsize=0)
     queues = (rawQueueOGN, rawQueueFLR, rawQueueFLR, rawQueueICA)   # FLR is present twice to create two worker threads for flarm processing
-    queueIds = ('ogn', 'flarm1', 'flarm2', 'icao')                   # (the FLR traffic is way higher than others; but ICA is also nearing processing limits)
+    queueIds = ('ogn', 'flarm1', 'flarm2', 'icao')                  # (the FLR traffic is way higher than others; but ICA is also nearing processing limits)
 
     workers = list()
 
@@ -310,7 +310,7 @@ class BeaconProcessor(object):
             cmd = f"mosquitto_pub -h {MQ_HOST} -p {MQ_PORT} -u {MQ_USER} -P {MQ_PASSWORD} -t ognLogbook/rate -m '{round(numTasksPerMin)}'; " \
                   f"mosquitto_pub -h {MQ_HOST} -p {MQ_PORT} -u {MQ_USER} -P {MQ_PASSWORD} -t ognLogbook/queued -m '{round(numQueuedTasks)}'; " \
                   f"mosquitto_pub -h {MQ_HOST} -p {MQ_PORT} -u {MQ_USER} -P {MQ_PASSWORD} -t ognLogbook/ogn -m '{traffic['ogn']}'; " \
-                  f"mosquitto_pub -h {MQ_HOST} -p {MQ_PORT} -u {MQ_USER} -P {MQ_PASSWORD} -t ognLogbook/flarm -m '{traffic['flarm']}'; " \
+                  f"mosquitto_pub -h {MQ_HOST} -p {MQ_PORT} -u {MQ_USER} -P {MQ_PASSWORD} -t ognLogbook/flarm -m '{traffic['flarm1'] + traffic['flarm2']}'; " \
                   f"mosquitto_pub -h {MQ_HOST} -p {MQ_PORT} -u {MQ_USER} -P {MQ_PASSWORD} -t ognLogbook/icao -m '{traffic['icao']}';"
             os.system(cmd)
 
