@@ -30,8 +30,6 @@ from periodicTimer import PeriodicTimer
 
 class RawWorker(Thread):
 
-    redis = StrictRedis(**redisConfig)
-
     def __init__(self, id: int, dbThread: DbThread, rawQueue: Queue, influxDb: InfluxDbThread):
         super(RawWorker, self).__init__()
 
@@ -42,8 +40,8 @@ class RawWorker(Thread):
 
         self.numProcessed = 0
         self.airfieldManager = AirfieldManager()
-
         self.geofile = Geofile(filename=GEOFILE_PATH)
+        self.redis = StrictRedis(**redisConfig)
 
         self.doRun = True
 
