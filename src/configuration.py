@@ -59,6 +59,7 @@ if MQ_PASSWORD != '**':
 #     os.environ.setdefault('SQLITE_DB_FILENAME', SQLITE_DB_FILENAME)
 
 ADDRESS_TYPES = {1: 'I', 2: 'F', 3: 'O'}
+REVERSE_ADDRESS_TYPE = {'I': 1, 'F': 2, 'O': 3}
 ADDRESS_TYPE_PREFIX = {1: 'ICA', 2: 'FLR', 3: 'OGN'}
 REVERSE_ADDRESS_TYPE_PREFIX = {'ICA': 1, 'FLR': 2, 'OGN': 3}
 
