@@ -8,7 +8,7 @@
 from datetime import datetime
 from redis import StrictRedis
 
-from configuration import dbConnectionInfo, redisConfig, INFLUX_DB_NAME, INFLUX_DB_HOST, REDIS_RECORD_EXPIRATION, REVERSE_ADDRESS_TYPE_PREFIX
+from configuration import dbConnectionInfo, redisConfig, INFLUX_DB_NAME, INFLUX_DB_HOST, REDIS_RECORD_EXPIRATION, REVERSE_ADDRESS_TYPE, ADDRESS_TYPE_PREFIX
 from db.DbThread import DbThread
 from db.InfluxDbThread import InfluxDbThread
 from utils import getGroundSpeedThreshold
@@ -43,29 +43,32 @@ class RedisReaper(object):
         for key in keys:
             key = key.decode('ascii')
             ttl = self.redis.ttl(key)
-            status = int(self.redis.get(key).decode('ascii').split(';')[0])
+            value = self.redis.get(key)
+            if value:   # could have been deleted in the mean while..
+                status = int(value.decode('ascii').split(';')[0])
 
-            if status == 1 and ttl < self.REDIS_TTL_LIMIT:  # 1 = airborne
-                # print(f"status: {status}; {key} -> {ttl}")
-                addr = key.split('-')[0]    # in fact addressTypeStr + addr (e.g. I123456, F123456, O123456, ..)
-                staleRecords[addr] = ttl
+                if status == 1 and ttl < self.REDIS_TTL_LIMIT:  # 1 = airborne
+                    # print(f"status: {status}; {key} -> {ttl}")
+                    addr = key.split('-')[0]    # in fact addressTypeStr + addr (e.g. I123456, F123456, O123456, ..)
+                    staleRecords[addr] = ttl
 
         numLanded = 0
         for addr, ttl in staleRecords.items():
-            # print(f"{addr}: {ttl}")    # ;{dt/60:.1f}
+            # print(f"[INFO] Stale record: {addr}: {ttl}")    # ;{dt/60:.1f}
 
-            prefix = addr[:3]
-            addr = addr[3:]
-            addrType = REVERSE_ADDRESS_TYPE_PREFIX.get(prefix, None)
+            prefix = addr[:1]
+            addr = addr[1:]
+            addrType = REVERSE_ADDRESS_TYPE.get(prefix, None)
+            addrPrefixLong = ADDRESS_TYPE_PREFIX.get(addrType, None)
 
-            if not addrType:
+            if not addrPrefixLong:
                 continue
 
-            rs = self.influx.client.query(f"SELECT * FROM pos WHERE addr='{prefix}{addr}' ORDER BY time DESC LIMIT 1;")
+            rs = self.influx.client.query(f"SELECT * FROM pos WHERE addr='{addrPrefixLong}{addr}' ORDER BY time DESC LIMIT 1;")
             for res in rs:
                 # print('res:', res)
                 time = res[0]['time']
-                ts = int(datetime.strptime(time, '%Y-%m-%dT%H:%M:%SZ').timestamp())
+                ts = int(datetime.strptime(time, '%Y-%m-%dT%H:%M:%SZ').timestamp())    # UTC ts
                 agl = res[0]['agl'] if res[0]['agl'] else 0
                 alt = res[0]['alt'] if res[0]['alt'] else 0
                 gs = res[0]['gs']
@@ -76,14 +79,14 @@ class RedisReaper(object):
                 if 0 < agl < 100 and gs < self.GS_THRESHOLD:
                     landingSuspected = True
                 else:
-                    dt = REDIS_RECORD_EXPIRATION - ttl  # [s] time since last beacon update
-                    if dt > self.REDIS_STALE_INTERVAL_2:
+                    lastBeaconAge = datetime.utcnow().timestamp() - ts
+                    if lastBeaconAge > self.REDIS_STALE_INTERVAL_2:
                         landingSuspected = True
 
                 if landingSuspected:
                     icaoLocation = self.airfieldManager.getNearest(lat, lon)
-                    if not icaoLocation:  # no outlandings yet..
-                        continue
+                    # if not icaoLocation:  # no outlandings yet..
+                    #     continue
 
                     # print(f"addr: {addr}; dt: {dt / 60:.0f}min ; agl: {agl:.0f}m near {icaoLocation}")
 
@@ -99,11 +102,12 @@ class RedisReaper(object):
                     if flightTime < 0:
                         flightTime = 0
 
+                    icaoLocationVal = f"'{icaoLocation}'" if icaoLocation else 'null'
                     strSql = f"INSERT INTO logbook_events " \
                              f"(ts, address, address_type, aircraft_type, event, lat, lon, location_icao, flight_time) " \
                              f"VALUES " \
                              f"({ts}, '{addr}', {logbookItem.address_type}, '{logbookItem.aircraft_type}', " \
-                             f"'L', {lat:.5f}, {lon:.5f}, '{icaoLocation}', {flightTime});"
+                             f"'L', {lat:.5f}, {lon:.5f}, {icaoLocationVal}, {flightTime});"
 
                     # print('strSql:', strSql)
 
@@ -116,3 +120,8 @@ class RedisReaper(object):
 
     def stop(self):
         self.dbt.stop()
+
+
+if __name__ == '__main__':
+    r = RedisReaper()
+    r.doWork()
