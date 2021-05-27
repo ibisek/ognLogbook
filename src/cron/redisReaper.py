@@ -37,25 +37,21 @@ class RedisReaper(object):
         self.airfieldManager = AirfieldManager()
 
     def doWork(self):
-        staleRecords = dict()
+        airborne = []
 
         keys = self.redis.keys('*status')
         for key in keys:
             key = key.decode('ascii')
             ttl = self.redis.ttl(key)
             value = self.redis.get(key)
-            if value:   # could have been deleted in the mean while..
+            if value:   # entries could have been deleted in the mean while..
                 status = int(value.decode('ascii').split(';')[0])
-
-                if status == 1 and ttl < self.REDIS_TTL_LIMIT:  # 1 = airborne
-                    # print(f"status: {status}; {key} -> {ttl}")
+                if status == 1:  # 1 = airborne
                     addr = key.split('-')[0]    # in fact addressTypeStr + addr (e.g. I123456, F123456, O123456, ..)
-                    staleRecords[addr] = ttl
+                    airborne.append(addr)
 
         numLanded = 0
-        for addr, ttl in staleRecords.items():
-            # print(f"[INFO] Stale record: {addr}: {ttl}")    # ;{dt/60:.1f}
-
+        for addr in airborne:
             prefix = addr[:1]
             addr = addr[1:]
             addrType = REVERSE_ADDRESS_TYPE.get(prefix, None)
