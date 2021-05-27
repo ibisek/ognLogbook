@@ -101,6 +101,9 @@ class AirfieldManager(object):  # , metaclass=Singleton
         :param lon: in degrees
         :return: nearest ICAO code or None
         """
+        if not lat or not lon:
+            return None
+
         minDist = 99999999999999
         code = None
 
