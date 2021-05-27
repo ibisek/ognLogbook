@@ -17,6 +17,9 @@ from configuration import INFLUX_DB_NAME, INFLUX_DB_HOST
 from db.InfluxDbThread import InfluxDbThread
 from experimental.kalman import Kalman
 
+THRESHOLD_GS = 50   # [km/h]
+THRESHOLD_ALT = 40  # [m]
+
 
 def superPlot(df):
     keys = ['alt', 'altf', 'gs', 'gsf', 'vs', 'vsf']
@@ -87,9 +90,11 @@ if __name__ == '__main__':
     # ADDR = 'DDA391'  # F-CIJL (LFLE) where gliders never land
     # ADDR = 'D006D0'  # F-PVVA (LFLE) where gliders never land
 
-    ADDR = 'OGNFCB203'    # random address from the log
+    # ADDR = 'OGNFCB203'    # random address from the log
+    # ADDR = 'OGN322C5C'  # random address from the log
+    ADDR = 'ICA3D1BFD'
 
-    startDate = '2021-01-24'
+    startDate = '2021-03-08'
 
     dt: datetime = datetime.strptime(startDate, '%Y-%m-%d')
     ts = dt.timestamp()     # [s]
@@ -124,18 +129,25 @@ if __name__ == '__main__':
         kalman = Kalman()
         df['aglk'] = df['agl'].apply(lambda val: kalman.predict(val))
 
+    df = df.dropna()
+    if df.empty:
+        print('[WARN] Dataframe empty.')
+        sys.exit(0)
+
     # altitude delta:
     # df['dAlt'] = df['alt'].diff()
 
     # airborne flag / status detection:
     min = int(df['gsf'].min())
     max = int(df['gsf'].max())
-    df['airborneGs'] = df['gsf'].apply(lambda val: 1 if val > 50 else 0)
+    df['airborneGs'] = df['gsf'].apply(lambda val: 1 if val > THRESHOLD_GS else 0)
+    df['airborneGsThr'] = THRESHOLD_GS
 
     if 'agl' in df:
         min = int(df['agl'].min())
         max = int(df['agl'].max())
-        df['airborneAgl'] = df['agl'].apply(lambda val: 1 if val > 40 else 0)
+        df['airborneAgl'] = df['agl'].apply(lambda val: 1 if val > THRESHOLD_ALT else 0)
+        df['airborneAglThr'] = THRESHOLD_ALT
 
     # --
 
@@ -174,12 +186,15 @@ if __name__ == '__main__':
     plt.subplots_adjust(left=0.05, right=0.95, top=0.95)
 
     df.plot(y=['gs'], ax=axes[0], rot=0, ls='', marker='.', markersize=2)
+    df.plot(y=['gsf'], ax=axes[0], rot=0, ls='', marker='.', markersize=2)
+    df.plot(y=['airborneGsThr'], ax=axes[0], rot=0)
     # df.plot(y=['gsf'], ax=axes[0], rot=0)
     # df.plot(y=['gsk'], ax=axes[0], rot=0)
     ax1 = axes[0].twinx()
     df.plot(y=['airborneGs'], ax=ax1, rot=0)
 
     df.plot(y=['alt'], figsize=(20, 15), ax=axes[1], rot=0, ls='', marker='.', markersize=2)
+    df.plot(y=['altf'], figsize=(20, 15), ax=axes[1], rot=0, ls='', marker='.', markersize=2)
     # df.plot(y=['altf'], ax=axes[1], rot=0)
     # df.plot(y=['altk'], ax=axes[1], rot=0)
 
@@ -187,9 +202,11 @@ if __name__ == '__main__':
         df.plot(y=['agl'], ax=axes[2], rot=0, ls='', marker='.', markersize=2)
         # df.plot(y=['aglf'], ax=axes[2], rot=0)
         # df.plot(y=['aglk'], ax=axes[2], rot=0)
+
+        df.plot(y=['airborneAglThr'], ax=axes[2], rot=0)
+
         ax2 = axes[2].twinx()
         df.plot(y=['airborneAgl'], ax=ax2, rot=0)
-
 
     # df[keys3].plot(figsize=(20, 15), ax=axes[2], rot=0)
     # df[keys4].plot(figsize=(20, 15), ax=axes[3], rot=0)
