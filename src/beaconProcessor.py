@@ -235,9 +235,9 @@ class BeaconProcessor(object):
 
     redis = StrictRedis(**redisConfig)
 
-    rawQueueOGN = Queue(maxsize=0)  # 0 ~ infinite (according to docs)
-    rawQueueFLR = Queue(maxsize=0)
-    rawQueueICA = Queue(maxsize=0)
+    rawQueueOGN = Queue(maxsize=666666666)  # 0 ~ infinite (according to docs).. but apparently not
+    rawQueueFLR = Queue(maxsize=666666666)
+    rawQueueICA = Queue(maxsize=666666666)
     queues = (rawQueueOGN, rawQueueFLR, rawQueueFLR, rawQueueFLR, rawQueueFLR, rawQueueICA, rawQueueICA)   # one worker's performance on current CPU is 35k/min
     queueIds = ('ogn', 'flarm1', 'flarm2', 'flarm3', 'flarm4', 'icao1', 'icao2')
     # TODO there shall be separate queues for each worker and traffic shall be split/shaped evenly for every worker of the same kind..
