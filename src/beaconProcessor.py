@@ -309,8 +309,8 @@ class BeaconProcessor(object):
             cmd = f"mosquitto_pub -h {MQ_HOST} -p {MQ_PORT} -u {MQ_USER} -P {MQ_PASSWORD} -t ognLogbook/rate -m '{round(numTasksPerMin)}'; " \
                   f"mosquitto_pub -h {MQ_HOST} -p {MQ_PORT} -u {MQ_USER} -P {MQ_PASSWORD} -t ognLogbook/queued -m '{round(numQueuedTasks)}'; " \
                   f"mosquitto_pub -h {MQ_HOST} -p {MQ_PORT} -u {MQ_USER} -P {MQ_PASSWORD} -t ognLogbook/ogn -m '{traffic['ogn']}'; " \
-                  f"mosquitto_pub -h {MQ_HOST} -p {MQ_PORT} -u {MQ_USER} -P {MQ_PASSWORD} -t ognLogbook/flarm -m '{traffic['flarm1'] + traffic['flarm2']}'; " \
-                  f"mosquitto_pub -h {MQ_HOST} -p {MQ_PORT} -u {MQ_USER} -P {MQ_PASSWORD} -t ognLogbook/icao -m '{traffic['icao']}';"
+                  f"mosquitto_pub -h {MQ_HOST} -p {MQ_PORT} -u {MQ_USER} -P {MQ_PASSWORD} -t ognLogbook/flarm -m '{traffic['flarm1'] + traffic['flarm2'] + traffic['flarm3'] + traffic['flarm4']}'; " \
+                  f"mosquitto_pub -h {MQ_HOST} -p {MQ_PORT} -u {MQ_USER} -P {MQ_PASSWORD} -t ognLogbook/icao -m '{traffic['icao1'] + traffic['icao2']}}';"
             os.system(cmd)
 
         self.numEnquedTasks = 0
