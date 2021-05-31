@@ -238,8 +238,9 @@ class BeaconProcessor(object):
     rawQueueOGN = Queue(maxsize=0)  # 0 ~ infinite (according to docs)
     rawQueueFLR = Queue(maxsize=0)
     rawQueueICA = Queue(maxsize=0)
-    queues = (rawQueueOGN, rawQueueFLR, rawQueueFLR, rawQueueICA)   # FLR is present twice to create two worker threads for flarm processing
-    queueIds = ('ogn', 'flarm1', 'flarm2', 'icao')                  # (the FLR traffic is way higher than others; but ICA is also nearing processing limits)
+    queues = (rawQueueOGN, rawQueueFLR, rawQueueFLR, rawQueueFLR, rawQueueFLR, rawQueueICA, rawQueueICA)   # one worker's performance on current CPU is 35k/min
+    queueIds = ('ogn', 'flarm1', 'flarm2', 'flarm3', 'flarm4', 'icao1', 'icao2')
+    # TODO there shall be separate queues for each worker and traffic shall be split/shaped evenly for every worker of the same kind..
 
     workers = list()
 
