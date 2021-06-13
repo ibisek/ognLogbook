@@ -5,7 +5,7 @@ General periodic tasks are defined and executed from here.
 from periodicTimer import PeriodicTimer
 from cron.towLookup import TowLookup
 from cron.redisReaper import RedisReaper
-from flownDistanceCalculator import FlownDistanceCalculator
+from cron.flownDistanceCalculator import FlownDistanceCalculator
 
 
 class CronJobs(object):
@@ -18,9 +18,9 @@ class CronJobs(object):
         # self.redisReaperTimer = PeriodicTimer(RedisReaper.RUN_INTERVAL, self.rr.doWork)
         # self.redisReaperTimer.start()
 
-        # distCalc = FlownDistanceCalculator()
-        # self.flownDistCalcTimer = PeriodicTimer(FlownDistanceCalculator.RUN_INTERVAL, distCalc.calcDistances)
-        # self.flownDistCalcTimer.start()
+        distCalc = FlownDistanceCalculator()
+        self.flownDistCalcTimer = PeriodicTimer(FlownDistanceCalculator.RUN_INTERVAL, distCalc.calcDistances)
+        self.flownDistCalcTimer.start()
 
     def stop(self):
         self.towLookupTimer.stop()
@@ -28,6 +28,6 @@ class CronJobs(object):
         # self.redisReaperTimer.stop()
         # self.rr.stop()
 
-        # self.flownDistCalcTimer.stop()
+        self.flownDistCalcTimer.stop()
 
         print("[INFO] Cron terminated.")
