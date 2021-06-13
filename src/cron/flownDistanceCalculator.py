@@ -1,3 +1,7 @@
+"""
+A cron service to calculate real flown distance (point-to-point) for each flight.
+"""
+
 from math import radians
 
 from configuration import dbConnectionInfo, INFLUX_DB_HOST, INFLUX_DB_NAME
@@ -43,6 +47,8 @@ class FlownDistanceCalculator:
         return totalDist
 
     def calcDistances(self):
+        updateSqls = []
+
         strSql = f"SELECT id, address, takeoff_ts, landing_ts " \
                  f"FROM logbook_entries " \
                  f"WHERE flown_distance is null;"
@@ -52,18 +58,19 @@ class FlownDistanceCalculator:
 
             for row in cur:
                 entryId, address, takeoffTs, landingTs = row
+                if not address or not takeoffTs or not landingTs:
+                    continue
+
                 dist = self._calcFlownDistance(addr=address, startTs=takeoffTs, endTs=landingTs)
 
-                sql = f"UPDATE logbook_entries SET flown_distance={round(dist)} WHERE id = {entryId}'"
-                # TODO update distance in the record
-                print(666)
+                sql = f"UPDATE logbook_entries SET flown_distance={round(dist)} WHERE id = {entryId};"
+                updateSqls.append(sql)
 
-        # TODO select all entries where flown_dist is null (all processed will have this value set to 0 even if not known)
-        addr = 'xxx'
-        starTs = 0
-        endTs = 0
-        dist = self._calcFlownDistance(addr=addr, startTs=startTs, endTs=endTs)
-        # TODO store calculated distance
+        if len(updateSqls) > 0:
+            with DbSource(dbConnectionInfo).getConnection() as cur:
+                for sql in updateSqls:
+                    cur.execute(sql)
+                cur.commit()
 
 
 if __name__ == '__main__':
@@ -72,5 +79,8 @@ if __name__ == '__main__':
     endTs = 1623351717
 
     calc = FlownDistanceCalculator()
-    dist = calc._calcFlownDistance(addr=addr, startTs=startTs, endTs=endTs)
-    print('dist:', round(dist))
+    # dist = calc._calcFlownDistance(addr=addr, startTs=startTs, endTs=endTs)
+    # print('dist:', round(dist))
+    calc.calcDistances()
+
+    print("KOHEU.")
