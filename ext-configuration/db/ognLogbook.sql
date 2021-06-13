@@ -65,7 +65,8 @@ CREATE TABLE logbook_entries (
   landing_lon DECIMAL(8,5),
   landing_icao VARCHAR(8),
   flight_time BIGINT DEFAULT 0,
-  tow_id BIGINT references logbook_entries.id
+  tow_id BIGINT references logbook_entries.id,
+  flown_distance INT DEFAULT null
 );
 
 CREATE INDEX logbook_entries_address ON logbook_entries(address);
