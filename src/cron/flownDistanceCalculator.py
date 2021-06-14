@@ -11,10 +11,11 @@ from airfieldManager import AirfieldManager
 
 
 class FlownDistanceCalculator:
-    RUN_INTERVAL = 20  # [s]
+    RUN_INTERVAL = 10  # [s]
+    running = False
 
     def __init__(self):
-        print(f"[INFO] FlownDistanceCalculator scheduled to run every {self.RUN_INTERVAL}s")
+        print(f"[INFO] FlownDistanceCalculator scheduled to run every {self.RUN_INTERVAL}s.")
         self.influxDb = InfluxDbThread(dbName=INFLUX_DB_NAME, host=INFLUX_DB_HOST)
 
     def __del__(self):
@@ -26,7 +27,7 @@ class FlownDistanceCalculator:
     def _calcFlownDistance(self, addr: str, startTs: int, endTs: int):
         totalDist = 0
 
-        q = f"SELECT lat, lon FROM pos WHERE addr='{addr}' and time >= {startTs}000000000 and time <= {endTs}000000000"
+        q = f"SELECT lat, lon FROM pos WHERE addr='{addr}' AND time >= {startTs}000000000 AND time <= {endTs}000000000"
         rs = self.influxDb.client.query(query=q)
         if rs:
             prevLat = prevLon = curLat = curLon = None
@@ -48,21 +49,28 @@ class FlownDistanceCalculator:
         return totalDist
 
     def calcDistances(self):
+        if self.running:    # still running from the last cron call..
+            return
+
+        self.running = True
         updateSqls = []
 
-        strSql = f"SELECT id, address, takeoff_ts, landing_ts " \
-                 f"FROM logbook_entries " \
-                 f"WHERE flown_distance is null;"
+        strSql = f"SELECT e.id, e.address, e.takeoff_ts, e.landing_ts, ddb.device_type " \
+                 f"FROM logbook_entries as e " \
+                 f"JOIN ddb ON ddb.device_id = e.address " \
+                 f"WHERE e.flown_distance is null;"
 
+        addressPrefixes = {'O':'OGN', 'I':'ICA', 'F':'FLR'}
         with DbSource(dbConnectionInfo).getConnection() as cur:
             cur.execute(strSql)
 
             for row in cur:
-                entryId, address, takeoffTs, landingTs = row
+                entryId, address, takeoffTs, landingTs, addressType = row
                 if not address or not takeoffTs or not landingTs:
                     continue
 
-                dist = self._calcFlownDistance(addr=address, startTs=takeoffTs, endTs=landingTs)
+                dist = round(self._calcFlownDistance(addr=f"{addressPrefixes[addressType]}{address}", startTs=takeoffTs, endTs=landingTs))
+                print(f"[INFO] Flown dist for '{address}' is {dist} km.")
 
                 sql = f"UPDATE logbook_entries SET flown_distance={round(dist)} WHERE id = {entryId};"
                 updateSqls.append(sql)
@@ -72,6 +80,8 @@ class FlownDistanceCalculator:
                 for sql in updateSqls:
                     cur.execute(sql)
             print(f"[INFO] Updated {len(updateSqls)} flown distance(s)")
+
+        self.running = False
 
 
 if __name__ == '__main__':
