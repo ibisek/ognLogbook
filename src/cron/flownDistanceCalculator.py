@@ -11,9 +11,10 @@ from airfieldManager import AirfieldManager
 
 
 class FlownDistanceCalculator:
-    RUN_INTERVAL = 10  # [s]
+    RUN_INTERVAL = 20  # [s]
 
     def __init__(self):
+        print(f"[INFO] FlownDistanceCalculator scheduled to run every {self.RUN_INTERVAL}s")
         self.influxDb = InfluxDbThread(dbName=INFLUX_DB_NAME, host=INFLUX_DB_HOST)
 
     def __del__(self):
@@ -70,7 +71,7 @@ class FlownDistanceCalculator:
             with DbSource(dbConnectionInfo).getConnection() as cur:
                 for sql in updateSqls:
                     cur.execute(sql)
-            print(f"[INFO] Updated {len(updateSqls)} flown distances")
+            print(f"[INFO] Updated {len(updateSqls)} flown distance(s)")
 
 
 if __name__ == '__main__':
