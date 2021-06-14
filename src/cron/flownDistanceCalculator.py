@@ -70,7 +70,7 @@ class FlownDistanceCalculator:
             with DbSource(dbConnectionInfo).getConnection() as cur:
                 for sql in updateSqls:
                     cur.execute(sql)
-                cur.commit()
+            print(f"[INFO] Updated {len(updateSqls)} flown distances")
 
 
 if __name__ == '__main__':
