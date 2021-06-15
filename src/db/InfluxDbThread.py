@@ -63,7 +63,7 @@ class InfluxDbThread(threading.Thread):
                     #     self.toDoStatements.put(query)  # requeue for retry
 
                 except (requests.exceptions.ConnectionError, InfluxDBServerError) as e:
-                    print(f"[ERROR] when connecting to influx db at {self.host}:{self.port}")
+                    print(f"[ERROR] when connecting to influx db at {self.host}:{self.port}", str(e))
                     self._connect()
 
             if len(queries) < 1000:     # ~ wait for more items in the queue to save network resources a bit..
