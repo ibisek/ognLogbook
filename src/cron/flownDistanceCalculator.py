@@ -73,7 +73,7 @@ class FlownDistanceCalculator:
                     continue
 
                 dist = round(self._calcFlownDistance(addr=f"{addressPrefixes[addressType]}{address}", startTs=takeoffTs, endTs=landingTs))
-                print(f"[INFO] Flown dist for '{address}' is {dist} km.")
+                print(f"[INFO] Flown dist for '{addressPrefixes[addressType]}{address}' is {dist} km.")
 
                 sql = f"UPDATE logbook_entries SET flown_distance={round(dist)} WHERE id = {entryId};"
                 updateSqls.append(sql)
