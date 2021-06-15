@@ -223,7 +223,7 @@ class RawWorker(Thread):
             strSql = f"INSERT INTO logbook_events " \
                 f"(ts, address, address_type, aircraft_type, event, lat, lon, location_icao, flight_time) " \
                 f"VALUES " \
-                f"({ts}, '{address}', {addressType}, '{aircraftType}', " \
+                f"({ts}, '{address}', '{addressTypeStr}', '{aircraftType}', " \
                 f"'{event}', {lat:.5f}, {lon:.5f}, {icaoLocation}, {flightTime});"
 
             # print('strSql:', strSql)
