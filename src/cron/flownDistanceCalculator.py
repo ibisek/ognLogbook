@@ -58,9 +58,8 @@ class FlownDistanceCalculator:
         self.running = True
         updateSqls = []
 
-        strSql = f"SELECT e.id, e.address, e.takeoff_ts, e.landing_ts, ddb.device_type " \
+        strSql = f"SELECT e.id, e.address, e.address_type, e.takeoff_ts, e.landing_ts " \
                  f"FROM logbook_entries as e " \
-                 f"JOIN ddb ON ddb.device_id = e.address " \
                  f"WHERE e.flown_distance is null;"
 
         addressPrefixes = {'O':'OGN', 'I':'ICA', 'F':'FLR'}
@@ -68,8 +67,8 @@ class FlownDistanceCalculator:
             cur.execute(strSql)
 
             for row in cur:
-                entryId, address, takeoffTs, landingTs, addressType = row
-                if not address or not takeoffTs or not landingTs:
+                entryId, address, addressType, takeoffTs, landingTs = row
+                if not address or not addressType or not takeoffTs or not landingTs:
                     continue
 
                 dist = round(self._calcFlownDistance(addr=f"{addressPrefixes[addressType]}{address}", startTs=takeoffTs, endTs=landingTs))
