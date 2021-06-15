@@ -134,7 +134,7 @@ class RawWorker(Thread):
         ts = round(dt.timestamp())  # UTC [s]
         now = datetime.utcnow().replace(tzinfo=pytz.UTC)
         if ts - now.timestamp() > 30:    # timestamp from the future? We'll 30s time offset at most..
-            print(f"[WARN] Timestamp from the future: {dt}, now is {now}")
+            # print(f"[WARN] Timestamp from the future: {dt}, now is {now}")
             return
 
         lat = beacon.get('latitude') or None            # [deg]
