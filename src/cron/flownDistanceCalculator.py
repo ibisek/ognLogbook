@@ -46,6 +46,9 @@ class FlownDistanceCalculator:
                 prevLat = curLat
                 prevLon = curLon
 
+        else:
+            print(f"[WARN] No influx data for '{addr}' between {startTs} and {endTs}.")
+
         return totalDist
 
     def calcDistances(self):
