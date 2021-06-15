@@ -7,7 +7,7 @@ CREATE TABLE logbook_events (
     id BIGINT PRIMARY KEY auto_increment,
     ts BIGINT,
     address VARCHAR(6),
-    address_type TINYINT,
+    address_type VARCHAR(1),
     aircraft_type TINYINT,
     event VARCHAR(1),
     lat DECIMAL(8,5),
@@ -30,13 +30,13 @@ CREATE TRIGGER IF NOT EXISTS logbook_events_after_insert
 AFTER INSERT ON logbook_events FOR EACH ROW
 BEGIN
 IF (new.event = 'L') THEN
-SELECT e.ts, e.aircraft_type, e.lat, e.lon, e.location_icao
-INTO @t_ts, @t_type, @t_lat, @t_lon, @t_loc
+SELECT e.ts, e.address_type, e.aircraft_type, e.lat, e.lon, e.location_icao
+INTO @t_ts, @t_addrtype, @t_type, @t_lat, @t_lon, @t_loc
 FROM logbook_events as e
 WHERE e.address = new.address and e.event='T' and e.ts < new.ts and e.ts > (new.ts - 16*60*60)
 ORDER BY e.ts DESC LIMIT 1;
-INSERT INTO logbook_entries (address, aircraft_type, takeoff_ts, takeoff_lat, takeoff_lon, takeoff_icao, landing_ts, landing_lat, landing_lon, landing_icao, flight_time, tow_id)
-VALUES (new.address, @t_type, @t_ts, @t_lat, @t_lon, @t_loc, new.ts, new.lat, new.lon, new.location_icao, new.ts-@t_ts, null);
+INSERT INTO logbook_entries (address, address_type, aircraft_type, takeoff_ts, takeoff_lat, takeoff_lon, takeoff_icao, landing_ts, landing_lat, landing_lon, landing_icao, flight_time, tow_id)
+VALUES (new.address, @t_addrtype, @t_type, @t_ts, @t_lat, @t_lon, @t_loc, new.ts, new.lat, new.lon, new.location_icao, new.ts-@t_ts, null);
 END IF;
 END;//
 DELIMITER ;
@@ -55,6 +55,7 @@ DELIMITER ;
 CREATE TABLE logbook_entries (
   id BIGINT PRIMARY KEY auto_increment,
   address VARCHAR(6),
+  address_type VARCHAR(1) DEFAULT NULL,
   aircraft_type TINYINT DEFAULT 0,
   takeoff_ts BIGINT,
   takeoff_lat DECIMAL(8,5),
