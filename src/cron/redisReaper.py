@@ -20,8 +20,8 @@ from dataStructures import LogbookItem
 class RedisReaper(object):
     RUN_INTERVAL = 5*60  # [s]
 
-    REDIS_STALE_INTERVAL_1 = 10 * 60  # [s]
-    REDIS_STALE_INTERVAL_2 = 20 * 60  # [s]
+    REDIS_STALE_INTERVAL_1 = 20 * 60  # [s]
+    REDIS_STALE_INTERVAL_2 = 30 * 60  # [s]
     REDIS_TTL_LIMIT = REDIS_RECORD_EXPIRATION - REDIS_STALE_INTERVAL_1
     GS_THRESHOLD = getGroundSpeedThreshold(1, 'L')
 
