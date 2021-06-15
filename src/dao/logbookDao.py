@@ -179,7 +179,7 @@ def listFlights(address=None, icaoCode=None, registration=None, forDay=None, lim
 
         # (d.tracked != false OR d.tracked IS NULL) AND (d.identified != false OR d.identified IS NULL)
         strSql = f"""SELECT l.id, l.address, l.takeoff_ts, l.takeoff_lat, l.takeoff_lon, l.takeoff_icao, 
-                    l.landing_ts, l.landing_lat, l.landing_lon, l.landing_icao, l.flight_time, l.tow_id,
+                    l.landing_ts, l.landing_lat, l.landing_lon, l.landing_icao, l.flight_time, l.flown_distance, l.tow_id,
                     d.device_type, d.aircraft_type, d.aircraft_registration, d.aircraft_cn
                     FROM logbook_entries as l 
                     LEFT JOIN ddb AS d ON l.address = d.device_id
@@ -191,7 +191,7 @@ def listFlights(address=None, icaoCode=None, registration=None, forDay=None, lim
 
         rows = c.fetchall()
         for row in rows:
-            (id, address, ts1, lat1, lon1, locationIcao1, ts2, lat2, lon2, locationIcao2, flightTime, towId, devType, aircraftType, registration, cn) = row
+            (id, address, ts1, lat1, lon1, locationIcao1, ts2, lat2, lon2, locationIcao2, flightTime, flownDistance, towId, devType, aircraftType, registration, cn) = row
 
             item = LogbookItem(id=id,
                                address=address,
@@ -204,6 +204,7 @@ def listFlights(address=None, icaoCode=None, registration=None, forDay=None, lim
                                landing_lon=float(lon2),
                                landing_icao=locationIcao2,
                                flight_time=flightTime,
+                               flown_distance=flownDistance,
                                device_type=devType,
                                registration=registration,
                                cn=cn,
