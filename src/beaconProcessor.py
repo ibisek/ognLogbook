@@ -238,8 +238,8 @@ class BeaconProcessor(object):
     rawQueueOGN = Queue(maxsize=666666666)  # 0 ~ infinite (according to docs).. but apparently not
     rawQueueFLR = Queue(maxsize=666666666)
     rawQueueICA = Queue(maxsize=666666666)
-    queues = (rawQueueOGN, rawQueueFLR, rawQueueFLR, rawQueueFLR, rawQueueFLR, rawQueueICA, rawQueueICA)   # one worker's performance on current CPU is 35k/min
-    queueIds = ('ogn', 'flarm1', 'flarm2', 'flarm3', 'flarm4', 'icao1', 'icao2')
+    queues = (rawQueueOGN, rawQueueFLR, rawQueueFLR, rawQueueICA)   # one worker's performance on current CPU is 35k/min
+    queueIds = ('ogn', 'flarm1', 'flarm2', 'icao1')
     # TODO there shall be separate queues for each worker and traffic shall be split/shaped evenly for every worker of the same kind..
 
     workers = list()
@@ -309,8 +309,8 @@ class BeaconProcessor(object):
             cmd = f"mosquitto_pub -h {MQ_HOST} -p {MQ_PORT} -u {MQ_USER} -P {MQ_PASSWORD} -t ognLogbook/rate -m '{round(numTasksPerMin)}'; " \
                   f"mosquitto_pub -h {MQ_HOST} -p {MQ_PORT} -u {MQ_USER} -P {MQ_PASSWORD} -t ognLogbook/queued -m '{round(numQueuedTasks)}'; " \
                   f"mosquitto_pub -h {MQ_HOST} -p {MQ_PORT} -u {MQ_USER} -P {MQ_PASSWORD} -t ognLogbook/ogn -m '{traffic['ogn']}'; " \
-                  f"mosquitto_pub -h {MQ_HOST} -p {MQ_PORT} -u {MQ_USER} -P {MQ_PASSWORD} -t ognLogbook/flarm -m '{traffic['flarm1'] + traffic['flarm2'] + traffic['flarm3'] + traffic['flarm4']}'; " \
-                  f"mosquitto_pub -h {MQ_HOST} -p {MQ_PORT} -u {MQ_USER} -P {MQ_PASSWORD} -t ognLogbook/icao -m '{traffic['icao1'] + traffic['icao2']}';"
+                  f"mosquitto_pub -h {MQ_HOST} -p {MQ_PORT} -u {MQ_USER} -P {MQ_PASSWORD} -t ognLogbook/flarm -m '{traffic['flarm1'] + traffic['flarm2']}'; " \
+                  f"mosquitto_pub -h {MQ_HOST} -p {MQ_PORT} -u {MQ_USER} -P {MQ_PASSWORD} -t ognLogbook/icao -m '{traffic['icao1']}';"
             os.system(cmd)
 
         self.numEnquedTasks = 0
