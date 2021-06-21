@@ -97,7 +97,14 @@
 			<div class="cell">{% if item.landing_icao %}<a href="/loc/{{item.landing_icao}}">{{item.landing_icao}}</a>{% else %}<a href="https://mapy.cz/zakladni?x={{item.landing_lon}}&y={{item.landing_lat}}&z=14&source=coor&id={{item.landing_lon}}%2C{{item.landing_lat}}" target="_blank">{{ gettext('main.map') }}</a>{% endif %}</div>
 			<div class="cell">{{formatTsToHHMM(item.landing_dt)}}</div>
 			<div class="cell">{{item.flight_time}}</div>
-			<div class="cell">{% if item.flown_distance %}{{item.flown_distance}}{% endif %}</div>
+			<div class="cell">
+				{% if item.flown_distance %}
+					{% if item.flown_distance > 0 %}
+						{{item.flown_distance}}
+					{% endif %}
+				{% else %}
+					&#8987;
+				{% endif %}</div>
 		</div>
 		{% endfor %}
 
