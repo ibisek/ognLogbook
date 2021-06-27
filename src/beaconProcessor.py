@@ -9,6 +9,7 @@ import sys
 import pytz
 from datetime import datetime
 from threading import Thread
+from multiprocessing import Process
 
 from redis import StrictRedis
 from queue import Queue, Empty
@@ -50,6 +51,14 @@ class RawWorker(Thread):
 
     def stop(self):
         self.doRun = False
+
+    def runProc(self, id: int, dbThread: DbThread, rawQueue: Queue, influxDb: InfluxDbThread):
+        self.id = id
+        self.dbThread = dbThread
+        self.rawQueue = rawQueue
+        self.influxDb = influxDb
+
+        self.run()
 
     def run(self):
         print(f"[INFO] Starting worker '{self.id}'")
@@ -265,7 +274,10 @@ class BeaconProcessor(object):
 
         for id, queue in zip(self.queueIds, self.queues):
             rawWorker = RawWorker(id=id, dbThread=self.dbThread, rawQueue=queue, influxDb=self.influxDb)
-            rawWorker.start()
+            rawWorker.start()    # python thread do not run on parallel cores!!
+            #p = Process(target=rawWorker.run)
+            #p = Process(target=rawWorker.runProc, args=(id, self.dbThread, queue, self.influxDb))
+            #p.start()
             self.workers.append(rawWorker)
 
         self.timer = PeriodicTimer(60, self._processStats)
