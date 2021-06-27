@@ -244,13 +244,13 @@ class BeaconProcessor(object):
 
     redis = StrictRedis(**redisConfig)
 
-    # rawQueueOGN = Queue(maxsize=666666666)  # 0 ~ infinite (according to docs).. but apparently not
-    # rawQueueFLR = Queue(maxsize=666666666)
-    # rawQueueICA = Queue(maxsize=666666666)
-    mpManager = mp.Manager()
-    rawQueueOGN = mpManager.Queue()
-    rawQueueFLR = mpManager.Queue()
-    rawQueueICA = mpManager.Queue()
+    rawQueueOGN = Queue(maxsize=666666666)  # 0 ~ infinite (according to docs).. but apparently not
+    rawQueueFLR = Queue(maxsize=666666666)
+    rawQueueICA = Queue(maxsize=666666666)
+    # mpManager = mp.Manager()
+    # rawQueueOGN = mpManager.Queue()
+    # rawQueueFLR = mpManager.Queue()
+    # rawQueueICA = mpManager.Queue()
     queues = (rawQueueOGN, rawQueueFLR, rawQueueFLR, rawQueueICA)   # one worker's performance on current CPU is 35k/min
     queueIds = ('ogn', 'flarm1', 'flarm2', 'icao1')
     # TODO there shall be separate queues for each worker and traffic shall be split/shaped evenly for every worker of the same kind..
@@ -278,9 +278,9 @@ class BeaconProcessor(object):
 
         for id, queue in zip(self.queueIds, self.queues):
             rawWorker = RawWorker(id=id, dbThread=self.dbThread, rawQueue=queue, influxDb=self.influxDb)
-            # rawWorker.start()    # python threads do not run in parallel on multiple cores!!
-            p = mp.Process(target=rawWorker.run)
-            p.start()
+            rawWorker.start()    # python threads do not run in parallel on multiple cores!!
+            # p = mp.Process(target=rawWorker.run)
+            # p.start()
             self.workers.append(rawWorker)
 
         self.timer = PeriodicTimer(60, self._processStats)
