@@ -248,9 +248,9 @@ class BeaconProcessor(object):
     # rawQueueFLR = Queue(maxsize=666666666)
     # rawQueueICA = Queue(maxsize=666666666)
     mpManager = mp.Manager()
-    rawQueueOGN = mpManager().Queue()
-    rawQueueFLR = mpManager().Queue()
-    rawQueueICA = mpManager().Queue()
+    rawQueueOGN = mpManager.Queue()
+    rawQueueFLR = mpManager.Queue()
+    rawQueueICA = mpManager.Queue()
     queues = (rawQueueOGN, rawQueueFLR, rawQueueFLR, rawQueueICA)   # one worker's performance on current CPU is 35k/min
     queueIds = ('ogn', 'flarm1', 'flarm2', 'icao1')
     # TODO there shall be separate queues for each worker and traffic shall be split/shaped evenly for every worker of the same kind..
