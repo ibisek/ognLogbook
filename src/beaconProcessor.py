@@ -32,12 +32,34 @@ from periodicTimer import PeriodicTimer
 class RawWorker(Thread):
 
     def __init__(self, id: int, dbThread: DbThread, rawQueue: Queue, influxDb: InfluxDbThread):
+        """
+        :param id:          worker identifier
+        :param dbThread:    if not supplied own will be created and closed upon exit
+        :param rawQueue:    shared queue with work to process
+        :param influxDb:    if not supplied own will be created and closed upon exit
+        """
+
         super(RawWorker, self).__init__()
 
         self.id = id
-        self.dbThread = dbThread
+
         self.rawQueue = rawQueue
-        self.influxDb = influxDb
+
+        if dbThread:
+            self.dbThread = dbThread
+            self.ownDbThread = False
+        else:
+            self.dbThread = DbThread(dbConnectionInfo)
+            self.dbThread.start()
+            self.ownDbThread = True
+
+        if influxDb:
+            self.influxDb = influxDb
+            self.ownInfluxDb = False
+        else:
+            self.influxDb = InfluxDbThread(dbName=INFLUX_DB_NAME, host=INFLUX_DB_HOST)
+            self.influxDb.start()
+            self.ownInfluxDb = True
 
         self.numProcessed = 0
         self.airfieldManager = AirfieldManager()
@@ -48,6 +70,10 @@ class RawWorker(Thread):
 
     def __del__(self):
         self.doRun = False
+        if self.ownDbThread:
+            self.dbThread.stop()
+        if self.ownInfluxDb:
+            self.influxDb.stop()
 
     def stop(self):
         self.doRun = False
@@ -279,8 +305,11 @@ class BeaconProcessor(object):
         for id, queue in zip(self.queueIds, self.queues):
             rawWorker = RawWorker(id=id, dbThread=self.dbThread, rawQueue=queue, influxDb=self.influxDb)
             rawWorker.start()    # python threads do not run in parallel on multiple cores!!
+
+            # rawWorker = RawWorker(id=id, rawQueue=queue)
             # p = mp.Process(target=rawWorker.run)
             # p.start()
+
             self.workers.append(rawWorker)
 
         self.timer = PeriodicTimer(60, self._processStats)
