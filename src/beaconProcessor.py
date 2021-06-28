@@ -271,9 +271,6 @@ class RawWorker(Thread):
 class BeaconProcessor(object):
     redis = StrictRedis(**redisConfig)
 
-    # rawQueueOGN = Queue(maxsize=666666666)  # 0 ~ infinite (according to docs).. but apparently not
-    # rawQueueFLR = Queue(maxsize=666666666)
-    # rawQueueICA = Queue(maxsize=666666666)
     mpManager = mp.Manager()  # create a set of multiprocessing (shared) queues
     rawQueueOGN = mpManager.Queue()
     rawQueueFLR = mpManager.Queue()
@@ -324,8 +321,12 @@ class BeaconProcessor(object):
         n = 0
         for key, queue in zip(self.queueIds, self.queues):
             n += queue.qsize()
-            for item in list(queue.queue):
-                self.redis.rpush(key, item)
+            # for item in list(queue.queue):
+            try:
+                while item := queue.get(block=False):
+                    self.redis.rpush(key, item)
+            except Empty:
+                pass
         print(f"[INFO] Flushed {n} rawQueueX items into redis.")
 
         self.dbThread.stop()
