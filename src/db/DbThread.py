@@ -12,6 +12,7 @@ import time
 import threading
 import pymysql
 import sqlite3
+import multiprocessing as mp
 
 from db.DbSource import DbSource
 
@@ -26,7 +27,8 @@ class DbThread(threading.Thread):
 
         self.dbConnectionInfo = dbConnectionInfo
         
-        self.toDoStatements = []
+        # self.toDoStatements = []
+        self.toDoStatements = mp.Manager().Queue()
         self.toDoStatementsLock = threading.Lock()
         
         self.doRun = True
@@ -36,22 +38,26 @@ class DbThread(threading.Thread):
         
     def addStatement(self, sql):
         with self.toDoStatementsLock:
-            self.toDoStatements.append(sql)
-            
+            # self.toDoStatements.append(sql)
+            self.toDoStatements.put(sql)
+
     def run(self):
         numEmptyLoops = 0
         connection = DbSource(self.dbConnectionInfo).getConnection()
 
         while self.doRun or len(self.toDoStatements) > 0:
-            if len(self.toDoStatements) > 0:
+            # if len(self.toDoStatements) > 0:
+            if not self.toDoStatements.empty():
                 numEmptyLoops = 0
 
                 with self.toDoStatementsLock:
                     sql = None
                     try:
                         cur = connection.cursor()
-                        while len(self.toDoStatements) > 0:
-                            sql = self.toDoStatements.pop()
+                        # while len(self.toDoStatements) > 0:
+                        while self.toDoStatements.qsize() > 0:
+                            # sql = self.toDoStatements.pop()
+                            sql = self.toDoStatements.get()
                             # print(f"[INFO] dbThread sql: {sql}")
                             try:
                                 cur.execute(sql)
@@ -67,7 +73,8 @@ class DbThread(threading.Thread):
                     except Exception as ex:
                         print('[ERROR] in DbThread (1):', ex)
                         connection = DbSource(self.dbConnectionInfo).getConnection()
-                        self.toDoStatements.append(sql)  # requeue for retry
+                        # self.toDoStatements.append(sql)  # requeue for retry
+                        self.toDoStatements.put(sql)  # requeue for retry
 
             else:
                 time.sleep(1)
