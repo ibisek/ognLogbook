@@ -31,7 +31,7 @@ from periodicTimer import PeriodicTimer
 
 class RawWorker(Thread):
 
-    def __init__(self, id: int, dbThread: DbThread, rawQueue: Queue, influxDb: InfluxDbThread):
+    def __init__(self, id: int, rawQueue: Queue, dbThread: DbThread = None, influxDb: InfluxDbThread = None):
         """
         :param id:          worker identifier
         :param dbThread:    if not supplied own will be created and closed upon exit
@@ -94,7 +94,10 @@ class RawWorker(Thread):
                 if raw_message:
                     self._processMessage(raw_message)
             except Empty:
-                time.sleep(1)   # ~ thread.yield()
+                try:
+                    time.sleep(1)  # ~ thread.yield()
+                except KeyboardInterrupt:
+                    self.stop()
             except BrokenPipeError as ex:
                 print('[WARN] in worker:', str(ex))
             except Exception as ex:
@@ -113,7 +116,7 @@ class RawWorker(Thread):
         else:
             return res.decode('utf-8')
 
-    def _getAgl(self, lat, lon,  altitude):
+    def _getAgl(self, lat, lon, altitude):
         """
         :param lat:
         :param lon:
@@ -151,9 +154,9 @@ class RawWorker(Thread):
 
         self.numProcessed += 1
 
-        addressType = beacon.get('address_type', 1)     # 1 = icao, 2 = flarm, 3 = ogn
+        addressType = beacon.get('address_type', 1)  # 1 = icao, 2 = flarm, 3 = ogn
         addressTypeStr = ADDRESS_TYPES.get(addressType, 'X')
-        aircraftType = beacon.get('aircraft_type', 8)   # icao-crafts are often 'powered aircraft's
+        aircraftType = beacon.get('aircraft_type', 8)  # icao-crafts are often 'powered aircraft's
 
         if 'address' not in beacon:
             address = beacon['name'][3:]
@@ -168,16 +171,16 @@ class RawWorker(Thread):
         dt = beacon['timestamp'].replace(tzinfo=pytz.UTC)
         ts = round(dt.timestamp())  # UTC [s]
         now = datetime.utcnow().replace(tzinfo=pytz.UTC)
-        if ts - now.timestamp() > 30:    # timestamp from the future? We'll 30s time offset at most..
+        if ts - now.timestamp() > 30:  # timestamp from the future? We'll 30s time offset at most..
             # print(f"[WARN] Timestamp from the future: {dt}, now is {now}")
             return
 
-        lat = beacon.get('latitude') or None            # [deg]
-        lon = beacon.get('longitude') or None           # [deg]
-        altitude = int(beacon.get('altitude')) or 0     # [m]
-        groundSpeed = beacon.get('ground_speed') or 0   # [km/h]
-        verticalSpeed = beacon.get('climb_rate') or 0   # [m/s]
-        turnRate = beacon.get('turn_rate') or 0         # [deg/s]
+        lat = beacon.get('latitude') or None  # [deg]
+        lon = beacon.get('longitude') or None  # [deg]
+        altitude = int(beacon.get('altitude')) or 0  # [m]
+        groundSpeed = beacon.get('ground_speed') or 0  # [km/h]
+        verticalSpeed = beacon.get('climb_rate') or 0  # [m/s]
+        turnRate = beacon.get('turn_rate') or 0  # [deg/s]
 
         if addressType == 1 and groundSpeed > 400:  # ignore fast (icao) airliners and jets
             return
@@ -187,7 +190,7 @@ class RawWorker(Thread):
 
         # insert into influx:
         # pos ~ position, vs = vertical speed, tr = turn rate
-        if agl is None or agl < 128000:    # groundSpeed > 0 and
+        if agl is None or agl < 128000:  # groundSpeed > 0 and
             aglStr = 0 if agl is None else f"{agl:.0f}"
             q = f"pos,addr={ADDRESS_TYPE_PREFIX[addressType]}{address} lat={lat:.6f},lon={lon:.6f},alt={altitude:.0f},gs={groundSpeed:.2f},vs={verticalSpeed:.2f},tr={turnRate:.2f},agl={aglStr} {ts}000000000"
             self.influxDb.addStatement(q)
@@ -204,8 +207,8 @@ class RawWorker(Thread):
         gsKey = f"{addressTypeStr}{address}-gs"
 
         if not prevStatus:  # we have no prior information
-            self._saveToRedis(statusKey, Status(s=0, ts=ts))    # 0 = on ground, 1 = airborne, -1 = unknown
-            self._saveToRedis(gsKey, 0, 120)    # gs = 0
+            self._saveToRedis(statusKey, Status(s=0, ts=ts))  # 0 = on ground, 1 = airborne, -1 = unknown
+            self._saveToRedis(gsKey, 0, 120)  # gs = 0
             return
 
         prevGroundSpeed = float(self._getFromRedis(gsKey, 0))
@@ -215,11 +218,11 @@ class RawWorker(Thread):
 
         self._saveToRedis(gsKey, groundSpeed, 3600)
 
-        currentStatus: Status = Status(ts=ts, s=-1)    # 0 = on ground, 1 = airborne, -1 = unknown
+        currentStatus: Status = Status(ts=ts, s=-1)  # 0 = on ground, 1 = airborne, -1 = unknown
 
-        if prevStatus.s == 0:   # 0 = on ground, 1 = airborne, -1 = unknown
+        if prevStatus.s == 0:  # 0 = on ground, 1 = airborne, -1 = unknown
             currentStatus.s = 1 if groundSpeed >= getGroundSpeedThreshold(aircraftType, forEvent='T') else 0
-        else:   # when airborne
+        else:  # when airborne
             currentStatus.s = 0 if groundSpeed <= getGroundSpeedThreshold(aircraftType, forEvent='L') else 1
 
         if currentStatus.s != prevStatus.s:
@@ -227,8 +230,8 @@ class RawWorker(Thread):
             flightTime = 0
 
             if event == 'L':
-                flightTime = currentStatus.ts - prevStatus.ts   # [s]
-                if flightTime < 120:    # [s]
+                flightTime = currentStatus.ts - prevStatus.ts  # [s]
+                if flightTime < 120:  # [s]
                     return
 
                 if flightTime > 12 * 3600:  # some relic from the previous day
@@ -237,7 +240,7 @@ class RawWorker(Thread):
                     return
 
                 # check altitude above ground level:
-                if agl and agl > AGL_LANDING_LIMIT:   # [m]
+                if agl and agl > AGL_LANDING_LIMIT:  # [m]
                     return  # most likely a false detection
 
             elif event == 'T':
@@ -256,28 +259,26 @@ class RawWorker(Thread):
             icaoLocation = f"'{icaoLocation}'" if icaoLocation else 'null'
 
             strSql = f"INSERT INTO logbook_events " \
-                f"(ts, address, address_type, aircraft_type, event, lat, lon, location_icao, flight_time) " \
-                f"VALUES " \
-                f"({ts}, '{address}', '{addressTypeStr}', '{aircraftType}', " \
-                f"'{event}', {lat:.5f}, {lon:.5f}, {icaoLocation}, {flightTime});"
+                     f"(ts, address, address_type, aircraft_type, event, lat, lon, location_icao, flight_time) " \
+                     f"VALUES " \
+                     f"({ts}, '{address}', '{addressTypeStr}', '{aircraftType}', " \
+                     f"'{event}', {lat:.5f}, {lon:.5f}, {icaoLocation}, {flightTime});"
 
             # print('strSql:', strSql)
-
             self.dbThread.addStatement(strSql)
 
 
 class BeaconProcessor(object):
-
     redis = StrictRedis(**redisConfig)
 
-    rawQueueOGN = Queue(maxsize=666666666)  # 0 ~ infinite (according to docs).. but apparently not
-    rawQueueFLR = Queue(maxsize=666666666)
-    rawQueueICA = Queue(maxsize=666666666)
-    # mpManager = mp.Manager()
-    # rawQueueOGN = mpManager.Queue()
-    # rawQueueFLR = mpManager.Queue()
-    # rawQueueICA = mpManager.Queue()
-    queues = (rawQueueOGN, rawQueueFLR, rawQueueFLR, rawQueueICA)   # one worker's performance on current CPU is 35k/min
+    # rawQueueOGN = Queue(maxsize=666666666)  # 0 ~ infinite (according to docs).. but apparently not
+    # rawQueueFLR = Queue(maxsize=666666666)
+    # rawQueueICA = Queue(maxsize=666666666)
+    mpManager = mp.Manager()  # create a set of multiprocessing (shared) queues
+    rawQueueOGN = mpManager.Queue()
+    rawQueueFLR = mpManager.Queue()
+    rawQueueICA = mpManager.Queue()
+    queues = (rawQueueOGN, rawQueueFLR, rawQueueFLR, rawQueueICA)  # one worker's performance on current CPU is 35k/min
     queueIds = ('ogn', 'flarm1', 'flarm2', 'icao1')
     # TODO there shall be separate queues for each worker and traffic shall be split/shaped evenly for every worker of the same kind..
 
@@ -303,12 +304,12 @@ class BeaconProcessor(object):
         self.influxDb.start()
 
         for id, queue in zip(self.queueIds, self.queues):
-            rawWorker = RawWorker(id=id, dbThread=self.dbThread, rawQueue=queue, influxDb=self.influxDb)
-            rawWorker.start()    # python threads do not run in parallel on multiple cores!!
+            # rawWorker = RawWorker(id=id, rawQueue=queue, dbThread=self.dbThread, influxDb=self.influxDb)
+            # rawWorker.start()    # python threads do not run in parallel on multiple cores!!
 
-            # rawWorker = RawWorker(id=id, rawQueue=queue)
-            # p = mp.Process(target=rawWorker.run)
-            # p.start()
+            rawWorker = RawWorker(id=id, rawQueue=queue)
+            p = mp.Process(target=rawWorker.run)
+            p.start()
 
             self.workers.append(rawWorker)
 
@@ -340,7 +341,7 @@ class BeaconProcessor(object):
     def _processStats(self):
         now = time.time()
         tDiff = now - self.startTime
-        numTasksPerMin = self.numEnquedTasks/tDiff*60
+        numTasksPerMin = self.numEnquedTasks / tDiff * 60
         numQueuedTasks = self.rawQueueOGN.qsize() + self.rawQueueFLR.qsize() + self.rawQueueICA.qsize()
         print(f"[INFO] Beacon rate: {numTasksPerMin:.0f}/min. {numQueuedTasks} queued.")
 
@@ -373,5 +374,3 @@ class BeaconProcessor(object):
             return
 
         self.numEnquedTasks += 1
-
-
