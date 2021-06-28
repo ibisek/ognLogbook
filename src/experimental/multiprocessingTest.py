@@ -5,6 +5,7 @@ from time import sleep
 import threading
 import multiprocessing as mp
 import random
+from queue import Empty
 
 
 class Test:
@@ -33,7 +34,7 @@ class Test:
             print(f"[{self.id}] sleep for {interval}s")
             sleep(interval)
 
-            newInterval = random.randint(10, 20)
+            newInterval = random.randint(5, 10)
             self.queue.put(newInterval)
             print(f"[{self.id}] newInterval: {newInterval}")
 
@@ -85,3 +86,11 @@ if __name__ == '__main__':
     t3.join()
     t4.join()
     print("Parallel run time: %.2f seconds" % (time.time() - start_time))
+
+    try:
+        while item := queue.get_nowait():    # queue.get(block=False):
+            print(f"item: {item}")
+    except Empty:
+        pass
+
+    print('KOHEU.')
