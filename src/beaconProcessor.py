@@ -61,7 +61,7 @@ class RawWorker(Thread):
             self.influxDb.start()
             self.ownInfluxDb = True
 
-        self.numProcessed = 0
+        self.numProcessed = mp.Value('i', 0)
         self.airfieldManager = AirfieldManager()
         self.geofile = Geofile(filename=GEOFILE_PATH)
         self.redis = StrictRedis(**redisConfig)
@@ -152,7 +152,7 @@ class RawWorker(Thread):
             # print(f'[ERROR] Some other error in _processMessage() {str(e)}', raw_message, file=sys.stderr)
             return
 
-        self.numProcessed += 1
+        self.numProcessed.value += 1
 
         addressType = beacon.get('address_type', 1)  # 1 = icao, 2 = flarm, 3 = ogn
         addressTypeStr = ADDRESS_TYPES.get(addressType, 'X')
@@ -348,8 +348,8 @@ class BeaconProcessor(object):
 
         traffic = dict()
         for worker in self.workers:
-            traffic[worker.id] = worker.numProcessed
-            worker.numProcessed = 0
+            traffic[worker.id] = worker.numProcessed.value
+            worker.numProcessed.value = 0
 
         if not DEBUG and numTasksPerMin >= 10:
             cmd = f"mosquitto_pub -h {MQ_HOST} -p {MQ_PORT} -u {MQ_USER} -P {MQ_PASSWORD} -t ognLogbook/rate -m '{round(numTasksPerMin)}'; " \
