@@ -318,16 +318,16 @@ class BeaconProcessor(object):
             worker.stop()
 
         # store all unprocessed data into redis:
-        n = 0
-        for key, queue in zip(self.queueIds, self.queues):
-            n += queue.qsize()
-            # for item in list(queue.queue):
-            try:
-                while item := queue.get(block=False):
-                    self.redis.rpush(key, item)
-            except Empty:
-                pass
-        print(f"[INFO] Flushed {n} rawQueueX items into redis.")
+        # n = 0
+        # for key, queue in zip(self.queueIds, self.queues):
+        #     n += queue.qsize()
+        #     # for item in list(queue.queue):
+        #     try:
+        #         while item := queue.get(block=False):
+        #             self.redis.rpush(key, item)
+        #     except Empty:
+        #         pass
+        # print(f"[INFO] Flushed {n} rawQueueX items into redis.")
 
         self.dbThread.stop()
         self.influxDb.stop()
