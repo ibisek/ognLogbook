@@ -184,7 +184,7 @@ def search(text=None):
 
     # TODO determine if that is an ICAO code or registration!
 
-    if len(text) == 4 and text.upper()[0:2] in afCountryCodes:
+    if len(text) in (4, 6) and text.upper()[0:2] in afCountryCodes:
         return flask.redirect(f"/loc/{text.upper()}")
     else:
         return flask.redirect(f"/reg/{text}")
