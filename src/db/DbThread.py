@@ -45,7 +45,7 @@ class DbThread(threading.Thread):
         numEmptyLoops = 0
         connection = DbSource(self.dbConnectionInfo).getConnection()
 
-        while self.doRun or len(self.toDoStatements) > 0:
+        while self.doRun or not self.toDoStatements.empty():
             # if len(self.toDoStatements) > 0:
             if not self.toDoStatements.empty():
                 numEmptyLoops = 0
