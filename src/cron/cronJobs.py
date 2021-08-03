@@ -14,9 +14,9 @@ class CronJobs(object):
         self.towLookupTimer = PeriodicTimer(TowLookup.RUN_INTERVAL, tl.gliderTowLookup)
         self.towLookupTimer.start()
 
-        # self.rr = RedisReaper()
-        # self.redisReaperTimer = PeriodicTimer(RedisReaper.RUN_INTERVAL, self.rr.doWork)
-        # self.redisReaperTimer.start()
+        self.rr = RedisReaper()
+        self.redisReaperTimer = PeriodicTimer(RedisReaper.RUN_INTERVAL, self.rr.doWork)
+        self.redisReaperTimer.start()
 
         distCalc = FlownDistanceCalculator()
         self.flownDistCalcTimer = PeriodicTimer(FlownDistanceCalculator.RUN_INTERVAL, distCalc.calcDistances)
