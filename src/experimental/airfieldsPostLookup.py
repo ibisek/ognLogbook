@@ -76,7 +76,7 @@ if __name__ == '__main__':
     _processLogbookEntries()    # flights
 
     while not dbt.toDoStatements.empty():
-        print('len DB toDoStatements:', len(dbt.toDoStatements))
+        print('len DB toDoStatements:', dbt.toDoStatements.qsize())
         sleep(1)
     dbt.stop()
 
