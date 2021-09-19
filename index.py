@@ -229,16 +229,16 @@ def getMap(flightId: int):
         print(f"[INFO] MAP: flightId='{flightId}'")
     except:
         print(f"[INFO] MAP: invalid flightId='{flightId}'")
-        return flask.render_template('error40x.html', code=410, message="Gone baby, gone."), 410    # 410 = Gone ;)
+        return flask.render_template('error40x.html', code=404, message="Nope :P"), 404
 
     flight: LogbookItem = getFlight(flightId=flightId)
     if not flight:
-        return flask.render_template('error40x.html', code=404, message="Not found"), 404
+        return flask.render_template('error40x.html', code=404, message=""), 404
 
     # TODO check user's access rights & rules
     # check flight >= -24H (data retention rule max 24H)
     if not eligibleForMapView(flight.takeoff_ts):
-        return flask.render_template('error40x.html', code=410, message="Gone baby, gone."), 410  # 410 = Gone ;)
+        return flask.render_template('error40x.html', code=410, message="The data is gone baby, gone."), 410  # 410 = Gone ;)
 
     influxDb = InfluxDbThread(dbName=INFLUX_DB_NAME, host=INFLUX_DB_HOST, startThread=False)
     flightRecord = []
