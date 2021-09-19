@@ -222,12 +222,13 @@ def getFlight(flightId) -> LogbookItem:
     :param flightId:
     :return: basic information about specified flight
     """
-    flight = None
     strSql = f"SELECT address, address_type, takeoff_ts, landing_ts FROM logbook_entries WHERE id={flightId}"
     with DbSource(dbConnectionInfo).getConnection() as c:
         c.execute(strSql)
-        address, address_type, takeoff_ts, landing_ts = c.fetchone()
-        return LogbookItem(id=flightId, address=address, address_type=address_type, takeoff_ts=takeoff_ts, landing_ts=landing_ts)
+        row = c.fetchone()
+        if row:
+            address, address_type, takeoff_ts, landing_ts = row
+            return LogbookItem(id=flightId, address=address, address_type=address_type, takeoff_ts=takeoff_ts, landing_ts=landing_ts)
 
     return None
 
