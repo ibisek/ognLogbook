@@ -86,6 +86,7 @@
 			<div class="cell"></div>
 			<div class="cell">{{ gettext('tab.ft') }}</div>
 			<div class="cell">km</div>
+			<div class="cell"></div>
 		</div>
 		{% for item in dayRecord.flights %}
 		<div class="row">
@@ -100,14 +101,18 @@
 			<div class="cell">{{formatTsToHHMM(item.landing_dt)}}</div>
 			<div class="cell">{{item.flight_time}}</div>
 			<div class="cell">
-				<a href="/map/{{item.id}}">
 				{% if item.flown_distance %}
 					{% if item.flown_distance > 0 %}
 						{{item.flown_distance}}
 					{% endif %}
 				{% else %}
 					&#8987;
-				{% endif %}</a></div>
+				{% endif %}</div>
+			{% if eligibleForMapView(ts=item.takeoff_ts) %}
+			<div class="cell"><a href="/map/{{item.id}}">&#128269;</a></div>
+			{% else %}
+			<div class="cell"></div>
+			{% endif %}
 		</div>
 		{% endfor %}
 

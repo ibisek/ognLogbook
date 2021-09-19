@@ -20,13 +20,14 @@ from dao.logbookDao import listDepartures, listArrivals, listFlights, getSums, g
 from dao.stats import getNumFlightsToday, getTotNumFlights, getLongestFlightTimeToday, getHighestTrafficToday
 from db.InfluxDbThread import InfluxDbThread
 
-from utils import getDaysLinks, formatDuration, formatTsToHHMM
+from utils import getDaysLinks, formatDuration, formatTsToHHMM, eligibleForMapView
 from translations import gettext
 
 app = flask.Flask(__name__)
 app.jinja_env.globals.update(gettext=gettext)
 app.jinja_env.globals.update(formatTsToHHMM=formatTsToHHMM)
 app.jinja_env.globals.update(node=node)
+app.jinja_env.globals.update(eligibleForMapView =eligibleForMapView)
 
 DayRecord = namedtuple('DayRecords', ['date', 'numFlights', 'totalFlightTime', 'departures', 'arrivals', 'flights'])
 
@@ -234,11 +235,9 @@ def getMap(flightId: int):
     if not flight:
         return flask.render_template('error40x.html', code=404, message="Not found"), 404
 
-    # TODO check user's access
+    # TODO check user's access rights & rules
     # check flight >= -24H (data retention rule max 24H)
-    landingDt = datetime.utcfromtimestamp(flight.landing_ts)
-    expiryDt = datetime.now() - timedelta(hours=24)
-    if landingDt < expiryDt:
+    if not eligibleForMapView(flight.takeoff_ts):
         return flask.render_template('error40x.html', code=410, message="Gone baby, gone."), 410  # 410 = Gone ;)
 
     influxDb = InfluxDbThread(dbName=INFLUX_DB_NAME, host=INFLUX_DB_HOST, startThread=False)
