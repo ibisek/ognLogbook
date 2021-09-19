@@ -100,13 +100,14 @@
 			<div class="cell">{{formatTsToHHMM(item.landing_dt)}}</div>
 			<div class="cell">{{item.flight_time}}</div>
 			<div class="cell">
+				<a href="/map/{{item.id}}">
 				{% if item.flown_distance %}
 					{% if item.flown_distance > 0 %}
 						{{item.flown_distance}}
 					{% endif %}
 				{% else %}
 					&#8987;
-				{% endif %}</div>
+				{% endif %}</a></div>
 		</div>
 		{% endfor %}
 
