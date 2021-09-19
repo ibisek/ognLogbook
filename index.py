@@ -13,10 +13,13 @@ from datetime import datetime, timedelta
 from flask import request
 from collections import namedtuple
 
-from configuration import DEBUG, MAX_DAYS_IN_RANGE
+from configuration import DEBUG, MAX_DAYS_IN_RANGE, INFLUX_DB_HOST, INFLUX_DB_NAME
 from airfieldManager import AirfieldManager, AirfieldRecord
-from dao.logbookDao import listDepartures, listArrivals, listFlights, getSums
+from dataStructures import LogbookItem, addressPrefixes
+from dao.logbookDao import listDepartures, listArrivals, listFlights, getSums, getFlight
 from dao.stats import getNumFlightsToday, getTotNumFlights, getLongestFlightTimeToday, getHighestTrafficToday
+from db.InfluxDbThread import InfluxDbThread
+
 from utils import getDaysLinks, formatDuration, formatTsToHHMM
 from translations import gettext
 
@@ -216,6 +219,43 @@ def getCsv(icaoCode, date=None):
     output.headers["Content-type"] = "text/csv"
 
     return output
+
+
+@app.route('/map/<flightId>', methods=['GET'])
+def getMap(flightId: int):
+    try:
+        flightId = int(_saninitise(flightId))
+        print(f"[INFO] MAP: flightId='{flightId}'")
+    except:
+        print(f"[INFO] MAP: invalid flightId='{flightId}'")
+        return flask.render_template('error40x.html', code=410, message="Gone baby, gone."), 410    # 410 = Gone ;)
+
+    flight: LogbookItem = getFlight(flightId=flightId)
+    if not flight:
+        return flask.render_template('error40x.html', code=404, message="Not found"), 404
+
+    # TODO check user's access
+    # check flight >= -24H (data retention rule max 24H)
+    landingDt = datetime.utcfromtimestamp(flight.landing_ts)
+    expiryDt = datetime.now() - timedelta(hours=24)
+    if landingDt < expiryDt:
+        return flask.render_template('error40x.html', code=410, message="Gone baby, gone."), 410  # 410 = Gone ;)
+
+    influxDb = InfluxDbThread(dbName=INFLUX_DB_NAME, host=INFLUX_DB_HOST, startThread=False)
+    flightRecord = []
+
+    addr = f"{addressPrefixes[flight.address_type]}{flight.address}"
+    q = f"SELECT lat, lon, alt, gs FROM pos WHERE addr='{addr}' AND time >= {flight.takeoff_ts}000000000 AND time <= {flight.landing_ts}000000000"
+    rs = influxDb.client.query(query=q)
+    if rs:
+        for row in rs.get_points():
+            flightRecord.append(row)
+    else:
+        return flask.render_template('error40x.html', code=404, message="No data."), 404
+
+    return flask.render_template('map.html',
+                                 date=datetime.utcfromtimestamp(flight.takeoff_ts),
+                                 flightRecord=flightRecord)
 
 
 @app.errorhandler(400)
