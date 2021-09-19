@@ -8,6 +8,7 @@ from configuration import dbConnectionInfo, INFLUX_DB_HOST, INFLUX_DB_NAME
 from db.DbSource import DbSource
 from db.InfluxDbThread import InfluxDbThread
 from airfieldManager import AirfieldManager
+from dataStructures import addressPrefixes
 
 
 class FlownDistanceCalculator:
@@ -62,7 +63,6 @@ class FlownDistanceCalculator:
                  f"FROM logbook_entries as e " \
                  f"WHERE e.flown_distance is null;"
 
-        addressPrefixes = {'O':'OGN', 'I':'ICA', 'F':'FLR'}
         with DbSource(dbConnectionInfo).getConnection() as cur:
             cur.execute(strSql)
 

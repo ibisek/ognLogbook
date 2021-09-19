@@ -66,3 +66,6 @@ class LogbookItem(object):
         self.flight_time = formatDuration(self.flight_time)
 
         self.tow_id = tow_id
+
+
+addressPrefixes = {'O': 'OGN', 'I': 'ICA', 'F': 'FLR'}
