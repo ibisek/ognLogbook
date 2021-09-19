@@ -21,7 +21,7 @@ class InfluxDbThread(threading.Thread):
 
     toDoStatements = mp.Manager().Queue()
 
-    def __init__(self, dbName: str, host: str, port: int = 8086):
+    def __init__(self, dbName: str, host: str, port: int = 8086, startThread=True):
         super(InfluxDbThread, self).__init__()
 
         self.dbName = dbName
@@ -30,7 +30,8 @@ class InfluxDbThread(threading.Thread):
 
         self._connect()
 
-        self.doRun = True
+        if startThread:
+            self.doRun = True
 
     def _connect(self):
         print(f"[INFO] Connecting to influx db '{self.dbName}' at {self.host}:{self.port} ")
