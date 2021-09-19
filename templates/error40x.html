@@ -1,15 +1,26 @@
-<html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>┌∩┐(◣_◢)┌∩┐</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous">
+
+<!--    <meta http-equiv="refresh" content="10; URL=/" />-->
+</head>
 <body>
 
-{% if code %}
-  <h1>ERROR {{code}}!</h1>
-{% else %}
-  <h1>Some error occured :P</h1>
-{% endif %}
-
-{% if message %}
-  <p>{{message}}</p>
-{% endif %}
+<div style="display:block;position:absolute;left:33vw;width:33vw;height:100vh;text-align: center;">
+    <div style="width:100%; margin:0; position:absolute; top:50%; -ms-transform: translateY(-65%); transform: translateY(-65%);">
+        <img src="/static/img/tape.jpeg" style="max-width: 80%;"/>
+        <br><br>
+        <h2 style="font-family: courier;font-weight:bold;">SORRY VOLE TAPE ERROR!</h2>
+        {#<p style="font-family: courier;">[{{code | safe}}]</p>#}
+        <p style="font-family: courier;">{{ message|safe }}</p>
+    </div>
+</div>
 
 </body>
 </html>
