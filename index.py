@@ -259,6 +259,24 @@ def getMap(flightId: int):
                                  flightRecord=flightRecord)
 
 
+# # http://localhost:8000/api/af/1/2/3/4
+# @app.route('/api/af/<lat1>/<lat2>/<lon1>/<lon2>', methods=['GET'])
+# def listAirfields(lat1: str, lat2: str, lon1: str, lon2: str):
+#     try:
+#         lat1 = float(_saninitise(lat1))
+#         lat2 = float(_saninitise(lat2))
+#         lon1 = float(_saninitise(lon1))
+#         lon2 = float(_saninitise(lon2))
+#
+#     except ValueError:
+#         return flask.render_template('error40x.html', code=404, message=":P"), 666
+#
+#     # TODO nejak rychle a svizne najit mezi vsemi letistmi..
+#     airfields: list = airfieldManager.listInRange(lat1, lat2, lon1, lon2)
+#
+#     return json.dumps(airfields)
+
+
 @app.errorhandler(400)
 @app.errorhandler(404)
 @app.errorhandler(405)  # method not allowed
