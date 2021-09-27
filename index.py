@@ -27,11 +27,12 @@ app = flask.Flask(__name__)
 app.jinja_env.globals.update(gettext=gettext)
 app.jinja_env.globals.update(formatTsToHHMM=formatTsToHHMM)
 app.jinja_env.globals.update(node=node)
-app.jinja_env.globals.update(eligibleForMapView =eligibleForMapView)
+app.jinja_env.globals.update(eligibleForMapView=eligibleForMapView)
 
 DayRecord = namedtuple('DayRecords', ['date', 'numFlights', 'totalFlightTime', 'departures', 'arrivals', 'flights'])
 
-afCountryCodes = AirfieldManager().afCountryCodes
+airfieldManager = AirfieldManager()
+afCountryCodes = airfieldManager.afCountryCodes
 
 
 @app.route('/')
@@ -379,6 +380,7 @@ if __name__ == '__main__':
         # exit application
         sys.exit(1)
 
+    print(f"DEBUG: {DEBUG}")
     if DEBUG:
         app.config['TEMPLATES_AUTO_RELOAD'] = True
 
