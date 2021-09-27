@@ -3,7 +3,7 @@ Created on 20. 5. 2020
 
 @author: ibisek
 """
-
+import json
 import sys
 import math
 import flask
@@ -254,6 +254,7 @@ def getMap(flightId: int):
 
     return flask.render_template('map.html',
                                  date=datetime.utcfromtimestamp(flight.takeoff_ts),
+                                 flight=flight,
                                  flightRecord=flightRecord)
 
 
@@ -368,7 +369,6 @@ if __name__ == '__main__':
         for optPair in opts:
 
             if optPair[0] == "-d":
-
                 DEBUG = True
 
     # handle invalid script arguments

@@ -10,7 +10,20 @@
 
     {% include 'header.html' %}
 
-    <div id="map" style="margin-top: 100px; width: 100vw; max-width: 1450px; height:80vh"></div>
+    <div style="margin-top: 90px; text-align: center;">
+        {% if flight.aircraft_type %}{{flight.aircraft_type}}{% endif %}
+        {% if flight.registration %} {{flight.registration}}{% endif %}
+        {% if flight.cn %} ({{flight.cn}}){% endif %}
+        {% if flight.takeoff_ts %} {{formatTsToHHMM(flight.takeoff_ts)}}{% endif %}
+        {% if flight.takeoff_icao %} {{flight.takeoff_icao}}{% endif %}
+         &#8605;
+        {% if flight.landing_icao %} {{flight.landing_icao}}{% endif %}
+        {% if flight.landing_ts %} {{formatTsToHHMM(flight.landing_ts)}}{% endif %}
+        {% if flight.flight_time %}/ {{flight.flight_time|safe}}{% endif %}
+        {% if flight.flown_distance %}/ {{flight.flown_distance}}km{% endif %}
+    </div>
+
+    <div id="map" style="margin-top: 10px; width: 100vw; max-width: 1450px; height:80vh"></div>
     <script src="/static/js/map.js"></script> {# !! needs to be here AFTER the map div !! #}
     <script>
         var latlngs = [
