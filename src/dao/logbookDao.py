@@ -222,13 +222,21 @@ def getFlight(flightId) -> LogbookItem:
     :param flightId:
     :return: basic information about specified flight
     """
-    strSql = f"SELECT address, address_type, takeoff_ts, landing_ts FROM logbook_entries WHERE id={flightId}"
+    strSql = f"SELECT le.address, le.address_type, le.takeoff_ts, le.landing_ts, le.takeoff_icao, le.landing_icao, " \
+             f"le.flight_time, le.flown_distance, d.aircraft_registration, d.aircraft_cn " \
+             "FROM logbook_entries AS le " \
+             "JOIN ddb as d ON le.address = d.device_id " \
+             f"WHERE le.id={flightId}"
     with DbSource(dbConnectionInfo).getConnection() as c:
         c.execute(strSql)
         row = c.fetchone()
         if row:
-            address, address_type, takeoff_ts, landing_ts = row
-            return LogbookItem(id=flightId, address=address, address_type=address_type, takeoff_ts=takeoff_ts, landing_ts=landing_ts)
+            address, address_type, takeoff_ts, landing_ts, takeoff_icao, landing_icao, flight_time, flown_distance, registration, cn = row
+            return LogbookItem(id=flightId, address=address, address_type=address_type,
+                               takeoff_ts=takeoff_ts, landing_ts=landing_ts,
+                               takeoff_icao=takeoff_icao, landing_icao=landing_icao,
+                               flight_time=flight_time, flown_distance=flown_distance,
+                               registration=registration, cn=cn)
 
     return None
 
