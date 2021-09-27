@@ -1,3 +1,4 @@
+from typing import Union
 from datetime import datetime, time, timedelta
 
 
@@ -92,11 +93,14 @@ def getGroundSpeedThreshold(aircraftType: int, forEvent: str):
         return 80  # [km/h] all
 
 
-def formatTsToHHMM(ts: datetime):
+def formatTsToHHMM(ts: Union[int, datetime]):
     """
     Formats ts rounded HH:MM.
     To be used in tepmlates in form {{ formatTsHHMM(ts) }}
     """
+    if type(ts) == int:
+        ts = datetime.utcfromtimestamp(ts)
+
     if ts:
         hour = ts.hour
         min = ts.minute
