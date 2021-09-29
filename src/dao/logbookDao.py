@@ -183,7 +183,7 @@ def listFlights(address=None, icaoCode=None, registration=None, forDay=None, lim
                     d.device_type, d.aircraft_type, d.aircraft_registration, d.aircraft_cn
                     FROM logbook_entries as l 
                     LEFT JOIN ddb AS d ON l.address = d.device_id
-                    WHERE 1 {cond} {condTs} {condIcao} 
+                    WHERE l.hidden is false {cond} {condTs} {condIcao} 
                     AND not (l.takeoff_icao is null AND l.landing_icao is null AND d.aircraft_registration is null)
                     ORDER by {orderByCol} {sortTs} {condLimit};"""
 
@@ -257,7 +257,7 @@ def getSums(registration, forDay=None, limit=None):
         strSql = f"""SELECT COUNT(l.address) AS num, SUM(l.flight_time) AS time
                         FROM logbook_entries as l 
                         LEFT JOIN ddb AS d ON l.address = d.device_id
-                        WHERE tracked = true AND identified = true {cond} {condTs}
+                        WHERE hidden is false AND tracked = true AND identified = true {cond} {condTs}
                         ORDER by landing_ts desc;"""
 
         c.execute(strSql)
