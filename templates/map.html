@@ -12,7 +12,7 @@
 
     <div style="margin-top: 90px; text-align: center;">
         {% if flight.aircraft_type %}{{flight.aircraft_type}} |{% endif %}
-        {% if flight.registration %} <a href="/reg/{{flight.registration}}">{{flight.registration}}</a>{% endif %}
+        {% if flight.registration %} <a href="/reg/{{flight.registration}}">{{flight.registration}}</a>{% else %}?{% endif %}
         {% if flight.cn %} ({{flight.cn}}){% endif %}
         {% if flight.takeoff_ts %}| {{formatTsToHHMM(flight.takeoff_ts)}}{% endif %}
         {% if flight.takeoff_icao %} <a href="/loc/{{flight.takeoff_icao}}">{{flight.takeoff_icao}}</a>{% endif %}

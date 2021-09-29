@@ -225,7 +225,7 @@ def getFlight(flightId) -> LogbookItem:
     strSql = f"SELECT le.address, le.address_type, le.takeoff_ts, le.landing_ts, le.takeoff_icao, le.landing_icao, " \
              f"le.flight_time, le.flown_distance, d.aircraft_type, d.aircraft_registration, d.aircraft_cn " \
              "FROM logbook_entries AS le " \
-             "JOIN ddb as d ON le.address = d.device_id " \
+             "LEFT JOIN ddb as d ON le.address = d.device_id " \
              f"WHERE le.id={flightId}"
     with DbSource(dbConnectionInfo).getConnection() as c:
         c.execute(strSql)
