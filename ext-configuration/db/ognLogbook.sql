@@ -67,7 +67,8 @@ CREATE TABLE logbook_entries (
   landing_icao VARCHAR(8),
   flight_time BIGINT DEFAULT 0,
   tow_id BIGINT references logbook_entries.id,
-  flown_distance INT DEFAULT null
+  flown_distance INT DEFAULT null,
+  hidden BOOL DEFAULT false
 );
 
 CREATE INDEX logbook_entries_address ON logbook_entries(address);
@@ -266,5 +267,4 @@ select * from logbook_entries where tow_id IS NOT null order by landing_ts DESC 
 --alter table logbook_entries add column id BIGINT PRIMARY KEY auto_increment FIRST;
 --alter table logbook_entries add column aircraft_type TINYINT DEFAULT 0 AFTER address;
 --alter table logbook_entries add column tow_id BIGINT references logbook_entries.id;
-
 
