@@ -26,9 +26,23 @@
     <div id="map" style="margin-top: 10px; width: 100vw; max-width: 1450px; height:80vh"></div>
     <script src="/static/js/map.js"></script> {# !! needs to be here AFTER the map div !! #}
     <script>
-        var latlngs = [
-            {% for item in flightRecord %}
-            [{{item.lat}}, {{item.lon}}],
+        var flightSegments = [
+            {% for flightSegment in flightSegments %}
+            [
+                {% for item in flightSegment %}
+                    [{{item.lat}}, {{item.lon}}],
+                {% endfor %}
+            ],
+            {% endfor %}
+        ];
+
+        var skipSegments = [
+            {% for skipSegment in skipSegments %}
+            [
+                {% for item in skipSegment %}
+                    [{{item.lat}}, {{item.lon}}],
+                {% endfor %}
+            ],
             {% endfor %}
         ];
     </script>

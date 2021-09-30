@@ -239,7 +239,7 @@ def getMap(flightId: int):
     # TODO check user's access rights & rules
     # check flight >= -24H (data retention rule max 24H)
     if not eligibleForMapView(flight.takeoff_ts):
-        return flask.render_template('error40x.html', code=410, message="The data is gone baby, gone."), 410  # 410 = Gone ;)
+        return flask.render_template('error40x.html', code=410, message="The requested data is no longer available."), 410  # 410 = Gone ;)
 
     influxDb = InfluxDbThread(dbName=INFLUX_DB_NAME, host=INFLUX_DB_HOST, startThread=False)
     flightRecord = []
@@ -249,14 +249,32 @@ def getMap(flightId: int):
     rs = influxDb.client.query(query=q)
     if rs:
         for row in rs.get_points():
+            row['dt'] = datetime.strptime(row['time'], '%Y-%m-%dT%H:%M:%SZ')
             flightRecord.append(row)
     else:
         return flask.render_template('error40x.html', code=404, message="No data."), 404
 
+    # detect continues flight and out-of-signal segments:
+    flightSegments = []
+    skipSegments = []
+    startIndex = 0
+    for i in range(2, len(flightRecord)):
+        if (flightRecord[i]['dt'] - flightRecord[i-1]['dt']).seconds > 30:
+            print("DIFF:", (flightRecord[i]['dt'] - flightRecord[i - 1]['dt']).seconds)
+            flightSegments.append(flightRecord[startIndex:i-1])
+            skipSegments.append(flightRecord[i - 2: i + 1])
+            startIndex = i
+    if startIndex > 0:
+        flightSegments.append(flightRecord[startIndex:])    # ..till the end
+
+    if len(flightSegments) == 0 and len(skipSegments) == 0:     # there was no signal outage
+        flightSegments.append(flightRecord)
+
     return flask.render_template('map.html',
                                  date=datetime.utcfromtimestamp(flight.takeoff_ts),
                                  flight=flight,
-                                 flightRecord=flightRecord)
+                                 flightSegments=flightSegments,
+                                 skipSegments=skipSegments)
 
 
 # # http://localhost:8000/api/af/1/2/3/4

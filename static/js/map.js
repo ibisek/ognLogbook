@@ -11,7 +11,16 @@ function onPageLoad() {
 		zoomOffset: -1
 	}).addTo(map);
 
-    var polyline = L.polyline(latlngs, {color: 'red', weight: 2}).addTo(map);
+    var allPoints = new Array();
+    for (var i = 0; i < flightSegments.length; i++) {
+        L.polyline(flightSegments[i], {color: 'red', weight: 2}).addTo(map);
+        allPoints = allPoints.concat(flightSegments[i]);
+    }
+    for (var i = 0; i < skipSegments.length; i++) {
+        L.polyline(skipSegments[i], {color: 'blue', weight: '2', dashArray: '4, 4', dashOffset: '0'}).addTo(map)
+        allPoints = allPoints.concat(skipSegments[i]);
+    }
+    var polyline = L.polyline(allPoints, {color: 'green', weight: 2});
     map.fitBounds(polyline.getBounds());
 
     var greenIcon = new L.Icon({
