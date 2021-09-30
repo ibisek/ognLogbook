@@ -95,3 +95,8 @@ pip install GDAL==3.0.4
 telnet aprs.glidernet.org 14580
 user ibitest pass 0000 vers PokusApp 0.0.1 filter r/+49.3678/+16.1145/40
 
+--
+
+Dalsi DB letist:
+    * https://ourairports.com/data/#
+
