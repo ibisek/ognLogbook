@@ -41,10 +41,11 @@ function onPageLoad() {
       shadowSize: [41, 41]
     });
 
-    var takeoffMarker = L.marker(latlngs[0], {icon: greenIcon}).addTo(map);
+    var takeoffMarker = L.marker(flightSegments[0][0], {icon: greenIcon}).addTo(map);
     takeoffMarker.bindPopup("<b>Take-off<b>");
 
-    var landingMarker = L.marker(latlngs[latlngs.length-1],{icon: redIcon}).addTo(map);
+    var lastFlightSegment = flightSegments[flightSegments.length-1];
+    var landingMarker = L.marker(lastFlightSegment[lastFlightSegment.length-1],{icon: redIcon}).addTo(map);
     landingMarker.bindPopup("<b>Landing</b>");
 
 }
