@@ -259,7 +259,7 @@ def getMap(flightId: int):
     skipSegments = []
     startIndex = 0
     for i in range(2, len(flightRecord)):
-        if (flightRecord[i]['dt'] - flightRecord[i-1]['dt']).seconds > 30:
+        if (flightRecord[i]['dt'] - flightRecord[i-1]['dt']).seconds > 60:
             print("DIFF:", (flightRecord[i]['dt'] - flightRecord[i - 1]['dt']).seconds)
             flightSegments.append(flightRecord[startIndex:i-1])
             skipSegments.append(flightRecord[i - 2: i + 1])
