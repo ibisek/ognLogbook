@@ -184,7 +184,7 @@ class RawWorker(Thread):
         verticalSpeed = beacon.get('climb_rate') or 0  # [m/s]
         turnRate = beacon.get('turn_rate') or 0  # [deg/s]
 
-        if address in ['C35008', 'C35009', 'C35010']:  # TODO XXX skakavy dynamik
+        if address in ['C35008', 'C35009', 'C35010', '334D0E']:  # TODO XXX skakavy dynamik + medlanecky ponik
             logging.info(f"[{self.id}] {address}; {ts}; {dt}; lat: {lat:.4f}; lon: {lon:.4f}; alt: {altitude:.1f}; gs: {groundSpeed:.1f}; vs: {verticalSpeed:.1f}; tr: {turnRate:.1f}")
 
         if addressType == 1 and groundSpeed > 400:  # ignore fast (icao) airliners and jets
