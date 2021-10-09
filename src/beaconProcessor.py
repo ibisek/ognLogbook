@@ -3,6 +3,8 @@ Notes:
     * multiple workers cannot work on a single queue as flight-states need to be processed in order.
     * hence multiple queues exist to paralelise processing a bit using queue-specific workers
 """
+
+import logging
 import os
 import time
 import sys
@@ -181,6 +183,9 @@ class RawWorker(Thread):
         groundSpeed = beacon.get('ground_speed') or 0  # [km/h]
         verticalSpeed = beacon.get('climb_rate') or 0  # [m/s]
         turnRate = beacon.get('turn_rate') or 0  # [deg/s]
+
+        if address in ['C35008', 'C35009', 'C35010']:  # TODO XXX skakavy dynamik
+            logging.info(f"[{self.id}] {address}; {ts}; {dt}; lat: {lat:.4f}; lon: {lon:.4f}; alt: {altitude:.1f}; gs: {groundSpeed:.1f}; vs: {verticalSpeed:.1f}; tr: {turnRate:.1f}")
 
         if addressType == 1 and groundSpeed > 400:  # ignore fast (icao) airliners and jets
             return
