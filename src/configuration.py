@@ -1,4 +1,5 @@
 
+import logging
 import os
 import sys
 
@@ -64,3 +65,7 @@ ADDRESS_TYPE_PREFIX = {1: 'ICA', 2: 'FLR', 3: 'OGN'}
 REVERSE_ADDRESS_TYPE_PREFIX = {'ICA': 1, 'FLR': 2, 'OGN': 3}
 
 MAX_DAYS_IN_RANGE = 14
+
+logging.basicConfig(filename=f"/tmp/rawWorker.log",
+                    format='%(asctime)s %(message)s',
+                    level=logging.INFO)
