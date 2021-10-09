@@ -29,6 +29,7 @@ from airfieldManager import AirfieldManager
 from dataStructures import Status
 from utils import getGroundSpeedThreshold
 from periodicTimer import PeriodicTimer
+from expiringDict import ExpiringDict
 
 
 class RawWorker(Thread):
@@ -67,6 +68,7 @@ class RawWorker(Thread):
         self.airfieldManager = AirfieldManager()
         self.geofile = Geofile(filename=GEOFILE_PATH)
         self.redis = StrictRedis(**redisConfig)
+        self.beaconDuplicateCache = ExpiringDict(ttl=1)     # [s]
 
         self.doRun = True
 
@@ -184,6 +186,15 @@ class RawWorker(Thread):
         verticalSpeed = beacon.get('climb_rate') or 0  # [m/s]
         turnRate = beacon.get('turn_rate') or 0  # [deg/s]
 
+        # skip beacons we received for the second time and got already processed:
+        key = hash(f"{addressTypeStr}{address}-{lat:.4f}{lon:.4f}{altitude}{groundSpeed:.1f}{verticalSpeed:.1f}")
+        if key in self.beaconDuplicateCache:
+            # print("len:", len(self.beaconDuplicateCache.keys()))    # TODO XXX REMOVE!!
+            del self.beaconDuplicateCache[key]
+            return
+        else:
+            self.beaconDuplicateCache[key] = True   # store a marker in the cache .. will be dropped after TTL automatically later
+
         if address in ['C35008', 'C35009', 'C35010', '334D0E']:  # TODO XXX skakavy dynamik + medlanecky ponik
             logging.info(f"[{self.id}] {address}; {ts}; {dt}; lat: {lat:.4f}; lon: {lon:.4f}; alt: {altitude:.1f}; gs: {groundSpeed:.1f}; vs: {verticalSpeed:.1f}; tr: {turnRate:.1f}")
 
@@ -271,6 +282,8 @@ class RawWorker(Thread):
 
             # print('strSql:', strSql)
             self.dbThread.addStatement(strSql)
+
+        self.beaconDuplicateCache.tick()    # cleanup the cache (cannot be called from PeriodicTimer due to subprocess/threading troubles :|)
 
 
 class BeaconProcessor(object):
