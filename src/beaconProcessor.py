@@ -189,7 +189,6 @@ class RawWorker(Thread):
         # skip beacons we received for the second time and got already processed:
         key = hash(f"{addressTypeStr}{address}-{lat:.4f}{lon:.4f}{altitude}{groundSpeed:.1f}{verticalSpeed:.1f}")
         if key in self.beaconDuplicateCache:
-            # print("len:", len(self.beaconDuplicateCache.keys()))    # TODO XXX REMOVE!!
             del self.beaconDuplicateCache[key]
             return
         else:
