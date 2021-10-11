@@ -187,7 +187,7 @@ class RawWorker(Thread):
         turnRate = beacon.get('turn_rate') or 0  # [deg/s]
 
         # skip beacons we received for the second time and got already processed:
-        key = hash(f"{addressTypeStr}{address}-{lat:.4f}{lon:.4f}{altitude}{groundSpeed:.1f}{verticalSpeed:.1f}")
+        key = f"{addressTypeStr}{address}-{lat:.4f}{lon:.4f}{altitude}{groundSpeed:.1f}{verticalSpeed:.1f}"
         if key in self.beaconDuplicateCache:
             del self.beaconDuplicateCache[key]
             return
