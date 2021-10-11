@@ -2,18 +2,25 @@
 <div class="siteheader">
     <center>
         <div class="topbar">
-            <a class="logo" href="/">
-                <img src="/static/img/logo.png">
-            </a>
+            <a class="logo" href="/"><img src="/static/img/logo.png"></a>
 
             <div class="menu">
                 <span class="menuitem">
+                    {#
                     <span>{% if linkPrevDay %} <a href="{{linkPrevDay}}" style="font-size:12px;"><</a> {% endif %}</span>
                     {{date.strftime('%d.%m.%Y')}}
                     <span>{% if linkNextDay %} <a href="{{linkNextDay}}" style="font-size:12px;">></a> {% endif %}</span>
+                    #}
+                    <div class="datepickerWrap">
+                        <input id="datepicker" class="datepicker" type="text" value="{{date.strftime('%d.%m.%Y')}}"/>
+                        <button type="submit" class="searchButton" id="datepickerButton" onclick="return false;">
+                            <i class="fa fa-calendar" aria-hidden="true"></i>
+                        </button>
+                    </div>
                 </span>
                 {% if icaoCode %}
                 <span class="menuitem">
+                    <div>
                     {% if date %}
                         <a href="/csv/{{icaoCode}}/{{date.strftime('%Y-%m-%d')}}">{{icaoCode}}
                             {% if flights|length > 0 %}
@@ -27,27 +34,27 @@
                     {% else %}
                         {{icaoCode}}
                     {% endif %}
+                    </div>
                 </span>
                 {% endif %}
                 {% if registration %}
-                <span class="menuitem">{{registration}}</span>
+                <span class="menuitem"><div>{{registration}}</div></span>
                 {% endif %}
-                <span class="menuitem"></span>
-            </div>
 
-            <div class="searchWrap">
-                <div class="search">
-                    <input type="text" class="searchTerm" id="searchTerm" placeholder="{{ gettext('search.hint') }}">
-                    <button type="submit" class="searchButton" id="searchButton" onclick="return onSearchBtnClick();">
-                        <i class="fa fa-search" aria-hidden="true"></i>
-                    </button>
-                </div>
-            </div>
+                <span class="menuitem">
+                    <div class="searchWrap">
+                        <div class="search">
+                            <input type="text" class="searchTerm" id="searchTerm" placeholder="{{ gettext('search.hint') }}">
+                            <button type="submit" class="searchButton" id="searchButton" onclick="return onSearchBtnClick();">
+                                <i class="fa fa-search" aria-hidden="true"></i>
+                            </button>
+                        </div>
+                    </div>
+                </span>
 
-            <div class="menu">
                 <span class="menuitem"><a href="https://ogn.ibisek.com" target="_blank">OGN Cube</a></span>
                 <span class="menuitem"><a href="https://play.google.com/store/apps/details?id=com.lomolo.vfr_manual" target="_blank">{{ gettext('werbung.vfrmanual') }}</a></span>
-            </div>
+            </div>  {# menu #}
 
             {% if totNumFlights and totNumFlights > 0 %} {# .. display only if the statistical data is available #}
             <div class="stats">

@@ -97,6 +97,12 @@ user ibitest pass 0000 vers PokusApp 0.0.1 filter r/+49.3678/+16.1145/40
 
 --
 
+JS date picker(2):
+    https://www.cssscript.com/tag/date-picker/
+	https://www.cssscript.com/mc-datepicker/
+
+--
+
 Dalsi DB letist:
     * https://ourairports.com/data/#
 

@@ -154,7 +154,7 @@ a:hover {
 @media only screen and (min-width: 1400px) {
     .menu {
         float: left;
-        margin-top: 33px;
+        margin-top: 30px;
         vertical-align: middle;
         font-size: 22px;
         color: #999;
@@ -163,6 +163,8 @@ a:hover {
 
 .menuitem {
     margin-left: 30px;
+    float:left;
+    line-height: 1.5;
 }
 
 .menuitem span {
@@ -222,7 +224,6 @@ a:hover {
 
 .searchWrap {
     float: left;
-    margin-top: 26px;
     vertical-align: middle;
     font-family: 'Open Sans', sans-serif;
 }
@@ -234,7 +235,6 @@ a:hover {
 }
 
 .searchTerm {
-  width: 100%;
   border: 1px solid #999;
   border-right: none;
   padding: 5px;
@@ -259,6 +259,45 @@ a:hover {
   cursor: pointer;
   font-size: 18px;
 }
+
+/* ------------------------------ datepicker --------------------------- */
+
+.datepickerWrap {
+    width: 119px;
+    float: left;
+    margin-top: 0px;
+    vertical-align: middle;
+    font-family: 'Open Sans', sans-serif;
+    display: flex;
+}
+
+.datepicker {
+  width: 100%;
+  border: 1px solid #999;
+  border-right: none;
+  padding: 5px;
+  height: 20px;
+  border-radius: 5px 0 0 5px;
+  outline: none;
+  color: #999;
+}
+
+.datepicker:focus {
+  color: #000;
+}
+
+.datepickerButton {
+  width: 40px;
+  height: 32px;
+  border: 1px solid #999;
+  background: #999;
+  text-align: center;
+  color: #fff;
+  border-radius: 0 5px 5px 0;
+  cursor: pointer;
+  font-size: 18px;
+}
+
 
 /* ------------------------------ site body --------------------------- */
 

@@ -9,6 +9,14 @@ function onLoad() {
         document.getElementById("searchButton").click();
       }
     });
+
+    const myDatePicker = MCDatepicker.create({
+        el: '#datepicker',
+        dateFormat: 'DD.MM.YYYY',
+        bodyType: 'modal',
+        showCalendarDisplay: true,
+        selectedDate: new Date(),
+    });
 }
 
 function onSearchBtnClick() {
