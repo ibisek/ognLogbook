@@ -17,6 +17,14 @@ function onLoad() {
         showCalendarDisplay: true,
         selectedDate: new Date(),
     });
+    myDatePicker.onSelect((date, formatedDate) => changeDate(date));
+}
+
+function changeDate(date) {
+    var dateStr = date.getFullYear() + '-' + (date.getMonth()+1) + '-' + date.getDate();
+    var items = window.location.pathname.split('/');
+    var url = '/' + items[1] + '/' + items[2] + '/' + dateStr;
+    window.open(url, '_self');
 }
 
 function onSearchBtnClick() {

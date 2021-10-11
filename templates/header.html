@@ -6,17 +6,23 @@
 
             <div class="menu">
                 <span class="menuitem">
-                    {#
                     <span>{% if linkPrevDay %} <a href="{{linkPrevDay}}" style="font-size:12px;"><</a> {% endif %}</span>
-                    {{date.strftime('%d.%m.%Y')}}
-                    <span>{% if linkNextDay %} <a href="{{linkNextDay}}" style="font-size:12px;">></a> {% endif %}</span>
-                    #}
+                </span>
+                <span class="menuitem">
+
+                    {% if showDatePicker %}
                     <div class="datepickerWrap">
                         <input id="datepicker" class="datepicker" type="text" value="{{date.strftime('%d.%m.%Y')}}"/>
                         <button type="submit" class="searchButton" id="datepickerButton" onclick="return false;">
                             <i class="fa fa-calendar" aria-hidden="true"></i>
                         </button>
                     </div>
+                    {% else %}
+                    {{date.strftime('%d.%m.%Y')}}
+                    {% endif %}
+                </span>
+                <span class="menuitem">
+                    <span>{% if linkNextDay %} <a href="{{linkNextDay}}" style="font-size:12px;">></a> {% endif %}</span>
                 </span>
                 {% if icaoCode %}
                 <span class="menuitem">

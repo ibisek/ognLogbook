@@ -116,7 +116,8 @@ def filterByIcaoCode(icaoCode, date=None, dateTo=None):
         return flask.render_template('index.html', debugMode=DEBUG, date=date, icaoCode=icaoCode,
                                      linkPrevDay=linkPrevDay, linkNextDay=linkNextDay,
                                      dayRecords=dayRecords,
-                                     lat=lat, lon=lon)
+                                     lat=lat, lon=lon,
+                                     showDatePicker=True)
 
     except KeyError as e:
         return flask.redirect('/')
@@ -164,7 +165,8 @@ def filterByRegistration(registration, date=None, dateTo=None):
     return flask.render_template('index.html', debugMode=DEBUG, date=date, registration=registration,
                                  linkPrevDay=linkPrevDay, linkNextDay=linkNextDay,
                                  dayRecords=dayRecords,
-                                 showFlightsOnly=True)
+                                 showFlightsOnly=True,
+                                 showDatePicker=True)
 
 
 def _prepareData(icaoCode=None, registration=None, forDay=None, limit=None, icaoFilter=[], sortTsDesc=False, orderByCol='takeoff_ts'):
@@ -245,7 +247,8 @@ def getMap(flightId: int):
     flightRecord = []
 
     addr = f"{addressPrefixes[flight.address_type]}{flight.address}"
-    q = f"SELECT lat, lon, alt, gs FROM pos WHERE addr='{addr}' AND time >= {flight.takeoff_ts}000000000 AND time <= {flight.landing_ts}000000000"
+    q = f"SELECT lat, lon, alt, gs FROM pos WHERE addr='{addr}' AND time >= {flight.takeoff_ts}000000000 AND time <= {flight.landing_ts}000000000 order by time"
+    print("QQQ:", q)
     rs = influxDb.client.query(query=q)
     if rs:
         for row in rs.get_points():
