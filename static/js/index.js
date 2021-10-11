@@ -15,7 +15,9 @@ function onLoad() {
         dateFormat: 'DD.MM.YYYY',
         bodyType: 'modal',
         showCalendarDisplay: true,
+        firstWeekday: 1,
         selectedDate: new Date(),
+        maxDate: new Date(),
     });
     myDatePicker.onSelect((date, formatedDate) => changeDate(date));
 }
