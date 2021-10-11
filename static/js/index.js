@@ -21,7 +21,8 @@ function onLoad() {
 }
 
 function changeDate(date) {
-    var dateStr = date.getFullYear() + '-' + (date.getMonth()+1) + '-' + date.getDate();
+    const zeroPad = (num, places) => String(num).padStart(places, '0');
+    var dateStr = date.getFullYear() + '-' + zeroPad(date.getMonth()+1, 2) + '-' + zeroPad(date.getDate(),2);
     var items = window.location.pathname.split('/');
     var url = '/' + items[1] + '/' + items[2] + '/' + dateStr;
     window.open(url, '_self');

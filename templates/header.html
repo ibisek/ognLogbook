@@ -6,10 +6,9 @@
 
             <div class="menu">
                 <span class="menuitem">
-                    <span>{% if linkPrevDay %} <a href="{{linkPrevDay}}" style="font-size:12px;"><</a> {% endif %}</span>
+                    <span>{% if linkPrevDay %} <a href="{{linkPrevDay}}" style="font-size:20px; line-height: 1.5;"><</a> {% set leftArrow = True %}{% endif %}</span>
                 </span>
-                <span class="menuitem">
-
+                <span class="menuitem"{% if leftArrow %} style="margin-left: 10px;"{% endif %}>
                     {% if showDatePicker %}
                     <div class="datepickerWrap">
                         <input id="datepicker" class="datepicker" type="text" value="{{date.strftime('%d.%m.%Y')}}"/>
@@ -21,8 +20,8 @@
                     {{date.strftime('%d.%m.%Y')}}
                     {% endif %}
                 </span>
-                <span class="menuitem">
-                    <span>{% if linkNextDay %} <a href="{{linkNextDay}}" style="font-size:12px;">></a> {% endif %}</span>
+                <span class="menuitem" style="margin-left: 10px;">
+                    <span>{% if linkNextDay %} <a href="{{linkNextDay}}" style="font-size:20px; line-height: 1.5;">></a> {% endif %}</span>
                 </span>
                 {% if icaoCode %}
                 <span class="menuitem">
