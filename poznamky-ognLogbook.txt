@@ -100,6 +100,7 @@ user ibitest pass 0000 vers PokusApp 0.0.1 filter r/+49.3678/+16.1145/40
 JS date picker(s):
     https://www.cssscript.com/tag/date-picker/
 	    https://github.com/mikecoj/MCDatepicker
+    https://demo.mobiscroll.com/javascript/calendar/range-select#
 
 --
 
