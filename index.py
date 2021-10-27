@@ -37,20 +37,20 @@ afCountryCodes = airfieldManager.afCountryCodes
 
 @app.route('/')
 def index():
-    langs = [al[0].lower() for al in request.accept_languages]
+    # langs = [al[0].lower() for al in request.accept_languages]
     icaoFilter = []
-    if 'cz' in langs or 'cs' in langs or 'sk' in langs:
-        icaoFilter.append('LK')
-        icaoFilter.append('LZ')
-    elif 'de' in langs:
-        icaoFilter.append('LO')     # at
-        icaoFilter.append('ED')     # de
-        icaoFilter.append('LS')     # ch
-    elif 'pl' in langs:
-        icaoFilter.append('EP')
-    if 'fi' in langs or 'se' in langs or 'no' in langs:
-        icaoFilter.append('EF')     # fi
-        icaoFilter.append('ES')     # se
+    # if 'cz' in langs or 'cs' in langs or 'sk' in langs:
+    #     icaoFilter.append('LK')
+    #     icaoFilter.append('LZ')
+    # elif 'de' in langs:
+    #     icaoFilter.append('LO')     # at
+    #     icaoFilter.append('ED')     # de
+    #     icaoFilter.append('LS')     # ch
+    # elif 'pl' in langs:
+    #     icaoFilter.append('EP')
+    # if 'fi' in langs or 'se' in langs or 'no' in langs:
+    #     icaoFilter.append('EF')     # fi
+    #     icaoFilter.append('ES')     # se
 
     departures, arrivals, flights = _prepareData(limit=25, icaoFilter=icaoFilter, sortTsDesc=True, orderByCol='landing_ts')
 
