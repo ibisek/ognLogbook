@@ -41,20 +41,22 @@ def getNumFlightsToday():
     return num
 
 
-def getLongestFlightTimeToday():
-    retVal = None
+def getLongestFlightToday():
+    retVal = (None, None)
     startTs, endTs = getDayTimestamps(datetime.now())
 
     try:
         with DbSource(dbConnectionInfo=dbConnectionInfo).getConnection() as c:
-            sql = f"SELECT flight_time FROM logbook_entries " \
+            sql = f"SELECT id, flight_time FROM logbook_entries " \
                 f"WHERE takeoff_ts >= {startTs} AND landing_ts <= {endTs} " \
                 f"ORDER BY flight_time DESC LIMIT 1;"
             res = c.execute(sql)
 
             if res:
-                seconds = c.fetchone()[0]
-                retVal = formatDuration(seconds)
+                row = c.fetchone()
+                logbookEntryId = row[0]
+                seconds = row[1]
+                retVal = (logbookEntryId, formatDuration(seconds))
 
     except Exception as ex:
         print('[ERROR] in stats #3:', str(ex))

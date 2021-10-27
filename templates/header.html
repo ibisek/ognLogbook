@@ -72,7 +72,7 @@
                     <span class="tooltiptext">{{ gettext('stat.line2.hint') }}</span>
                 </div>
                 <div class="tooltip">
-                    {{ gettext('stat.line3') }}: <b>{% if longestFlightTime %}{{longestFlightTime}}{% else %}{{ gettext('stat.none1') }}{% endif %}</b>
+                    {{ gettext('stat.line3') }}: <b>{% if longestFlightTime %}{{longestFlightTime}}&nbsp;<a href="/map/{{longestFlightId}}">&#128269;</a>{% else %}{{ gettext('stat.none1') }}{% endif %}</b>
                     <span class="tooltiptext">{{ gettext('stat.line3.hint') }}</span>
                 </div>
                 <div class="tooltip">

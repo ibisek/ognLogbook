@@ -17,7 +17,7 @@ from configuration import DEBUG, MAX_DAYS_IN_RANGE, INFLUX_DB_HOST, INFLUX_DB_NA
 from airfieldManager import AirfieldManager, AirfieldRecord
 from dataStructures import LogbookItem, addressPrefixes
 from dao.logbookDao import listDepartures, listArrivals, listFlights, getSums, getFlight
-from dao.stats import getNumFlightsToday, getTotNumFlights, getLongestFlightTimeToday, getHighestTrafficToday
+from dao.stats import getNumFlightsToday, getTotNumFlights, getLongestFlightToday, getHighestTrafficToday
 from db.InfluxDbThread import InfluxDbThread
 
 from utils import getDaysLinks, formatDuration, formatTsToHHMM, eligibleForMapView
@@ -59,13 +59,14 @@ def index():
 
     totNumFlights = getTotNumFlights()
     numFlightsToday = getNumFlightsToday()
-    longestFlightTime = getLongestFlightTimeToday()
+    longestFlightId, longestFlightTime = getLongestFlightToday()
     highestTrafficLocation, highestTrafficCount = getHighestTrafficToday()
 
     return flask.render_template('index.html', debugMode=DEBUG, date=datetime.now(),
                                  dayRecords=[dayRecord],
                                  numFlightsToday=numFlightsToday, totNumFlights=totNumFlights,
-                                 longestFlightTime=longestFlightTime, highestTrafficLocation=highestTrafficLocation,
+                                 longestFlightTime=longestFlightTime, longestFlightId=longestFlightId,
+                                 highestTrafficLocation=highestTrafficLocation,
                                  highestTrafficCount=highestTrafficCount)
 
 
