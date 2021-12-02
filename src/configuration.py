@@ -62,10 +62,10 @@ if MQ_PASSWORD != '**':
 #     SQLITE_DB_FILENAME = '/home/ibisek/wqz/prog/python/ognLogbook/data/ognLogbook.sqlite'
 #     os.environ.setdefault('SQLITE_DB_FILENAME', SQLITE_DB_FILENAME)
 
-ADDRESS_TYPES = {1: 'I', 2: 'F', 3: 'O'}
-REVERSE_ADDRESS_TYPE = {'I': 1, 'F': 2, 'O': 3}
-ADDRESS_TYPE_PREFIX = {1: 'ICA', 2: 'FLR', 3: 'OGN'}
-REVERSE_ADDRESS_TYPE_PREFIX = {'ICA': 1, 'FLR': 2, 'OGN': 3}
+ADDRESS_TYPES = {0: 'S', 1: 'I', 2: 'F', 3: 'O'}
+REVERSE_ADDRESS_TYPE = {'S': 0, 'I': 1, 'F': 2, 'O': 3}
+ADDRESS_TYPE_PREFIX = {0: 'SKY', 1: 'ICA', 2: 'FLR', 3: 'OGN'}
+REVERSE_ADDRESS_TYPE_PREFIX = {'SKY': 0, 'ICA': 1, 'FLR': 2, 'OGN': 3}
 
 MAX_DAYS_IN_RANGE = 14
 

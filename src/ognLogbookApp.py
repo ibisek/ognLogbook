@@ -20,7 +20,7 @@ def process_beacon(raw_message):
     # print("RAW:", raw_message)
 
     # accept only supported types of messages:
-    if raw_message[:3] in ['OGN', 'FLR', 'ICA']:
+    if raw_message[:3] in ['OGN', 'FLR', 'ICA', 'SKY']:
         bp.enqueueForProcessing(raw_message)
 
     elif DEBUG:

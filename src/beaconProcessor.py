@@ -161,9 +161,9 @@ class RawWorker(Thread):
         else:
             self.numProcessed += 1
 
-        addressType = beacon.get('address_type', 1)  # 1 = icao, 2 = flarm, 3 = ogn
+        addressType = beacon.get('address_type', 1)  # 0=sky, 1 = icao, 2 = flarm, 3 = ogn
         addressTypeStr = ADDRESS_TYPES.get(addressType, 'X')
-        aircraftType = beacon.get('aircraft_type', 8)  # icao-crafts are often 'powered aircraft's
+        aircraftType = beacon.get('aircraft_type', 8)  # icao-crafts are often 'powered aircraft's (8)
 
         if 'address' not in beacon:
             address = beacon['name'][3:]
@@ -296,13 +296,15 @@ class BeaconProcessor(object):
         rawQueueOGN = mpManager.Queue()
         rawQueueFLR = mpManager.Queue()
         rawQueueICA = mpManager.Queue()
+        rawQueueSKY = mpManager.Queue()
     else:
         rawQueueOGN = Queue()
         rawQueueFLR = Queue()
         rawQueueICA = Queue()
+        rawQueueSKY = Queue()
 
-    queues = (rawQueueOGN, rawQueueFLR, rawQueueFLR, rawQueueICA)  # one worker's performance on current CPU is 35k/min
-    queueIds = ('ogn', 'flarm1', 'flarm2', 'icao1')
+    queues = (rawQueueOGN, rawQueueFLR, rawQueueFLR, rawQueueICA, rawQueueSKY)  # one worker's performance on current CPU is 35k/min
+    queueIds = ('ogn', 'flarm1', 'flarm2', 'icao1', 'sky1')
     # TODO there shall be separate queues for each worker and traffic shall be split/shaped evenly for every worker of the same kind..
 
     workers = list()
@@ -389,7 +391,8 @@ class BeaconProcessor(object):
                   f"mosquitto_pub -h {MQ_HOST} -p {MQ_PORT} -u {MQ_USER} -P {MQ_PASSWORD} -t ognLogbook/queued -m '{round(numQueuedTasks)}'; " \
                   f"mosquitto_pub -h {MQ_HOST} -p {MQ_PORT} -u {MQ_USER} -P {MQ_PASSWORD} -t ognLogbook/ogn -m '{traffic['ogn']}'; " \
                   f"mosquitto_pub -h {MQ_HOST} -p {MQ_PORT} -u {MQ_USER} -P {MQ_PASSWORD} -t ognLogbook/flarm -m '{traffic['flarm1'] + traffic['flarm2']}'; " \
-                  f"mosquitto_pub -h {MQ_HOST} -p {MQ_PORT} -u {MQ_USER} -P {MQ_PASSWORD} -t ognLogbook/icao -m '{traffic['icao1']}';"
+                  f"mosquitto_pub -h {MQ_HOST} -p {MQ_PORT} -u {MQ_USER} -P {MQ_PASSWORD} -t ognLogbook/icao -m '{traffic['icao1']}';" \
+                  f"mosquitto_pub -h {MQ_HOST} -p {MQ_PORT} -u {MQ_USER} -P {MQ_PASSWORD} -t ognLogbook/sky -m '{traffic['sky1']}';"
             os.system(cmd)
 
         self.numEnquedTasks = 0
