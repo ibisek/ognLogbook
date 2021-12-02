@@ -68,4 +68,4 @@ class LogbookItem(object):
         self.tow_id = tow_id
 
 
-addressPrefixes = {'O': 'OGN', 'I': 'ICA', 'F': 'FLR'}
+addressPrefixes = {'O': 'OGN', 'I': 'ICA', 'F': 'FLR', 'S': 'SKY'}
