@@ -6,7 +6,7 @@ from socket import SHUT_RDWR
 from ogn.client import AprsClient
 from ogn.parser import parse, AprsParseError
 
-from configuration import APRS_FILTER, DEBUG
+from configuration import APRS_FILTER, DEBUG, USE_MULTIPROCESSING_INSTEAD_OF_THREADS
 from beaconProcessor import BeaconProcessor
 from cron.cronJobs import CronJobs
 

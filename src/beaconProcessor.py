@@ -21,7 +21,7 @@ from ogn.parser.exceptions import ParseError
 
 from configuration import DEBUG, redisConfig, \
     dbConnectionInfo, REDIS_RECORD_EXPIRATION, MQ_HOST, MQ_PORT, MQ_USER, MQ_PASSWORD, INFLUX_DB_NAME, INFLUX_DB_HOST, \
-    GEOFILE_PATH, AGL_LANDING_LIMIT, ADDRESS_TYPES, ADDRESS_TYPE_PREFIX
+    GEOFILE_PATH, AGL_LANDING_LIMIT, ADDRESS_TYPES, ADDRESS_TYPE_PREFIX, USE_MULTIPROCESSING_INSTEAD_OF_THREADS
 from geofile import Geofile
 from db.DbThread import DbThread
 from db.InfluxDbThread import InfluxDbThread
@@ -64,7 +64,7 @@ class RawWorker(Thread):
             self.influxDb.start()
             self.ownInfluxDb = True
 
-        self.numProcessed = mp.Value('i', 0)
+        self.numProcessed = mp.Value('i', 0) if USE_MULTIPROCESSING_INSTEAD_OF_THREADS else 0
         self.airfieldManager = AirfieldManager()
         self.geofile = Geofile(filename=GEOFILE_PATH)
         self.redis = StrictRedis(**redisConfig)
@@ -156,7 +156,10 @@ class RawWorker(Thread):
             # print(f'[ERROR] Some other error in _processMessage() {str(e)}', raw_message, file=sys.stderr)
             return
 
-        self.numProcessed.value += 1
+        if USE_MULTIPROCESSING_INSTEAD_OF_THREADS:
+            self.numProcessed.value += 1
+        else:
+            self.numProcessed += 1
 
         addressType = beacon.get('address_type', 1)  # 1 = icao, 2 = flarm, 3 = ogn
         addressTypeStr = ADDRESS_TYPES.get(addressType, 'X')
@@ -288,10 +291,16 @@ class RawWorker(Thread):
 class BeaconProcessor(object):
     redis = StrictRedis(**redisConfig)
 
-    mpManager = mp.Manager()  # create a set of multiprocessing (shared) queues
-    rawQueueOGN = mpManager.Queue()
-    rawQueueFLR = mpManager.Queue()
-    rawQueueICA = mpManager.Queue()
+    if USE_MULTIPROCESSING_INSTEAD_OF_THREADS:
+        mpManager = mp.Manager()  # create a set of multiprocessing (shared) queues
+        rawQueueOGN = mpManager.Queue()
+        rawQueueFLR = mpManager.Queue()
+        rawQueueICA = mpManager.Queue()
+    else:
+        rawQueueOGN = Queue()
+        rawQueueFLR = Queue()
+        rawQueueICA = Queue()
+
     queues = (rawQueueOGN, rawQueueFLR, rawQueueFLR, rawQueueICA)  # one worker's performance on current CPU is 35k/min
     queueIds = ('ogn', 'flarm1', 'flarm2', 'icao1')
     # TODO there shall be separate queues for each worker and traffic shall be split/shaped evenly for every worker of the same kind..
@@ -322,8 +331,11 @@ class BeaconProcessor(object):
             # rawWorker.start()    # python threads do not run in parallel on multiple cores!!
 
             rawWorker = RawWorker(id=id, rawQueue=queue)
-            p = mp.Process(target=rawWorker.run)
-            p.start()
+            if USE_MULTIPROCESSING_INSTEAD_OF_THREADS:
+                instance = mp.Process(target=rawWorker.run)
+            else:
+                instance = Thread(target=rawWorker.run)
+            instance.start()
 
             self.workers.append(rawWorker)
 

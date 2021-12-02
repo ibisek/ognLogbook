@@ -12,7 +12,9 @@ import time
 import threading
 import pymysql
 import sqlite3
+from queue import Queue
 import multiprocessing as mp
+from configuration import USE_MULTIPROCESSING_INSTEAD_OF_THREADS
 
 from db.DbSource import DbSource
 
@@ -28,9 +30,12 @@ class DbThread(threading.Thread):
         self.dbConnectionInfo = dbConnectionInfo
         
         # self.toDoStatements = []
-        self.toDoStatements = mp.Manager().Queue()
         self.toDoStatementsLock = threading.Lock()
-        
+        if USE_MULTIPROCESSING_INSTEAD_OF_THREADS:
+            self.toDoStatements = mp.Manager().Queue()
+        else:
+            self.toDoStatements = Queue()
+
         self.doRun = True
 
     def stop(self):

@@ -9,8 +9,9 @@ Speeds-up DB inserts by not opening and closing cursors after every statement.
 
 import time
 import threading
-from queue import Empty
+from queue import Empty, Queue
 import multiprocessing as mp
+from configuration import USE_MULTIPROCESSING_INSTEAD_OF_THREADS
 
 import requests
 from influxdb import InfluxDBClient
@@ -19,7 +20,7 @@ from influxdb.exceptions import InfluxDBClientError, InfluxDBServerError
 
 class InfluxDbThread(threading.Thread):
 
-    toDoStatements = mp.Manager().Queue()
+    toDoStatements = mp.Manager().Queue() if USE_MULTIPROCESSING_INSTEAD_OF_THREADS else Queue()
 
     def __init__(self, dbName: str, host: str, port: int = 8086, startThread=True):
         super(InfluxDbThread, self).__init__()

@@ -12,12 +12,15 @@ if val:
 # APRS_FILTER = 'r/+49.3678/+16.1145/1100'    # 1100 km ~ eastern Romania
 APRS_FILTER = None
 
+USE_MULTIPROCESSING_INSTEAD_OF_THREADS = False
+
 if DEBUG:
     AIRFIELDS_FILE = '/home/ibisek/wqz/prog/python/ognLogbook/data/airfields.json'
     GEOFILE_PATH = '/home/ibisek/data/download/ognLogbook/500m/mosaic-500m.TIF'
 else:
     AIRFIELDS_FILE = '/home/ibisek/wqz/prog/python/ognLogbook/data/airfields.json'
     GEOFILE_PATH = '/var/www/ognLogbook-data/mosaic-500m.TIF'
+    USE_MULTIPROCESSING_INSTEAD_OF_THREADS = True
 
 redisConfig = {"host": "127.0.0.1", "password": "", "port": 6379}
 REDIS_RECORD_EXPIRATION = 8*60*60     # [s]
