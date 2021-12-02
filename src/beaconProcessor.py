@@ -377,8 +377,12 @@ class BeaconProcessor(object):
 
         traffic = dict()
         for worker in self.workers:
-            traffic[worker.id] = worker.numProcessed.value
-            worker.numProcessed.value = 0
+            if USE_MULTIPROCESSING_INSTEAD_OF_THREADS:
+                traffic[worker.id] = worker.numProcessed.value
+                worker.numProcessed.value = 0
+            else:
+                traffic[worker.id] = worker.numProcessed
+                worker.numProcessed = 0
 
         if not DEBUG and numTasksPerMin >= 10:
             cmd = f"mosquitto_pub -h {MQ_HOST} -p {MQ_PORT} -u {MQ_USER} -P {MQ_PASSWORD} -t ognLogbook/rate -m '{round(numTasksPerMin)}'; " \
@@ -399,6 +403,8 @@ class BeaconProcessor(object):
             self.rawQueueFLR.put(raw_message)
         elif prefix == 'ICA':
             self.rawQueueICA.put(raw_message)
+        elif prefix == 'SKY':
+            self.rawQueueSKY.put(raw_message)
         else:
             print(f'[WARN] Worker for "{prefix}" not implemented!', raw_message, file=sys.stderr)
             return
