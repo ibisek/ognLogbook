@@ -102,7 +102,7 @@ class RedisReaper(object):
                     strSql = f"INSERT INTO logbook_events " \
                              f"(ts, address, address_type, aircraft_type, event, lat, lon, location_icao, flight_time) " \
                              f"VALUES " \
-                             f"({ts}, '{addr}', {logbookItem.address_type}, '{logbookItem.aircraft_type}', " \
+                             f"({ts}, '{addr}', '{logbookItem.address_type}', '{logbookItem.aircraft_type}', " \
                              f"'L', {lat:.5f}, {lon:.5f}, {icaoLocationVal}, {flightTime});"
 
                     # print('strSql:', strSql)
