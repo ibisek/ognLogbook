@@ -12,7 +12,7 @@
                     {% if showDatePicker %}
                     <div class="datepickerWrap">
                         <input id="datepicker" class="datepicker" type="text" value="{{date.strftime('%d.%m.%Y')}}"/>
-                        <button type="submit" class="searchButton" id="datepickerButton" onclick="return false;">
+                        <button type="submit" class="searchButton" id="datepickerButton" onclick="return false;", style="cursor: default;">
                             <i class="fa fa-calendar" aria-hidden="true"></i>
                         </button>
                     </div>
