@@ -11,6 +11,8 @@ function onPageLoad() {
 		zoomOffset: -1
 	}).addTo(map);
 
+	L.control.scale().addTo(map);
+
     var allPoints = new Array();
     for (var i = 0; i < flightSegments.length; i++) {
         L.polyline(flightSegments[i], {color: 'red', weight: 2}).addTo(map);
