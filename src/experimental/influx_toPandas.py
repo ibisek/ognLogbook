@@ -218,4 +218,5 @@ if __name__ == '__main__':
 
     # --
 
+    df.to_csv('~/flightRecord.csv', sep=';')
     print('KOHEU.')
