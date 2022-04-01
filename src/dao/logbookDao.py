@@ -53,9 +53,10 @@ def listDepartures(address=None, icaoCode=None, registration=None, forDay=None, 
                     AND not (l.location_icao is null AND d.aircraft_registration is null)
                     ORDER by ts {sortTs} {condLimit};"""
 
-        c.execute(strSql)
+        cur = c.cursor()
+        cur.execute(strSql)
 
-        rows = c.fetchall()
+        rows = cur.fetchall()
         for row in rows:
             (ts, address, addrType, aircraftTypeCode, lat, lon, locationIcao, devType, aircraftType, registration, cn) = row
 
@@ -116,9 +117,10 @@ def listArrivals(address=None, icaoCode=None, registration=None, forDay=None, li
                     AND not (l.location_icao is null AND d.aircraft_registration is null)
                     ORDER by ts {sortTs} {condLimit};"""
 
-        c.execute(strSql)
+        cur = c.cursor()
+        cur.execute(strSql)
 
-        rows = c.fetchall()
+        rows = cur.fetchall()
         for row in rows:
             (ts, address, addrType, aircraftTypeCode, lat, lon, locationIcao, flightTime, devType, aircraftType, registration, cn) = row
 
@@ -187,9 +189,10 @@ def listFlights(address=None, icaoCode=None, registration=None, forDay=None, lim
                     AND not (l.takeoff_icao is null AND l.landing_icao is null AND d.aircraft_registration is null)
                     ORDER by {orderByCol} {sortTs} {condLimit};"""
 
-        c.execute(strSql)
+        cur = c.cursor()
+        cur.execute(strSql)
 
-        rows = c.fetchall()
+        rows = cur.fetchall()
         for row in rows:
             (id, address, ts1, lat1, lon1, locationIcao1, ts2, lat2, lon2, locationIcao2, flightTime, flownDistance, towId, devType, aircraftType, registration, cn) = row
 
