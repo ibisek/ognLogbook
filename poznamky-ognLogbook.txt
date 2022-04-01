@@ -46,7 +46,7 @@ Installation:
     export CPLUS_INCLUDE_PATH=/usr/include/gdal
     export C_INCLUDE_PATH=/usr/include/gdal
     gdalinfo --version
-    pip3 install gdal==2.2.3
+    pip3 install gdal==2.4.0
 
 gdallocationinfo -wgs84 eu_dem_v11_E40N20.TIF 16.1144561 49.3678764 |grep Value| cut -d":" -f 2
 gdallocationinfo -wgs84 -valonly eu_dem_v11_E40N20.TIF 16.1144561 49.3678764
