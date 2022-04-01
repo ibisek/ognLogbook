@@ -230,7 +230,7 @@ def getFlight(flightId) -> LogbookItem:
              "FROM logbook_entries AS le " \
              "LEFT JOIN ddb as d ON le.address = d.device_id " \
              f"WHERE le.id={flightId}"
-    with DbSource(dbConnectionInfo).getConnection() as c:
+    with DbSource(dbConnectionInfo).getConnection().cursor() as c:
         c.execute(strSql)
         row = c.fetchone()
         if row:
