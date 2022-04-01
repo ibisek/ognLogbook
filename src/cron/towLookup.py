@@ -23,7 +23,7 @@ class TowLookup(object):
                  f"AND ({ts} + {self.TOW_TIME_RANGE}) AND tow_id IS NULL " \
                  f"LIMIT 1;"
 
-        with DbSource(dbConnectionInfo).getConnection() as c:
+        with DbSource(dbConnectionInfo).getConnection().cursor() as c:
             c.execute(strSql)
             towId = c.fetchone()
 
@@ -41,7 +41,7 @@ class TowLookup(object):
                  f"WHERE tow_id IS NULL AND aircraft_type = 1 " \
                  f"AND landing_ts >= {ts};"
 
-        with DbSource(dbConnectionInfo).getConnection() as cur:
+        with DbSource(dbConnectionInfo).getConnection().cursor() as cur:
             cur.execute(strSql)
 
             for row in cur:
@@ -56,7 +56,7 @@ class TowLookup(object):
 
         if self.queue.qsize() > 0:
             print("[INFO] Num tows discovered: {}".format(int(self.queue.qsize()/2)))    # /2 ~ it's a pair glider-tow plane
-            with DbSource(dbConnectionInfo).getConnection() as cur:
+            with DbSource(dbConnectionInfo).getConnection().cursor() as cur:
                 try:
                     for item in iter(self.queue.get_nowait, None):
                         cur.execute(item)
