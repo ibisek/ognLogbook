@@ -124,4 +124,7 @@ def eligibleForMapView(ts):
     """
     @:return True if a map view for specified TS can be shown
     """
-    return ts >= (datetime.utcnow().timestamp() - 24*60*60)
+    if not ts:
+        return False
+    else:
+        return ts >= (datetime.utcnow().timestamp() - 24*60*60)
