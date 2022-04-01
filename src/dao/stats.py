@@ -10,7 +10,7 @@ def getTotNumFlights():
     num = 0
 
     try:
-        with DbSource(dbConnectionInfo=dbConnectionInfo).getConnection() as c:
+        with DbSource(dbConnectionInfo=dbConnectionInfo).getConnection().cursor() as c:
             sql = "SELECT count(address) FROM logbook_entries;"
             res = c.execute(sql)
 
@@ -28,7 +28,7 @@ def getNumFlightsToday():
     startTs, endTs = getDayTimestamps(datetime.now())
 
     try:
-        with DbSource(dbConnectionInfo=dbConnectionInfo).getConnection() as c:
+        with DbSource(dbConnectionInfo=dbConnectionInfo).getConnection().cursor() as c:
             sql = f"SELECT count(address) FROM logbook_entries WHERE takeoff_ts >= {startTs} AND landing_ts <= {endTs};"
             res = c.execute(sql)
 
@@ -46,7 +46,7 @@ def getLongestFlightToday():
     startTs, endTs = getDayTimestamps(datetime.now())
 
     try:
-        with DbSource(dbConnectionInfo=dbConnectionInfo).getConnection() as c:
+        with DbSource(dbConnectionInfo=dbConnectionInfo).getConnection().cursor() as c:
             sql = f"SELECT id, flight_time FROM logbook_entries " \
                 f"WHERE takeoff_ts >= {startTs} AND landing_ts <= {endTs} " \
                 f"ORDER BY flight_time DESC LIMIT 1;"
@@ -69,7 +69,7 @@ def getHighestTrafficToday():
     startTs, endTs = getDayTimestamps(datetime.now())
 
     try:
-        with DbSource(dbConnectionInfo=dbConnectionInfo).getConnection() as c:
+        with DbSource(dbConnectionInfo=dbConnectionInfo).getConnection().cursor() as c:
             sql = f"SELECT location_icao, count(address) AS n FROM logbook_events " \
                 f"WHERE ts >= {startTs} AND ts <= {endTs} " \
                 f"AND location_icao is not null " \
