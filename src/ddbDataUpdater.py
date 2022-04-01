@@ -17,7 +17,7 @@ FLARMNET_URL = 'https://www.flarmnet.org/static/files/wfn/data.fln'
 
 
 # def _dropAllDdbRecords():
-#     with DbSource(dbConnectionInfo).getConnection() as cur:
+#     with DbSource(dbConnectionInfo).getConnection().cursor() as cur:
 #         cur.execute("DELETE FROM ddb;")
 
 def _insertOrAmendRecord(cursor: Cursor,
@@ -40,7 +40,7 @@ def _insertOrAmendRecord(cursor: Cursor,
     # data['tracked'] = tracked
     # data['identified'] = identified
     #
-    # with DbSource(dbConnectionInfo).getConnection() as cur:
+    # with DbSource(dbConnectionInfo).getConnection().cursor() as cur:
     #     cur.execute(strSql, data)
 
     # SQLITE:
@@ -85,7 +85,7 @@ def _processDDB():
     if len(lines) < 10000:
         sys.exit(1)
 
-    with DbSource(dbConnectionInfo).getConnection() as cur:
+    with DbSource(dbConnectionInfo).getConnection().cursor() as cur:
 
         keys = lines[0].strip().replace('#', '').split(',')
         for i in range(1, len(lines)):
@@ -115,7 +115,7 @@ def _processFlarmnet():
     if len(lines) < 10000:
         sys.exit(1)
 
-    with DbSource(dbConnectionInfo).getConnection() as cur:
+    with DbSource(dbConnectionInfo).getConnection().cursor() as cur:
 
         for line in lines:
             if len(line) != 172:
