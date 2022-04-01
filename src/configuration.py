@@ -27,7 +27,9 @@ REDIS_RECORD_EXPIRATION = 8*60*60     # [s]
 
 AGL_LANDING_LIMIT = 100
 
-# DB_HOST = '10.8.0.18'   # 127.0.0.1
+OGN_USERNAME = 'zkouska'
+
+# DB_HOST = 'cml7'
 DB_HOST = '127.0.0.1'
 DB_PORT = 3306
 DB_NAME = 'ogn_logbook'
