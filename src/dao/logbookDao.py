@@ -42,7 +42,7 @@ def listDepartures(address=None, icaoCode=None, registration=None, forDay=None, 
 
     records = list()
 
-    with DbSource(dbConnectionInfo).getConnection() as c:
+    with DbSource(dbConnectionInfo).getConnection().cursor() as c:
 
         # (d.tracked != false OR d.tracked IS NULL) AND (d.identified != false OR d.identified IS NULL)
         strSql = f"""SELECT l.ts, l.address, l.address_type, l.aircraft_type, l.lat, l.lon, l.location_icao, 
@@ -106,7 +106,7 @@ def listArrivals(address=None, icaoCode=None, registration=None, forDay=None, li
 
     records = list()
 
-    with DbSource(dbConnectionInfo).getConnection() as c:
+    with DbSource(dbConnectionInfo).getConnection().cursor() as c:
 
         # (d.tracked != false OR d.tracked IS NULL) AND (d.identified != false OR d.identified IS NULL)
         strSql = f"""SELECT l.ts, l.address, l.address_type, l.aircraft_type, l.lat, l.lon, l.location_icao, l.flight_time,
@@ -177,7 +177,7 @@ def listFlights(address=None, icaoCode=None, registration=None, forDay=None, lim
 
     records = list()
 
-    with DbSource(dbConnectionInfo).getConnection() as c:
+    with DbSource(dbConnectionInfo).getConnection().cursor() as c:
 
         # (d.tracked != false OR d.tracked IS NULL) AND (d.identified != false OR d.identified IS NULL)
         strSql = f"""SELECT l.id, l.address, l.takeoff_ts, l.takeoff_lat, l.takeoff_lon, l.takeoff_icao, 
@@ -255,7 +255,7 @@ def getSums(registration, forDay=None, limit=None):
     numFlights = 0
     totalFlightTime = 0
 
-    with DbSource(dbConnectionInfo).getConnection() as c:
+    with DbSource(dbConnectionInfo).getConnection().cursor() as c:
 
         strSql = f"""SELECT COUNT(l.address) AS num, SUM(l.flight_time) AS time
                         FROM logbook_entries as l 
@@ -280,7 +280,7 @@ def findMostRecentTakeoff(address: str, addressType: int) -> LogbookItem:
              f"WHERE address = '{address}' AND address_type={addressType} AND event='T' " \
              f"ORDER by ts DESC LIMIT 1;"
 
-    with DbSource(dbConnectionInfo).getConnection() as cur:
+    with DbSource(dbConnectionInfo).getConnection().cursor() as cur:
         cur.execute(strSql)
         row = cur.fetchone()
         if row:
