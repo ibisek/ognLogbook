@@ -63,7 +63,7 @@ class FlownDistanceCalculator:
                  f"FROM logbook_entries as e " \
                  f"WHERE e.flown_distance is null;"
 
-        with DbSource(dbConnectionInfo).getConnection() as cur:
+        with DbSource(dbConnectionInfo).getConnection().cursor() as cur:
             cur.execute(strSql)
 
             for row in cur:
@@ -78,7 +78,7 @@ class FlownDistanceCalculator:
                 updateSqls.append(sql)
 
         if len(updateSqls) > 0:
-            with DbSource(dbConnectionInfo).getConnection() as cur:
+            with DbSource(dbConnectionInfo).getConnection().cursor() as cur:
                 for sql in updateSqls:
                     cur.execute(sql)
             print(f"[INFO] Updated {len(updateSqls)} flown distance(s)")
@@ -87,13 +87,14 @@ class FlownDistanceCalculator:
 
 
 if __name__ == '__main__':
-    addr = 'OGNC35001'
-    startTs = 1623351592
-    endTs = 1623351717
-
     calc = FlownDistanceCalculator()
-    # dist = calc._calcFlownDistance(addr=addr, startTs=startTs, endTs=endTs)
-    # print('dist:', round(dist))
-    calc.calcDistances()
+
+    addr = 'OGN1C2902'
+    startTs = 1641542747
+    endTs = 1641542876
+    dist = calc._calcFlownDistance(addr=addr, startTs=startTs, endTs=endTs)
+    print('dist:', round(dist))
+
+    # calc.calcDistances()
 
     print("KOHEU.")
