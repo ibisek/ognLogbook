@@ -42,7 +42,7 @@ def listDepartures(address=None, icaoCode=None, registration=None, forDay=None, 
 
     records = list()
 
-    with DbSource(dbConnectionInfo).getConnection().cursor() as c:
+    with DbSource(dbConnectionInfo).getConnection().cursor() as cur:
 
         # (d.tracked != false OR d.tracked IS NULL) AND (d.identified != false OR d.identified IS NULL)
         strSql = f"""SELECT l.ts, l.address, l.address_type, l.aircraft_type, l.lat, l.lon, l.location_icao, 
@@ -53,7 +53,6 @@ def listDepartures(address=None, icaoCode=None, registration=None, forDay=None, 
                     AND not (l.location_icao is null AND d.aircraft_registration is null)
                     ORDER by ts {sortTs} {condLimit};"""
 
-        cur = c.cursor()
         cur.execute(strSql)
 
         rows = cur.fetchall()
@@ -106,7 +105,7 @@ def listArrivals(address=None, icaoCode=None, registration=None, forDay=None, li
 
     records = list()
 
-    with DbSource(dbConnectionInfo).getConnection().cursor() as c:
+    with DbSource(dbConnectionInfo).getConnection().cursor() as cur:
 
         # (d.tracked != false OR d.tracked IS NULL) AND (d.identified != false OR d.identified IS NULL)
         strSql = f"""SELECT l.ts, l.address, l.address_type, l.aircraft_type, l.lat, l.lon, l.location_icao, l.flight_time,
@@ -117,7 +116,6 @@ def listArrivals(address=None, icaoCode=None, registration=None, forDay=None, li
                     AND not (l.location_icao is null AND d.aircraft_registration is null)
                     ORDER by ts {sortTs} {condLimit};"""
 
-        cur = c.cursor()
         cur.execute(strSql)
 
         rows = cur.fetchall()
@@ -177,7 +175,7 @@ def listFlights(address=None, icaoCode=None, registration=None, forDay=None, lim
 
     records = list()
 
-    with DbSource(dbConnectionInfo).getConnection().cursor() as c:
+    with DbSource(dbConnectionInfo).getConnection().cursor() as cur:
 
         # (d.tracked != false OR d.tracked IS NULL) AND (d.identified != false OR d.identified IS NULL)
         strSql = f"""SELECT l.id, l.address, l.takeoff_ts, l.takeoff_lat, l.takeoff_lon, l.takeoff_icao, 
@@ -189,7 +187,6 @@ def listFlights(address=None, icaoCode=None, registration=None, forDay=None, lim
                     AND not (l.takeoff_icao is null AND l.landing_icao is null AND d.aircraft_registration is null)
                     ORDER by {orderByCol} {sortTs} {condLimit};"""
 
-        cur = c.cursor()
         cur.execute(strSql)
 
         rows = cur.fetchall()
