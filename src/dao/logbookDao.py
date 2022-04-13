@@ -1,3 +1,4 @@
+from datetime import datetime
 
 from configuration import dbConnectionInfo
 from db.DbSource import DbSource
@@ -16,8 +17,8 @@ def _prepareCondition(address=None, icaoCode=None, registration=None):
     return cond
 
 
-def listDepartures(address=None, icaoCode=None, registration=None, forDay=None, limit=None, icaoFilter: list = [], sortTsDesc=False):
-
+def listDepartures(address=None, icaoCode=None, registration=None, forDay=None, limit=None, icaoFilter: list = [],
+                   sortTsDesc=False):
     cond = _prepareCondition(address=address, icaoCode=icaoCode, registration=registration)
 
     condTs = ''
@@ -57,7 +58,8 @@ def listDepartures(address=None, icaoCode=None, registration=None, forDay=None, 
 
         rows = cur.fetchall()
         for row in rows:
-            (ts, address, addrType, aircraftTypeCode, lat, lon, locationIcao, devType, aircraftType, registration, cn) = row
+            (ts, address, addrType, aircraftTypeCode, lat, lon, locationIcao, devType, aircraftType, registration,
+             cn) = row
 
             item = LogbookItem(id=None,
                                address=address,
@@ -79,8 +81,8 @@ def listDepartures(address=None, icaoCode=None, registration=None, forDay=None, 
     return records
 
 
-def listArrivals(address=None, icaoCode=None, registration=None, forDay=None, limit=None, icaoFilter: list = [], sortTsDesc=False):
-
+def listArrivals(address=None, icaoCode=None, registration=None, forDay=None, limit=None, icaoFilter: list = [],
+                 sortTsDesc=False):
     cond = _prepareCondition(address=address, icaoCode=icaoCode, registration=registration)
 
     condTs = ''
@@ -97,7 +99,7 @@ def listArrivals(address=None, icaoCode=None, registration=None, forDay=None, li
         c = ""
         for i, prefix in enumerate(icaoFilter):
             c += f"l.location_icao LIKE '{prefix}%'"
-            if i < (len(icaoFilter)-1):
+            if i < (len(icaoFilter) - 1):
                 c += ' OR '
         condIcao += f" AND ({c})"
 
@@ -120,7 +122,8 @@ def listArrivals(address=None, icaoCode=None, registration=None, forDay=None, li
 
         rows = cur.fetchall()
         for row in rows:
-            (ts, address, addrType, aircraftTypeCode, lat, lon, locationIcao, flightTime, devType, aircraftType, registration, cn) = row
+            (ts, address, addrType, aircraftTypeCode, lat, lon, locationIcao, flightTime, devType, aircraftType,
+             registration, cn) = row
 
             item = LogbookItem(id=None,
                                address=address,
@@ -143,8 +146,8 @@ def listArrivals(address=None, icaoCode=None, registration=None, forDay=None, li
     return records
 
 
-def listFlights(address=None, icaoCode=None, registration=None, forDay=None, limit=None, icaoFilter: list = [], sortTsDesc=False, orderByCol='takeoff_ts'):
-
+def listFlights(address=None, icaoCode=None, registration=None, forDay=None, limit=None, icaoFilter: list = [],
+                sortTsDesc=False, orderByCol='takeoff_ts'):
     c1 = c2 = ''
     if icaoCode:
         c1 = f" AND (l.takeoff_icao = '{icaoCode}' OR l.landing_icao = '{icaoCode}')"
@@ -166,7 +169,7 @@ def listFlights(address=None, icaoCode=None, registration=None, forDay=None, lim
         c = ""
         for i, prefix in enumerate(icaoFilter):
             c += f"l.takeoff_icao LIKE '{prefix}%' OR l.landing_icao like '{prefix}%'"
-            if i < (len(icaoFilter)-1):
+            if i < (len(icaoFilter) - 1):
                 c += ' OR '
 
         condIcao += f" AND ({c})"
@@ -191,7 +194,8 @@ def listFlights(address=None, icaoCode=None, registration=None, forDay=None, lim
 
         rows = cur.fetchall()
         for row in rows:
-            (id, address, ts1, lat1, lon1, locationIcao1, ts2, lat2, lon2, locationIcao2, flightTime, flownDistance, towId, devType, aircraftType, registration, cn) = row
+            (id, address, ts1, lat1, lon1, locationIcao1, ts2, lat2, lon2, locationIcao2, flightTime, flownDistance,
+             towId, devType, aircraftType, registration, cn) = row
 
             item = LogbookItem(id=id,
                                address=address,
@@ -266,7 +270,7 @@ def getSums(registration, forDay=None, limit=None):
 
         if row:
             numFlights = row[0][0]
-            totalFlightTime = row[0][1]    # [s]
+            totalFlightTime = row[0][1]  # [s]
 
     return numFlights, totalFlightTime
 
@@ -295,3 +299,27 @@ def findMostRecentTakeoff(address: str, addressType: int) -> LogbookItem:
             return item
 
     return None
+
+
+def getNumStatsPerDay(forDay: datetime = None):
+    """
+    @return numFlights, totalFlightTime [s]
+    """
+    startTs, endTs = getDayTimestamps(forDay)
+    if not startTs or not endTs:
+        return None, None
+
+    numFlights = 0
+    totalFlightTime = 0
+
+    with DbSource(dbConnectionInfo).getConnection().cursor() as c:
+        strSql = f"""SELECT count(id), sum(flight_time) FROM logbook_entries 
+            WHERE takeoff_ts >= {startTs} AND landing_ts <= {endTs};"""
+
+        c.execute(strSql)
+        row = c.fetchall()
+        if row:
+            numFlights = float(row[0][0])
+            totalFlightTime = float(row[0][1])  # [s]
+
+    return numFlights, totalFlightTime
