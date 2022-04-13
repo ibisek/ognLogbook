@@ -281,6 +281,11 @@ def getMap(flightId: int):
                                  skipSegments=skipSegments)
 
 
+@app.route('/stats', methods=['GET'])
+def showStats():
+    return flask.render_template('stats.html', date=datetime.now())
+
+
 # # http://localhost:8000/api/af/1/2/3/4
 # @app.route('/api/af/<lat1>/<lat2>/<lon1>/<lon2>', methods=['GET'])
 # def listAirfields(lat1: str, lat2: str, lon1: str, lon2: str):
