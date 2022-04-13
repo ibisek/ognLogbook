@@ -10,7 +10,6 @@ Jinja2==3.1.1
 MarkupSafe==2.1.1
 msgpack==1.0.3
 ogn-client==1.2.1
-pkg_resources==0.0.0
 PyMySQL==1.0.2
 python-dateutil==2.8.2
 pytz==2022.1
