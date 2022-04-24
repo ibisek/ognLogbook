@@ -33,6 +33,10 @@ Remote access:
         iptables -t nat -I PREROUTING --src 0/0 --dst 0.0.0.0 -p tcp --dport 8086 -j REDIRECT --to-ports 8086
         iptables -A INPUT -m state --state NEW -p tcp -s 192.168.1.0/24 --dport 8086 -j ACCEPT
 
+    show retention policies
+    CREATE RETENTION POLICY logbook_retention2 ON ogn_logbook DURATION 1d REPLICATION 1
+    ALTER RETENTION POLICY logbook_retention2 ON ogn_logbook DURATION 1d REPLICATION 1 SHARD DURATION 1d DEFAULT
+
 --
 
 EU terrain elevation data:
