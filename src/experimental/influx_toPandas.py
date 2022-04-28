@@ -92,9 +92,10 @@ if __name__ == '__main__':
 
     # ADDR = 'OGNFCB203'    # random address from the log
     # ADDR = 'OGN322C5C'  # random address from the log
-    ADDR = 'ICA3D1BFD'
+    # ADDR = 'ICA3D1BFD'
+    ADDR = 'OGN259F2A'
 
-    startDate = '2021-03-08'
+    startDate = '2022-04-26'
 
     dt: datetime = datetime.strptime(startDate, '%Y-%m-%d')
     ts = dt.timestamp()     # [s]
