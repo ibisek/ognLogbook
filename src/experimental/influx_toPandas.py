@@ -93,9 +93,12 @@ if __name__ == '__main__':
     # ADDR = 'OGNFCB203'    # random address from the log
     # ADDR = 'OGN322C5C'  # random address from the log
     # ADDR = 'ICA3D1BFD'
-    ADDR = 'OGN259F2A'
 
-    startDate = '2022-04-26'
+    # ADDR = 'OGN259F2A'  # prievidza #1
+    # startDate = '2022-04-26'
+
+    ADDR = 'OGN204412'  # franta kestrel
+    startDate = '2022-04-30'
 
     dt: datetime = datetime.strptime(startDate, '%Y-%m-%d')
     ts = dt.timestamp()     # [s]
