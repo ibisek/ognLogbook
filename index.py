@@ -10,7 +10,7 @@ import flask
 import getopt
 from platform import node
 from datetime import datetime, timedelta
-from flask import request
+from flask import request, send_from_directory
 from collections import namedtuple
 
 from configuration import DEBUG, MAX_DAYS_IN_RANGE, INFLUX_DB_HOST, INFLUX_DB_NAME
@@ -284,6 +284,11 @@ def getMap(flightId: int):
 @app.route('/stats', methods=['GET'])
 def showStats():
     return flask.render_template('stats.html', date=datetime.now())
+
+
+@app.route('/robots.txt', methods=['GET'])
+def robots():
+    return send_from_directory(app.static_folder, request.path[1:])
 
 
 # # http://localhost:8000/api/af/1/2/3/4

@@ -1,0 +1,5 @@
+User-agent: *
+Disallow: /map
+Crawl-delay: 10
+Request-rate: 1/10s
+
