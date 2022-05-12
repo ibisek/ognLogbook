@@ -249,7 +249,6 @@ def getMap(flightId: int):
 
     addr = f"{addressPrefixes[flight.address_type]}{flight.address}"
     q = f"SELECT lat, lon, alt, gs FROM pos WHERE addr='{addr}' AND time >= {flight.takeoff_ts}000000000 AND time <= {flight.landing_ts}000000000 order by time"
-    print("QQQ:", q)
     rs = influxDb.client.query(query=q)
     if rs:
         for row in rs.get_points():
@@ -264,7 +263,7 @@ def getMap(flightId: int):
     startIndex = 0
     for i in range(2, len(flightRecord)):
         if (flightRecord[i]['dt'] - flightRecord[i-1]['dt']).seconds > 60:
-            print("DIFF:", (flightRecord[i]['dt'] - flightRecord[i - 1]['dt']).seconds)
+            # print("DIFF:", (flightRecord[i]['dt'] - flightRecord[i - 1]['dt']).seconds)
             flightSegments.append(flightRecord[startIndex:i-1])
             skipSegments.append(flightRecord[i - 2: i + 1])
             startIndex = i
