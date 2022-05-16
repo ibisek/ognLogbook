@@ -226,16 +226,10 @@ def getCsv(icaoCode, date=None):
     return output
 
 
-@app.route('/map/<flightId>', methods=['GET'])
-def getMap(flightId: int):
-    try:
-        flightId = int(_saninitise(flightId))
-        print(f"[INFO] MAP: flightId='{flightId}'")
-    except:
-        print(f"[INFO] MAP: invalid flightId='{flightId}'")
-        return flask.render_template('error40x.html', code=404, message="Nope :P"), 404
-
-    flight: LogbookItem = getFlight(flightId=flightId)
+def _getFlightData(flight: LogbookItem):
+    """
+    @return [flightRecord] or errorResponse
+    """
     if not flight:
         return flask.render_template('error40x.html', code=404, message=""), 404
 
@@ -256,6 +250,23 @@ def getMap(flightId: int):
             flightRecord.append(row)
     else:
         return flask.render_template('error40x.html', code=404, message="No data."), 404
+
+    return flightRecord
+
+
+@app.route('/map/<flightId>', methods=['GET'])
+def getMap(flightId: int):
+    try:
+        flightId = int(_saninitise(flightId))
+        print(f"[INFO] MAP: flightId='{flightId}'")
+    except:
+        print(f"[INFO] MAP: invalid flightId='{flightId}'")
+        return flask.render_template('error40x.html', code=404, message="Nope :P"), 404
+
+    flight: LogbookItem = getFlight(flightId=flightId)
+    flightRecord = _getFlightData(flight=flight)
+    if type(flightRecord) is not list:  # it is an error response in fact
+        return flightRecord
 
     # detect continues flight and out-of-signal segments:
     flightSegments = []
@@ -278,6 +289,32 @@ def getMap(flightId: int):
                                  flight=flight,
                                  flightSegments=flightSegments,
                                  skipSegments=skipSegments)
+
+
+@app.route('/igc/<flightId>', methods=['GET'])
+def getIgc(flightId: int):
+    try:
+        flightId = int(_saninitise(flightId))
+        print(f"[INFO] IGC: flightId='{flightId}'")
+    except:
+        print(f"[INFO] IGC: invalid flightId='{flightId}'")
+        return flask.render_template('error40x.html', code=404, message="Nope :P"), 404
+
+    flight: LogbookItem = getFlight(flightId=flightId)
+    flightRecord = _getFlightData(flight=flight)
+    if type(flightRecord) is not list:  # it is an error response in fact
+        return flightRecord
+
+    # TODO vygenerovat IGC file
+    igcText = "tady bude telo igc"
+
+    output = flask.make_response(igcText)
+
+    date = flightRecord[0]['dt']
+    output.headers["Content-Disposition"] = f"attachment; filename={flightId}_{date.strftime('%Y-%m-%d')}.igc"
+    output.headers["Content-type"] = "text/igc"
+
+    return output
 
 
 @app.route('/stats', methods=['GET'])
