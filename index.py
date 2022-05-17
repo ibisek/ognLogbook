@@ -19,6 +19,7 @@ from dataStructures import LogbookItem, addressPrefixes
 from dao.logbookDao import listDepartures, listArrivals, listFlights, getSums, getFlight
 from dao.stats import getNumFlightsToday, getTotNumFlights, getLongestFlightToday, getHighestTrafficToday
 from db.InfluxDbThread import InfluxDbThread
+from igc import flightToIGC
 
 from utils import getDaysLinks, formatDuration, formatTsToHHMM, eligibleForMapView
 from translations import gettext
@@ -305,14 +306,12 @@ def getIgc(flightId: int):
     if type(flightRecord) is not list:  # it is an error response in fact
         return flightRecord
 
-    # TODO vygenerovat IGC file
-    igcText = "tady bude telo igc"
-
+    igcText = flightToIGC(flightRecord, aircraftType=flight.aircraft_type, registration=flight.registration, competitionId=flight.cn)
     output = flask.make_response(igcText)
 
     date = flightRecord[0]['dt']
-    output.headers["Content-Disposition"] = f"attachment; filename={flightId}_{date.strftime('%Y-%m-%d')}.igc"
-    output.headers["Content-type"] = "text/igc"
+    output.headers["Content-Disposition"] = f"attachment; filename=flight_{flightId}_{date.strftime('%Y-%m-%d')}.igc"
+    output.headers["Content-type"] = "text/plain"
 
     return output
 
