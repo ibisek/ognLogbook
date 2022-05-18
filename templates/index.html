@@ -106,17 +106,13 @@
 			<div class="cell">
 				{% if item.flown_distance %}
 					{% if item.flown_distance > 0 %}
-						{% if eligibleForMapView(ts=item.takeoff_ts) %}
-							<a href="/igc/{{item.id}}">{{item.flown_distance}}</a>
-						{% else %}
-							{{item.flown_distance}}
-						{% endif %}
+						{{item.flown_distance}}
 					{% endif %}
 				{% else %}
 					&#8987;
 				{% endif %}</div>
 			{% if eligibleForMapView(ts=item.takeoff_ts) %}
-			<div class="cell"><a href="/map/{{item.id}}">&#128269;</a></div>
+			<div class="cell"><a href="/map/{{item.id}}">&#128269;</a>&nbsp;<a href="/igc/{{item.id}}">&#128441</a></div>
 			{% else %}
 			<div class="cell"></div>
 			{% endif %}
