@@ -42,7 +42,7 @@ h1 {
   overflow:hidden;
   /*background-color: lightgray;*/
   text-align: center;
-  padding: 0px 10px 10px 10px;
+  padding: 0px 5px 10px 5px;
   align: center;
 }
 
@@ -107,7 +107,6 @@ a:hover {
 .cell {
     padding: 5px 8px;
     display: table-cell;
-    white-space: nowrap;
 }
 
 .sum {
