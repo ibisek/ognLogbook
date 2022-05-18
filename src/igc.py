@@ -1,7 +1,7 @@
 
 from dataStructures import LogbookItem, addressPrefixes
 
-IGC_HEADER_TEMPLATE = """AXXX LOGBOOK.IBISEK.COM
+IGC_HEADER_TEMPLATE = """AOGN001
 HFDTE{}
 HFFXA000
 HFPLTPILOTINCHARGE:
@@ -10,11 +10,11 @@ HFGIDGLIDERID:{}
 HFDTM100GPSDATUM:WGS-1984
 HFRFWFIRMWAREVERSION:
 HFRHWHARDWAREVERSION:
-HFFTYFRTYPE:
+HFFTYFRTYPE: logbook.ibisek.com
 HFGPSGENERIC
 HFPRSPRESSALTSENSOR:
 HFCIDCOMPETITIONID:{}
-I 01 36 38 GSP CR LF
+I033638GSP
 """
 
 
@@ -25,6 +25,13 @@ def flightToIGC(flightRecord: list, aircraftType='', registration='', competitio
     param registration: e.g. 'OK-1234'
     param competitionId: e.g. 'AF'
     """
+    if not aircraftType:
+        aircraftType = ''
+    if not registration:
+        registration = ''
+    if not competitionId:
+        competitionId = ''
+
     # https://xp-soaring.github.io/igc_file_format/index.html
     # https://xp-soaring.github.io/igc_file_format/igc_format_2008.html
     igcLines = []
