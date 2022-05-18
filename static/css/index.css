@@ -107,6 +107,7 @@ a:hover {
 .cell {
     padding: 5px 8px;
     display: table-cell;
+    white-space: nowrap;
 }
 
 .sum {

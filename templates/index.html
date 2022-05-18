@@ -89,11 +89,11 @@
 			<div class="cell"></div>
 			<div class="cell">{{ gettext('tab.ft') }}</div>
 			<div class="cell">km</div>
-			<div class="cell"></div>
+			<div class="cell"> {# map #} </div>
 		</div>
 		{% for item in dayRecord.flights %}
 		<div class="row">
-			<div class="cell">{% if item.takeoff_dt %} {{item.takeoff_dt.strftime('%d.%m.')}} {% else %} {{item.landing_dt.strftime('%d.%m.')}} {% endif %}</div>
+			<div class="cell">{% if item.takeoff_dt %} {{item.takeoff_dt.strftime('%d.%m.')}} {% else %} {{item.landing_dt.strftime('%d.%m.')}} {% endif %}{% if eligibleForMapView(ts=item.takeoff_ts) %}<a href="/igc/{{item.id}}">&#128441</a>{% endif %}</div>
 			<div class="cell">{% if item.registration %}<a href="/reg/{{item.registration}}/{{item.landing_dt.strftime('%Y-%m-%d')}}">{{item.registration}}</a>{% else %}{{ gettext('tab.hidden') }}{% endif %}</a></div>
 			<div class="cell">{% if item.cn %}{{item.cn}}{% endif %}</div>
 			<div class="cell">{% if item.aircraft_type %}{{item.aircraft_type}}{% endif %}</div>
@@ -112,7 +112,7 @@
 					&#8987;
 				{% endif %}</div>
 			{% if eligibleForMapView(ts=item.takeoff_ts) %}
-			<div class="cell"><a href="/map/{{item.id}}">&#128269;</a>&nbsp;<a href="/igc/{{item.id}}">&#128441</a></div>
+			<div class="cell"><a href="/map/{{item.id}}">&#128269;</a></div>
 			{% else %}
 			<div class="cell"></div>
 			{% endif %}
