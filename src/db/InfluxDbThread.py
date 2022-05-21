@@ -15,6 +15,7 @@ from configuration import USE_MULTIPROCESSING_INSTEAD_OF_THREADS
 
 import requests
 from influxdb import InfluxDBClient
+from influxdb.resultset import ResultSet
 from influxdb.exceptions import InfluxDBClientError, InfluxDBServerError
 
 
@@ -43,6 +44,9 @@ class InfluxDbThread(threading.Thread):
         
     def addStatement(self, sql):
         self.toDoStatements.put(sql)
+
+    def query(self, query) -> ResultSet:
+        return self.client.query(query)
 
     def run(self):
         while self.doRun or self.toDoStatements.qsize() > 0:
