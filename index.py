@@ -299,7 +299,7 @@ def getIgc(idType: str, flightId: int):
     :param flightId flight or event ID
     """
 
-    if idType != 'f' or idType != 'd':
+    if idType not in ['f', 'd']:
         return flask.render_template('error40x.html', code=404, message="Nope :P"), 404
 
     try:
