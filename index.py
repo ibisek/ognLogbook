@@ -292,8 +292,16 @@ def getMap(flightId: int):
                                  skipSegments=skipSegments)
 
 
-@app.route('/igc/<flightId>', methods=['GET'])
-def getIgc(flightId: int):
+@app.route('/igc/<idType>/<flightId>', methods=['GET'])
+def getIgc(idType: str, flightId: int):
+    """
+    :param idType   'f' flight or 's' start/departure id
+    :param flightId flight or event ID
+    """
+
+    if idType != 'f' or idType != 'd':
+        return flask.render_template('error40x.html', code=404, message="Nope :P"), 404
+
     try:
         flightId = int(_saninitise(flightId))
         print(f"[INFO] IGC: flightId='{flightId}'")
