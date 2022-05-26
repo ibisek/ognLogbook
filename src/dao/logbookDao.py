@@ -46,7 +46,7 @@ def listDepartures(address=None, icaoCode=None, registration=None, forDay=None, 
     with DbSource(dbConnectionInfo).getConnection().cursor() as cur:
 
         # (d.tracked != false OR d.tracked IS NULL) AND (d.identified != false OR d.identified IS NULL)
-        strSql = f"""SELECT l.ts, l.address, l.address_type, l.aircraft_type, l.lat, l.lon, l.location_icao, 
+        strSql = f"""SELECT l.id, l.ts, l.address, l.address_type, l.aircraft_type, l.lat, l.lon, l.location_icao, 
                     d.device_type,	d.aircraft_type, d.aircraft_registration, d.aircraft_cn 
                     FROM logbook_events AS l 
                     LEFT JOIN ddb AS d ON l.address = d.device_id 
@@ -58,10 +58,9 @@ def listDepartures(address=None, icaoCode=None, registration=None, forDay=None, 
 
         rows = cur.fetchall()
         for row in rows:
-            (ts, address, addrType, aircraftTypeCode, lat, lon, locationIcao, devType, aircraftType, registration,
-             cn) = row
+            (eventId, ts, address, addrType, aircraftTypeCode, lat, lon, locationIcao, devType, aircraftType, registration, cn) = row
 
-            item = LogbookItem(id=None,
+            item = LogbookItem(id=eventId,
                                address=address,
                                takeoff_ts=ts,
                                takeoff_lat=float(lat),
@@ -240,6 +239,48 @@ def getFlight(flightId) -> LogbookItem:
                                takeoff_ts=takeoff_ts, landing_ts=landing_ts,
                                takeoff_icao=takeoff_icao, landing_icao=landing_icao,
                                flight_time=flight_time, flown_distance=flown_distance,
+                               aircraft_type=aircraft_type, registration=registration, cn=cn)
+
+    return None
+
+
+def getFlightIdForTakeoffId(takeoffId) -> LogbookItem:
+    """
+    Used when looking up a complete flight for specified takeoffId
+    :param takeoffId:
+    """
+    strSql = f"SELECT ent.id FROM logbook_entries AS ent, logbook_events AS ev " \
+             f"WHERE ent.address = ev.address AND ent.takeoff_ts = ev.ts " \
+             f"AND ev.id={takeoffId};"
+
+    with DbSource(dbConnectionInfo).getConnection().cursor() as c:
+        c.execute(strSql)
+        row = c.fetchone()
+        if row:
+            return row[0]   # flightId
+
+    return None
+
+
+def getFlightInfoForTakeoff(takeoffId) -> LogbookItem:
+    """
+    :param takeoffId: ID of a take-off event
+    :return a not-completely-populated LogbookItem for requested takeoffId (event ID for take-off)
+    """
+    strSql = f"SELECT e.ts, e.address, e.address_type, d.aircraft_type, d.aircraft_registration, d.aircraft_cn " \
+             f"FROM logbook_events AS e " \
+             f"LEFT JOIN ddb AS d ON e.address = d.device_id " \
+             f"WHERE e.event='T' AND e.id={takeoffId};"
+
+    with DbSource(dbConnectionInfo).getConnection().cursor() as c:
+        c.execute(strSql)
+        row = c.fetchone()
+        if row:
+            takeoff_ts, address, address_type, aircraft_type, registration, cn = row
+
+            return LogbookItem(id=takeoffId,
+                               address=address, address_type=address_type,
+                               takeoff_ts=takeoff_ts,
                                aircraft_type=aircraft_type, registration=registration, cn=cn)
 
     return None
