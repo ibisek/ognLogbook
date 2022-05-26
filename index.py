@@ -6,6 +6,8 @@ Created on 20. 5. 2020
 import json
 import sys
 import math
+from distutils.log import Log
+
 import flask
 import getopt
 from platform import node
@@ -16,7 +18,7 @@ from collections import namedtuple
 from configuration import DEBUG, MAX_DAYS_IN_RANGE, INFLUX_DB_HOST, INFLUX_DB_NAME
 from airfieldManager import AirfieldManager, AirfieldRecord
 from dataStructures import LogbookItem, addressPrefixes
-from dao.logbookDao import listDepartures, listArrivals, listFlights, getSums, getFlight
+from dao.logbookDao import listDepartures, listArrivals, listFlights, getSums, getFlight, getFlightIdForTakeoffId, getFlightInfoForTakeoff
 from dao.stats import getNumFlightsToday, getTotNumFlights, getLongestFlightToday, getHighestTrafficToday
 from db.InfluxDbThread import InfluxDbThread
 from igc import flightToIGC
@@ -243,7 +245,11 @@ def _getFlightData(flight: LogbookItem):
     flightRecord = []
 
     addr = f"{addressPrefixes[flight.address_type]}{flight.address}"
-    q = f"SELECT lat, lon, alt, gs FROM pos WHERE addr='{addr}' AND time >= {flight.takeoff_ts}000000000 AND time <= {flight.landing_ts}000000000 order by time"
+    if flight.landing_ts:   # we are querying data for a complete flight
+        q = f"SELECT lat, lon, alt, gs FROM pos WHERE addr='{addr}' AND time >= {flight.takeoff_ts}000000000 AND time <= {flight.landing_ts}000000000 order by time"
+    else:   # this is a query on incomplete flight (takeoff_ts only)
+        q = f"SELECT lat, lon, alt, gs FROM pos WHERE addr='{addr}' AND time >= {flight.takeoff_ts}000000000 order by time"
+
     rs = influxDb.client.query(query=q)
     if rs:
         for row in rs.get_points():
@@ -295,24 +301,37 @@ def getMap(flightId: int):
 @app.route('/igc/<idType>/<flightId>', methods=['GET'])
 def getIgc(idType: str, flightId: int):
     """
-    :param idType   'f' flight or 's' start/departure id
+    :param idType   'f' flight or 't' takeoff id
     :param flightId flight or event ID
     """
 
-    if idType not in ['f', 'd']:
+    if idType not in ['f', 't']:
         return flask.render_template('error40x.html', code=404, message="Nope :P"), 404
 
     try:
         flightId = int(_saninitise(flightId))
         print(f"[INFO] IGC: flightId='{flightId}'")
-    except:
+    except ValueError:
         print(f"[INFO] IGC: invalid flightId='{flightId}'")
         return flask.render_template('error40x.html', code=404, message="Nope :P"), 404
 
-    flight: LogbookItem = getFlight(flightId=flightId)
-    flightRecord = _getFlightData(flight=flight)
-    if type(flightRecord) is not list:  # it is an error response in fact
-        return flightRecord
+    flight: LogbookItem = None
+    if idType == 't':
+        tmpFlightId = getFlightIdForTakeoffId(takeoffId=flightId)
+        if tmpFlightId:
+            flightId = tmpFlightId
+            idType = 'f'    # let the following 'f'-if' do the heavy lifting
+        else:
+            flight: LogbookItem = getFlightInfoForTakeoff(takeoffId=flightId)
+            flightRecord = _getFlightData(flight=flight)
+            if type(flightRecord) is not list:  # it is an error response in fact
+                return flightRecord
+
+    if idType == 'f':
+        flight = getFlight(flightId=flightId)
+        flightRecord = _getFlightData(flight=flight)
+        if type(flightRecord) is not list:  # it is an error response in fact
+            return flightRecord
 
     igcText = flightToIGC(flightRecord, aircraftType=flight.aircraft_type, registration=flight.registration, competitionId=flight.cn)
     output = flask.make_response(igcText)
