@@ -1,4 +1,6 @@
 
+from math import floor
+
 from dataStructures import LogbookItem, addressPrefixes
 
 IGC_HEADER_TEMPLATE = """AOGN001
@@ -40,13 +42,19 @@ def flightToIGC(flightRecord: list, aircraftType='', registration='', competitio
         # B,TIME,   LAT,        LON,        A,  pAlt,   gpsAlt
         time = fr['dt'].strftime("%H%M%S")
 
+        # latitude: 8 bytes (including the letter) DDMMmmmN/S
         lat = fr['lat']
+        deg = f"{floor(lat):02}"
+        min = f"{(lat - floor(lat)) * 60:06.3f}"
         latLetter = 'N' if lat >= 0 else 'S'
-        lat = f"{lat:.5f}".replace('.', '')
+        latStr = f"{deg}{min}{latLetter}".replace('.', '')
 
+        # longitude: 9 bytes (including the letter) DDDMMmmmE/W
         lon = fr['lon']
+        deg = f"{floor(lon):03}"
+        min = f"{(lon - floor(lon)) * 60:06.3f}"
         lonLetter = 'E' if lon >= 0 else 'W'
-        lon = f"{lon:.5f}".replace('.', '')
+        lonStr = f"{deg}{min}{lonLetter}".replace('.', '')
 
         alt = f"{fr['alt']:05.0f}"
 
@@ -54,7 +62,7 @@ def flightToIGC(flightRecord: list, aircraftType='', registration='', competitio
         # @see https://xp-soaring.github.io/igc_file_format/igc_format_2008.html#link_I
         gs = f"{fr['gs']:03.0f}"
 
-        line = f"B{time}{lat}{latLetter}{lon}{lonLetter}A{alt}{alt}{gs}"
+        line = f"B{time}{latStr}{lonStr}A{alt}{alt}{gs}"
         igcLines.append(line)
 
     date = flightRecord[0]['dt'].strftime("%d%m%y")     # format: DDMMYY
