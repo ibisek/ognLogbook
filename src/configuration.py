@@ -71,6 +71,10 @@ REVERSE_ADDRESS_TYPE_PREFIX = {'SKY': 0, 'ICA': 1, 'FLR': 2, 'OGN': 3}
 
 MAX_DAYS_IN_RANGE = 14
 
-logging.basicConfig(filename=f"/tmp/rawWorker.log",
+LOG_ROOT = '/tmp'
+if os.name == 'nt':
+    LOG_ROOT = 'e:/wqz/temp'
+
+logging.basicConfig(filename=f"{LOG_ROOT}/rawWorker.log",
                     format='%(asctime)s %(message)s',
                     level=logging.INFO)
