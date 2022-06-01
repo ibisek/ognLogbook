@@ -95,10 +95,11 @@ if __name__ == '__main__':
     # ADDR = 'ICA3D1BFD'
 
     # ADDR = 'OGN259F2A'  # prievidza #1
+    # ADDR = 'OGNxxxxxx'  # prievidza #2
     # startDate = '2022-04-26'
 
-    ADDR = 'OGN204412'  # franta kestrel
-    startDate = '2022-04-30'
+    ADDR = 'ICA4B4DB7'  # DG-808 Svajc (flarm)
+    startDate = '2022-05-28'
 
     dt: datetime = datetime.strptime(startDate, '%Y-%m-%d')
     ts = dt.timestamp()     # [s]
@@ -188,22 +189,23 @@ if __name__ == '__main__':
 
     plt.title(f"addr: {ADDR}")
     plt.subplots_adjust(left=0.05, right=0.95, top=0.95)
+    markersize = 10
 
-    df.plot(y=['gs'], ax=axes[0], rot=0, ls='', marker='.', markersize=2)
-    df.plot(y=['gsf'], ax=axes[0], rot=0, ls='', marker='.', markersize=2)
+    df.plot(y=['gs'], ax=axes[0], rot=0, ls='', marker='.', markersize=markersize)
+    df.plot(y=['gsf'], ax=axes[0], rot=0, ls='', marker='.', markersize=markersize)
     df.plot(y=['airborneGsThr'], ax=axes[0], rot=0)
     # df.plot(y=['gsf'], ax=axes[0], rot=0)
     # df.plot(y=['gsk'], ax=axes[0], rot=0)
     ax1 = axes[0].twinx()
     df.plot(y=['airborneGs'], ax=ax1, rot=0)
 
-    df.plot(y=['alt'], figsize=(20, 15), ax=axes[1], rot=0, ls='', marker='.', markersize=2)
-    df.plot(y=['altf'], figsize=(20, 15), ax=axes[1], rot=0, ls='', marker='.', markersize=2)
+    df.plot(y=['alt'], figsize=(20, 15), ax=axes[1], rot=0, ls='', marker='.', markersize=markersize)
+    df.plot(y=['altf'], figsize=(20, 15), ax=axes[1], rot=0, ls='', marker='.', markersize=markersize)
     # df.plot(y=['altf'], ax=axes[1], rot=0)
     # df.plot(y=['altk'], ax=axes[1], rot=0)
 
     if 'agl' in df:
-        df.plot(y=['agl'], ax=axes[2], rot=0, ls='', marker='.', markersize=2)
+        df.plot(y=['agl'], ax=axes[2], rot=0, ls='', marker='.', markersize=markersize)
         # df.plot(y=['aglf'], ax=axes[2], rot=0)
         # df.plot(y=['aglk'], ax=axes[2], rot=0)
 
