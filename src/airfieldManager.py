@@ -161,3 +161,5 @@ if __name__ == '__main__':
         out = sys.stderr if not match else sys.stdout
         print(f"match: {match}, {rec.code} -> found: {icao}", file=out)
 
+    am.listInRange(49.1611, 49.1822, 16.4011, 16.9001)
+
