@@ -6,6 +6,7 @@ from periodicTimer import PeriodicTimer
 from cron.towLookup import TowLookup
 from cron.redisReaper import RedisReaper
 from cron.flownDistanceCalculator import FlownDistanceCalculator
+from cron.realTakeoff import RealTakeoffLookup
 
 
 class CronJobs(object):
@@ -22,6 +23,10 @@ class CronJobs(object):
         self.flownDistCalcTimer = PeriodicTimer(FlownDistanceCalculator.RUN_INTERVAL, distCalc.calcDistances)
         self.flownDistCalcTimer.start()
 
+        realTakeoffLookup = RealTakeoffLookup()
+        self.realTakeoffLookupTimer = PeriodicTimer(RealTakeoffLookup.RUN_INTERVAL, realTakeoffLookup.checkTakeoffs())
+        self.realTakeoffLookupTimer.start()
+
     def stop(self):
         self.towLookupTimer.stop()
 
@@ -29,5 +34,7 @@ class CronJobs(object):
         # self.rr.stop()
 
         self.flownDistCalcTimer.stop()
+
+        self.realTakeoffLookupTimer.stop()
 
         print("[INFO] Cron terminated.")
