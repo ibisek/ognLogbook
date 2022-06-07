@@ -35,7 +35,12 @@ class RealTakeoffLookup(object):
         with DbSource(dbConnectionInfo).getConnection().cursor() as c:
             c.execute(strSql)
 
-            while row := c.fetchone():
+            # while row := c.fetchone():
+            while True:
+                row = c.fetchone()
+                if not row:
+                    break
+
                 id, ts, address, address_type = row
                 item = LogbookItem(id=id, takeoff_ts=ts, address=address, address_type=address_type)
                 l.append(item)
