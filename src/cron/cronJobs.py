@@ -24,7 +24,7 @@ class CronJobs(object):
         self.flownDistCalcTimer.start()
 
         realTakeoffLookup = RealTakeoffLookup()
-        self.realTakeoffLookupTimer = PeriodicTimer(RealTakeoffLookup.RUN_INTERVAL, realTakeoffLookup.checkTakeoffs())
+        self.realTakeoffLookupTimer = PeriodicTimer(RealTakeoffLookup.RUN_INTERVAL, realTakeoffLookup.checkTakeoffs)
         self.realTakeoffLookupTimer.start()
 
     def stop(self):
