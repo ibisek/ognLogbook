@@ -55,7 +55,7 @@ class RealTakeoffLookup(object):
         for logbookItem in takeoffs:
             addr = f"{addressPrefixes[logbookItem.address_type]}{logbookItem.address}"
             windowEndTs = logbookItem.takeoff_ts - 2    # [s]
-            windowStartTs = windowEndTs - 40            # [s]
+            windowStartTs = windowEndTs - 59            # [s]
 
             q = f"select * from pos where addr='{addr}' " \
                 f"and time >= {windowStartTs}000000000 and time <= {windowEndTs}000000000 " \
@@ -63,17 +63,24 @@ class RealTakeoffLookup(object):
             rs = self.influxDb.query(q)
 
             if rs:
-                dirty = False
-                for row in rs.get_points():
-                    groundSpeed = row['gs']
-                    if groundSpeed >= 80:    # getGroundSpeedThreshold(logbookItem.aircraft_type, forEvent='T'):
-                        logbookItem.takeoff_ts = row['time']    # ts in string format!!
-                        logbookItem.takeoff_lat = row['lat']
-                        logbookItem.takeoff_lon = row['lon']
-                        dirty = True
+                rows = [row for row in rs.get_points()]
 
-                    else:
-                        break
+                dirty = False
+                minGs = 666e+666
+                minGsIndex = 0
+                for i, row in enumerate(rows):
+                    groundSpeed = row['gs']
+                    if groundSpeed < minGs:
+                        minGsIndex = i
+                        minGs = groundSpeed
+                        if groundSpeed <= 80:    # getGroundSpeedThreshold(logbookItem.aircraft_type, forEvent='T'):
+                            break
+
+                if minGsIndex > 0:
+                    logbookItem.takeoff_ts = row['time']  # ts in string format!!
+                    logbookItem.takeoff_lat = row['lat']
+                    logbookItem.takeoff_lon = row['lon']
+                    dirty = True
 
                 if dirty:
                     if not logbookItem.takeoff_icao:
