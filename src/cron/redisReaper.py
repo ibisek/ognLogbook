@@ -7,8 +7,9 @@
 
 from datetime import datetime
 from redis import StrictRedis
+import tzlocal
 
-from configuration import dbConnectionInfo, redisConfig, INFLUX_DB_NAME, INFLUX_DB_HOST, REDIS_RECORD_EXPIRATION, REVERSE_ADDRESS_TYPE, ADDRESS_TYPE_PREFIX
+from configuration import dbConnectionInfo, redisConfig, INFLUX_DB_NAME, INFLUX_DB_HOST, REDIS_RECORD_EXPIRATION, ADDRESS_TYPE_PREFIX_LETTER
 from db.DbThread import DbThread
 from db.InfluxDbThread import InfluxDbThread
 from utils import getGroundSpeedThreshold
@@ -54,28 +55,33 @@ class RedisReaper(object):
         for addr in airborne:
             prefix = addr[:1]
             addr = addr[1:]
-            addrType = REVERSE_ADDRESS_TYPE.get(prefix, None)
-            addrPrefixLong = ADDRESS_TYPE_PREFIX.get(addrType, None)
+            addrType = prefix   # REVERSE_ADDRESS_TYPE.get(prefix, None)
+            addrPrefixLong = ADDRESS_TYPE_PREFIX_LETTER.get(addrType, None)
 
             if not addrPrefixLong:
                 continue
 
+            # get last received beacon:
             rs = self.influx.client.query(f"SELECT * FROM pos WHERE addr='{addrPrefixLong}{addr}' ORDER BY time DESC LIMIT 1;")
+
             for res in rs:
                 # print('res:', res)
                 time = res[0]['time']
-                ts = int(datetime.strptime(time, '%Y-%m-%dT%H:%M:%SZ').timestamp())    # UTC ts
                 agl = res[0]['agl'] if res[0]['agl'] else 0
                 alt = res[0]['alt'] if res[0]['alt'] else 0
                 gs = res[0]['gs']
                 lat = res[0]['lat']
                 lon = res[0]['lon']
 
+                utcDt = datetime.strptime(time, '%Y-%m-%dT%H:%M:%S%z')  # UTC
+                localDt = utcDt.astimezone(tzlocal.get_localzone())
+                localTs = int(localDt.timestamp())
+
                 landingSuspected = False
                 if 0 < agl < 100 and gs < self.GS_THRESHOLD:
                     landingSuspected = True
                 else:
-                    lastBeaconAge = datetime.utcnow().timestamp() - ts
+                    lastBeaconAge = datetime.now().timestamp() - localTs
                     if lastBeaconAge > self.REDIS_STALE_INTERVAL_2:
                         landingSuspected = True
 
@@ -93,23 +99,24 @@ class RedisReaper(object):
                     # look-up related takeoff data:
                     logbookItem: LogbookItem = findMostRecentTakeoff(addr, addrType)
 
-                    # create a LANDING logbook_event -> a stored procedure then creates a logbook_entry:
-                    flightTime = ts - logbookItem.takeoff_ts
-                    if flightTime < 0:
-                        flightTime = 0
+                    if logbookItem:
+                        # create a LANDING logbook_event -> a stored procedure then creates a logbook_entry:
+                        flightTime = localTs - logbookItem.takeoff_ts
+                        if flightTime < 0:
+                            flightTime = 0
 
-                    icaoLocationVal = f"'{icaoLocation}'" if icaoLocation else 'null'
-                    strSql = f"INSERT INTO logbook_events " \
-                             f"(ts, address, address_type, aircraft_type, event, lat, lon, location_icao, flight_time) " \
-                             f"VALUES " \
-                             f"({ts}, '{addr}', '{logbookItem.address_type}', '{logbookItem.aircraft_type}', " \
-                             f"'L', {lat:.5f}, {lon:.5f}, {icaoLocationVal}, {flightTime});"
+                        icaoLocationVal = f"'{icaoLocation}'" if icaoLocation else 'null'
+                        strSql = f"INSERT INTO logbook_events " \
+                                 f"(ts, address, address_type, aircraft_type, event, lat, lon, location_icao, flight_time) " \
+                                 f"VALUES " \
+                                 f"({localTs}, '{addr}', '{logbookItem.address_type}', '{logbookItem.aircraft_type}', " \
+                                 f"'L', {lat:.5f}, {lon:.5f}, {icaoLocationVal}, {flightTime});"
 
-                    # print('strSql:', strSql)
+                        # print('strSql:', strSql)
 
-                    self.dbt.addStatement(strSql)
+                        self.dbt.addStatement(strSql)
 
-                    numLanded += 1
+                        numLanded += 1
 
         if numLanded > 0:
             print(f"[INFO] RedisReaper: cleared {numLanded} stale records")
@@ -121,3 +128,6 @@ class RedisReaper(object):
 if __name__ == '__main__':
     r = RedisReaper()
     r.doWork()
+    r.stop()
+
+    print('KOHEU.')
