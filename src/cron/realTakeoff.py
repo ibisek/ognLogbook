@@ -6,6 +6,8 @@ by following the path back in time.
 
 from datetime import datetime
 from typing import List
+import tzlocal
+import pytz
 
 from airfieldManager import AirfieldManager
 from configuration import dbConnectionInfo, INFLUX_DB_HOST, INFLUX_DB_NAME
@@ -86,7 +88,11 @@ class RealTakeoffLookup(object):
                     if not logbookItem.takeoff_icao:
                         logbookItem.takeoff_icao = self.airfieldManager.getNearest(logbookItem.takeoff_lat, logbookItem.takeoff_lon)
 
-                    logbookItem.takeoff_ts = int(datetime.strptime(logbookItem.takeoff_ts, '%Y-%m-%dT%H:%M:%SZ').timestamp())
+                    # the DB stores datetime as Europe-local (UTC+2/1) - shift from influx's UTC to local:
+                    utcDt = datetime.strptime(logbookItem.takeoff_ts, '%Y-%m-%dT%H:%M:%S%z')
+                    localTz = tzlocal.get_localzone()
+                    localDt = utcDt.astimezone(localTz)
+                    logbookItem.takeoff_ts = int(localDt.timestamp())
 
                     updateSql = f"UPDATE logbook_events SET ts={logbookItem.takeoff_ts}, " \
                                 f"lat={logbookItem.takeoff_lat}, lon={logbookItem.takeoff_lon}, " \
