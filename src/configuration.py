@@ -27,10 +27,9 @@ REDIS_RECORD_EXPIRATION = 8*60*60     # [s]
 
 AGL_LANDING_LIMIT = 100
 
-OGN_USERNAME = 'zkouska'
-
-# DB_HOST = 'cml7'
-DB_HOST = '127.0.0.1'
+# DB_HOST = '10.8.0.18'   # 127.0.0.1
+DB_HOST = 'cml7'
+# DB_HOST = '127.0.0.1'
 DB_PORT = 3306
 DB_NAME = 'ogn_logbook'
 DB_USER = '**'
@@ -68,6 +67,7 @@ ADDRESS_TYPES = {0: 'S', 1: 'I', 2: 'F', 3: 'O'}
 REVERSE_ADDRESS_TYPE = {'S': 0, 'I': 1, 'F': 2, 'O': 3}
 ADDRESS_TYPE_PREFIX = {0: 'SKY', 1: 'ICA', 2: 'FLR', 3: 'OGN'}
 REVERSE_ADDRESS_TYPE_PREFIX = {'SKY': 0, 'ICA': 1, 'FLR': 2, 'OGN': 3}
+ADDRESS_TYPE_PREFIX_LETTER = {'S': 'SKY', 'I': 'ICA', 'F': 'FLR', 'O': 'OGN'}
 
 MAX_DAYS_IN_RANGE = 14
 
