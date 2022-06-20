@@ -40,6 +40,7 @@ i10n['sum.hours'] = ['Hours', 'Hodin', 'Gesamtflugzeit']
 
 
 i10n['werbung.vfrmanual'] = ['VFR Manual', 'VFR Manuál', 'VFR Manual']
+i10n['werbung.krt2bt.link'] = ['https://ogn.ibisek.com/index.php/2022/04/20/krt2-bluetooth-adapter/', 'https://ogn.ibisek.com/index.php/en/2022/04/20/krt2-bluetooth/', 'https://ogn.ibisek.com/index.php/2022/04/20/krt2-bluetooth-adapter/']
 
 i10n[''] = ['', '']
 

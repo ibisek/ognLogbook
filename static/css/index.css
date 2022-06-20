@@ -133,7 +133,7 @@ a:hover {
 
 .topbar {
     text-align:center;
-    max-width: 1350px;
+    max-width: 1400px;
 }
 
 .logo {
@@ -162,7 +162,7 @@ a:hover {
 }
 
 .menuitem {
-    margin-left: 30px;
+    margin-left: 22px;
     float:left;
     line-height: 1.5;
 }
