@@ -66,11 +66,11 @@
             {% if totNumFlights and totNumFlights > 0 %} {# .. display only if the statistical data is available #}
             <div class="stats">
                 <div class="tooltip">
-                    {{ gettext('stat.line1') }}: <b>{{totNumFlights}}</b>&nbsp;<a href="/stats">&#x1F4CA;</a>
+                    {{ gettext('stat.line1') }}: <b>{{ "{:,}".format(totNumFlights).replace(',', ' ') }}</b>&nbsp;<a href="/stats">&#x1F4CA;</a>
                     <span class="tooltiptext">{{ gettext('stat.line1.hint') }}</span>
                 </div>
                 <div class="tooltip">
-                    {{ gettext('stat.line2') }}: <b>{{numFlightsToday}}</b>
+                    {{ gettext('stat.line2') }}: <b>{{ "{:,}".format(numFlightsToday).replace(',', ' ') }}</b>
                     <span class="tooltiptext">{{ gettext('stat.line2.hint') }}</span>
                 </div>
                 <div class="tooltip">
