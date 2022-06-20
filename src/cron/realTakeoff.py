@@ -94,9 +94,11 @@ class RealTakeoffLookup(object):
                     localDt = utcDt.astimezone(localTz)
                     logbookItem.takeoff_ts = int(localDt.timestamp())
 
+                    locationIcao = f"'{logbookItem.takeoff_icao}'" if logbookItem.takeoff_icao else 'null'
+
                     updateSql = f"UPDATE logbook_events SET ts={logbookItem.takeoff_ts}, " \
                                 f"lat={logbookItem.takeoff_lat}, lon={logbookItem.takeoff_lon}, " \
-                                f"location_icao='{logbookItem.takeoff_icao}' " \
+                                f"location_icao={locationIcao} " \
                                 f"WHERE id={logbookItem.id};"
 
                     with DbSource(dbConnectionInfo).getConnection().cursor() as cur:
