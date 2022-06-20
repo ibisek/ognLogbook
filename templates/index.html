@@ -35,7 +35,7 @@
 		</div>
 		{% for item in list %}
 		<div class="row">
-			<div class="cell">{{item.takeoff_dt.strftime('%d.%m.')}} <a href="/igc/t/{{ item.id }}">&#128441</a></div>
+			<div class="cell">{{item.takeoff_dt.strftime('%d.%m.')}} {% if eligibleForMapView(ts=item.takeoff_ts) %}<a href="/igc/f/{{item.id}}">&#128441</a>{% endif %}</div>
 			<div class="cell">{{formatTsToHHMM(item.takeoff_dt)}}</div>
 			<div class="cell">{% if item.takeoff_icao %}<a href="/loc/{{item.takeoff_icao}}">{{item.takeoff_icao}}</a>{% else %}<a href="https://mapy.cz/zakladni?x={{item.takeoff_lon}}&y={{item.takeoff_lat}}&z=14&source=coor&id={{item.takeoff_lon}}%2C{{item.takeoff_lat}}" target="_blank">{{ gettext('main.map') }}</a>{% endif %}</div>
 			<div class="cell">{% if item.registration %}<a href="/reg/{{item.registration}}">{{item.registration}}</a>{% else %}{{ gettext('tab.hidden') }}{% endif %}</div>
