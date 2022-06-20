@@ -73,6 +73,7 @@ def getHighestTrafficToday():
             sql = f"SELECT location_icao, count(address) AS n FROM logbook_events " \
                 f"WHERE ts >= {startTs} AND ts <= {endTs} " \
                 f"AND location_icao is not null " \
+                f"AND location_icao != 'None' " \
                 f"GROUP BY location_icao ORDER BY n DESC LIMIT 1;"
             # .. f"AND location_icao like 'LK%'" \
             res = c.execute(sql)
