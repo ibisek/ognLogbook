@@ -106,7 +106,8 @@ class RealTakeoffLookup(object):
 
                     modifiedTakeoffs += 1
 
-        print(f"[INFO] Num take-off amendments: {modifiedTakeoffs}/{len(takeoffs)}")
+        if takeoffs > 0 and modifiedTakeoffs > 0:
+            print(f"[INFO] Num take-off amendments: {modifiedTakeoffs}/{len(takeoffs)}")
 
 
 if __name__ == '__main__':
