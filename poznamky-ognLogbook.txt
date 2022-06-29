@@ -38,7 +38,7 @@ Remote access:
     ALTER RETENTION POLICY logbook_retention2 ON ogn_logbook DURATION 1d REPLICATION 1 SHARD DURATION 1d DEFAULT
 
     STM / Short Time Memory (for all encountered traffic):
-        CREATE RETENTION POLICY ogn_stm_retention1 ON ogn_stm DURATION 1d REPLICATION 1 SHARD DURATION 1d DEFAULT
+        CREATE RETENTION POLICY ogn_stm_retention1 ON ogn_logbook_stm DURATION 1d REPLICATION 1 SHARD DURATION 1d DEFAULT
 
 --
 
