@@ -388,13 +388,14 @@ class BeaconProcessor(object):
 
         if not DEBUG and numTasksPerMin >= 10:
             cmd = f"mosquitto_pub -h {MQ_HOST} -p {MQ_PORT} -u {MQ_USER} -P {MQ_PASSWORD} -t ognLogbook/rate -m '{round(numTasksPerMin)}'; " \
-                  f"mosquitto_pub -h {MQ_HOST} -p {MQ_PORT} -u {MQ_USER} -P {MQ_PASSWORD} -t ognLogbook/queued -m '{round(numQueuedTasks)}'; " \
-                  f"mosquitto_pub -h {MQ_HOST} -p {MQ_PORT} -u {MQ_USER} -P {MQ_PASSWORD} -t ognLogbook/ogn -m '{traffic['ogn']}'; " \
-                  f"mosquitto_pub -h {MQ_HOST} -p {MQ_PORT} -u {MQ_USER} -P {MQ_PASSWORD} -t ognLogbook/flarm -m '{traffic['flarm1'] + traffic['flarm2']}'; " \
-                  f"mosquitto_pub -h {MQ_HOST} -p {MQ_PORT} -u {MQ_USER} -P {MQ_PASSWORD} -t ognLogbook/icao -m '{traffic['icao1']}';" \
+                  f"mosquitto_pub -h {MQ_HOST} -p {MQ_PORT} -u {MQ_USER} -P {MQ_PASSWORD} -t ognLogbook/queued -m '{round(numQueuedTasks)}'; "
 
-            if traffic['sky1'] > 100:
-                cmd += f"mosquitto_pub -h {MQ_HOST} -p {MQ_PORT} -u {MQ_USER} -P {MQ_PASSWORD} -t ognLogbook/sky -m '{traffic['sky1']}';"
+            trafficKeys = ['ogn', 'flarm1', 'icao1', 'sky1']
+            for trafficType in trafficKeys:
+                n = traffic[trafficType]
+                if n > 100:
+                    t = trafficType[:-1] if trafficType.endswith('1') else trafficType
+                    cmd += f"mosquitto_pub -h {MQ_HOST} -p {MQ_PORT} -u {MQ_USER} -P {MQ_PASSWORD} -t ognLogbook/{t} -m '{traffic[trafficType]}';"
 
             os.system(cmd)
 
