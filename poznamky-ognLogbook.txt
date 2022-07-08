@@ -117,3 +117,25 @@ Dalsi DB letist:
 --
 Let s nufikem dynamikem:
     http://127.0.0.1:5000/map/41093501
+
+-- USERs --
+    id
+    token
+    email(s)
+    creation_ts
+    last_access_ts
+    access_counter
+    (last_ip_addr)
+
+-- FLEETs --
+    id
+    user_id
+    label
+    airplanes
+
+-- WATCHERs --
+    id
+    user_id
+    address
+
+
