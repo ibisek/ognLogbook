@@ -123,6 +123,7 @@ Let s nufikem dynamikem:
     token
     email(s)
     creation_ts
+    lang
     last_access_ts
     access_counter
     (last_ip_addr)
@@ -136,6 +137,10 @@ Let s nufikem dynamikem:
 -- WATCHERs --
     id
     user_id
-    address
+    prefix+address
+    (registration)
+    (competition_number)
+    (num_notifications)
+
 
 
