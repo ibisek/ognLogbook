@@ -187,6 +187,30 @@ CREATE INDEX ddb_aircraft_registration ON ddb(aircraft_registration);
 CREATE INDEX aircraft_cn ON ddb(aircraft_cn);
 --SHOW INDEXES FROM ddb;
 
+--DROP TABLE IF EXISTS users;
+CREATE TABLE users (
+	id BIGINT PRIMARY KEY auto_increment,
+	token VARCHAR(64) not null,
+    	email VARCHAR(64) not null,
+    	creation_ts BIGINT,
+    	lang VARCHAR(2) default 'en',
+    	last_access_ts BIGINT DEFAULT 0,
+    	access_counter BIGINT DEFAULT 0
+);
+
+CREATE INDEX users_token ON users(token);
+--SHOW INDEXES FROM users;
+
+--DROP TABLE IF EXISTS watchers;
+CREATE TABLE watchers (
+	id BIGINT PRIMARY KEY auto_increment,
+	user_id BIGINT REFERENCES users.id,
+    	addr VARCHAR(9)
+);
+
+CREATE INDEX watchers_addr ON watchers(addr);
+--SHOW INDEXES FROM watchers;
+
 --
 
 SELECT count(*) FROM logbook_events;
