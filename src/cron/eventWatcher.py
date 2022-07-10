@@ -4,7 +4,8 @@ Event Watcher to inform retistered users about airplane events (take-off/landing
 
 from redis import StrictRedis
 
-from configuration import redisConfig, ADDRESS_TYPE_PREFIX
+from configuration import dbConnectionInfo, redisConfig, ADDRESS_TYPE_PREFIX
+from db.DbSource import DbSource
 
 
 class EventWatcher:
@@ -20,6 +21,23 @@ class EventWatcher:
         rec = f"{ts};{event};{address};{addressType};{lat:.5f};{lon:.5f};{icaoLocation};{flightTime}"
         redis.rpush(EventWatcher.REDIS_KEY, rec)
 
+    def _listWatchers(self, addressWithPrefix):
+        strSql = f"SELECT * FROM watchers WHERE address = '{addressWithPrefix}';"
+        print("strSql:", strSql)
+
+        with DbSource(dbConnectionInfo).getConnection().cursor() as cur:
+            cur.execute(strSql)
+            for row in cur:
+                print("row:", row)
+
+        # TODO
+
+        return ['dummy watcher instance']
+
+    def _notifyWatcher(self, watcher):
+        print(f"Notifying '{watcher}'..")
+        # TODO
+
     def processEvents(self):
         numRecs = self.redis.llen(EventWatcher.REDIS_KEY)
         if numRecs == 0:
@@ -29,11 +47,10 @@ class EventWatcher:
             ts, event, address, addressType, lat, lon, icaoLocation, flightTime = rec.decode('utf-8').split(';')
             addrPrefix = ADDRESS_TYPE_PREFIX[int(addressType)]
 
-            # TODO list watchers:
-            strSql = f"SELECT * FROM watchers WHERE address = '{addrPrefix}{address}';"
-            print("strSql:", strSql)
+            watchers = self._listWatchers(f"{addrPrefix}{address}")
 
-            # TODO notify watchers:
+            for watcher in watchers:
+                self._notifyWatcher(watcher)
 
 
 if __name__ == '__main__':
