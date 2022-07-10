@@ -286,10 +286,9 @@ class RawWorker(Thread):
             # print('strSql:', strSql)
             self.dbThread.addStatement(strSql)
 
-            # add the event into eventWatcher list:
-            # EventWatcher.createEvent(redis=self.redis,
-            #                          ts=ts, event=event, address=address, addressType=addressType,
-            #                          lat=lat, lon=lon, icaoLocation=icaoLocation, flightTime=flightTime)
+            EventWatcher.createEvent(redis=self.redis,
+                                     ts=ts, event=event, address=address, addressType=addressType,
+                                     lat=lat, lon=lon, icaoLocation=icaoLocation, flightTime=flightTime)
 
         self.beaconDuplicateCache.tick()    # cleanup the cache (cannot be called from PeriodicTimer due to subprocess/threading troubles :|)
 
