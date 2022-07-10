@@ -33,6 +33,7 @@ class Watcher:
 
 class EventWatcher:
     REDIS_KEY = 'watcher_events'
+    RUN_INTERVAL = 10  # [s]
 
     def __init__(self):
         self.redis = self.redis = StrictRedis(**redisConfig)
@@ -62,9 +63,9 @@ class EventWatcher:
 
     def _notifyWatcher(self, watcher: Watcher, event: WatcherEvent):
         if event.icaoLocation:
-            print(f"[INFO] WATCHER [{event.ts}] <{event.event}> @ {event.icaoLocation} {watcher.aircraft_registration} ({watcher.aircraft_cn})")
+            print(f"[TEMP] WATCHER [{event.ts}] <{event.event}> @ {event.icaoLocation} {watcher.aircraft_registration} ({watcher.aircraft_cn})")
 
-        # TODO poslat mail
+        # TODO poslat mail, nebo neco jineho
 
     def processEvents(self):
         numRecs = self.redis.llen(EventWatcher.REDIS_KEY)
