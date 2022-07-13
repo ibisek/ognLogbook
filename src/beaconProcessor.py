@@ -286,6 +286,7 @@ class RawWorker(Thread):
             # print('strSql:', strSql)
             self.dbThread.addStatement(strSql)
 
+            icaoLocation = icaoLocation.replace("'", '')
             EventWatcher.createEvent(redis=self.redis,
                                      ts=ts, event=event, address=address, addressType=addressType,
                                      lat=lat, lon=lon, icaoLocation=icaoLocation, flightTime=flightTime)
