@@ -6,7 +6,7 @@ from datetime import datetime
 from redis import StrictRedis
 
 from configuration import dbConnectionInfo, redisConfig, ADDRESS_TYPE_PREFIX, ADDRESS_TYPES
-from cron.stuff.sendMail3 import SendMail3
+from cron.sendMail3 import SendMail3
 from db.DbSource import DbSource
 from utils import formatDuration
 
