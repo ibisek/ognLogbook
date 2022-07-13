@@ -295,16 +295,15 @@ select * from logbook_entries where tow_id IS NOT null order by landing_ts DESC 
 
 select * from users;
 
---1 2 8 9 10
+--insert into users (token, email, lang) values ('zdenkuvtoken', 'zdenek.karmazin@gmail.com', 'cz');
+
 select * from watchers;
 
-select * from ddb limit 10;
-
-select distinct(device_type) from ddb;
-
---insert into watchers (user_id, addr, addr_type) VALUES (1, 'C35009', 'O');
+--insert into watchers (user_id, addr, addr_type) VALUES (3, '062024', 'O');
 
 select u.id, u.email, u.lang, d.aircraft_registration, d.aircraft_cn from watchers as w
 	left join users as u on u.id = w.user_id
 	left join ddb as d on d.device_id = w.addr and d.device_type=w.addr_type
 	where addr_type = 'O' and addr = 'C35001';
+
+
