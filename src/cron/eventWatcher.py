@@ -77,11 +77,17 @@ class EventWatcher:
             SendMail3().sendMail(receiver_email=watcher.email, subject=subject, text=text)
 
     def processEvents(self):
+        pass
         numRecs = self.redis.llen(EventWatcher.REDIS_KEY)
         if numRecs == 0:
             return
 
-        while rec := self.redis.lpop(EventWatcher.REDIS_KEY):
+        # while rec := self.redis.lpop(EventWatcher.REDIS_KEY):
+        while True:
+            rec = self.redis.lpop(EventWatcher.REDIS_KEY)
+            if not rec:
+                break
+
             event = WatcherEvent(rec)
             watchers = self._listWatchers(event.addressType, event.address)
 
