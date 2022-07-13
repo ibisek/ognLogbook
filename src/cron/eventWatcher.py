@@ -70,12 +70,12 @@ class EventWatcher:
             dt = datetime.fromtimestamp(event.ts)
             dt = datetime.strftime(dt, "%Y-%m-%d %H:%M:%S")
 
-            subject = f"{watcher.aircraft_registration} ({watcher.aircraft_cn}) @ {event.icaoLocation} "
+            subject = f"{watcher.aircraft_registration} ({watcher.aircraft_cn}) @ {event.icaoLocation}"
 
             text = f"dt: {dt}\nevent: {event.event}"
             if event.flightTime > 0:
                 text += f"\nflightTime: {formatDuration(event.flightTime)}"
-            text += f"\n\nEvent location:\n\tlat: {event.lat:.4f}\n\tlon: {event.lon:.4f}"
+            text += f"\n/\nEvent location:\n\tlat: {event.lat:.4f}\n\tlon: {event.lon:.4f}"
             SendMail3().sendMail(receiver_email=watcher.email, subject=subject, text=text)
 
     def processEvents(self):
@@ -100,7 +100,7 @@ class EventWatcher:
 if __name__ == '__main__':
     redis = StrictRedis(**redisConfig)
     EventWatcher.createEvent(redis=redis,
-                             ts=int(datetime.now().timestamp()), event='?', address='C35001', addressType=3,
+                             ts=int(datetime.now().timestamp()), event='L', address='C35001', addressType=3,
                              lat=49.123, lon=16.123, icaoLocation='LKKA', flightTime=666)
 
     ev = EventWatcher()
