@@ -6,6 +6,7 @@ from datetime import datetime
 from redis import StrictRedis
 
 from configuration import dbConnectionInfo, redisConfig, ADDRESS_TYPE_PREFIX, ADDRESS_TYPES
+from cron.utils.sendMail3 import SendMail3
 from db.DbSource import DbSource
 
 
@@ -65,7 +66,15 @@ class EventWatcher:
         if event.icaoLocation:
             print(f"[TEMP] WATCHER [{event.ts}] <{event.event}> @ {event.icaoLocation} {watcher.aircraft_registration} ({watcher.aircraft_cn})")
 
-        # TODO poslat mail, nebo neco jineho
+            dt = datetime.fromtimestamp(event.ts)
+            dt = datetime.strftime(dt, "%Y-%m-%d %H:%M:%S")
+
+            subject = f"{watcher.aircraft_registration} ({watcher.aircraft_cn}) @ {event.icaoLocation} "
+
+            text = f"dt: {dt}\nevent: {event.event}\nlat: {event.lat:.4f}\nlon: {event.lon:.4f}"
+            if event.flightTime > 0:
+                text += f"\nflightTime: {event.flightTime}s"
+            SendMail3().sendMail(receiver_email=watcher.email, subject=subject, text=text)
 
     def processEvents(self):
         numRecs = self.redis.llen(EventWatcher.REDIS_KEY)
