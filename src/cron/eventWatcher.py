@@ -75,7 +75,8 @@ class EventWatcher:
             text = f"dt: {dt}\nevent: {event.event}"
             if event.flightTime > 0:
                 text += f"\nflightTime: {formatDuration(event.flightTime)}"
-            text += f"\n/\nEvent location:\n\tlat: {event.lat:.4f}\n\tlon: {event.lon:.4f}"
+            text += f"\n\nEvent location:\n\tlat: {event.lat:.4f}\n\tlon: {event.lon:.4f}"
+
             SendMail3().sendMail(receiver_email=watcher.email, subject=subject, text=text)
 
     def processEvents(self):
