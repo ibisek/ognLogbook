@@ -22,6 +22,8 @@ else:
     GEOFILE_PATH = '/var/www/ognLogbook-data/mosaic-500m.TIF'
     USE_MULTIPROCESSING_INSTEAD_OF_THREADS = True
 
+OGN_USERNAME = 'blume1'
+
 redisConfig = {"host": "127.0.0.1", "password": "", "port": 6379}
 REDIS_RECORD_EXPIRATION = 8*60*60     # [s]
 
