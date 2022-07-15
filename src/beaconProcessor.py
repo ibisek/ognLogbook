@@ -30,7 +30,7 @@ from dataStructures import Status
 from utils import getGroundSpeedThreshold
 from periodicTimer import PeriodicTimer
 from expiringDict import ExpiringDict
-from cron.eventWatcher import EventWatcher
+from cron.eventWatcher.eventWatcher import EventWatcher
 
 
 class RawWorker(Thread):
