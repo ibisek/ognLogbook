@@ -68,7 +68,7 @@ class EventWatcher:
             print(f"[TEMP] WATCHER [{event.ts}] <{event.event}> @ {event.icaoLocation} {watcher.aircraft_registration} ({watcher.aircraft_cn})")
 
             subject, body = formatMailNotification(event, watcher)
-            SendMail3().sendMail(receiver_email=watcher.email, subject=subject, text=text)
+            SendMail3().sendMail(receiver_email=watcher.email, subject=subject, text=body)
 
     def processEvents(self):
         pass
