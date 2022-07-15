@@ -11,6 +11,7 @@ from email import encoders
 from email.mime.base import MIMEBase
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
+from email.header import Header
 
 
 class SendMail3:
@@ -25,7 +26,15 @@ class SendMail3:
         # body = f"From:Automat\nSubject:{subject}\n\n{body}"
 
         if not attachment:
-            text = f"Subject:{subject}\n\n{text}"
+            # text = f"Subject:{subject}\n\n{text}"
+            msg = MIMEMultipart('alternative')
+            msg.set_charset('utf8')
+            msg['FROM'] = self.sender_email
+            msg['TO'] = receiver_email
+            msg['Subject'] = Header(subject.encode('utf-8'), 'UTF-8').encode()
+            msg.attach(MIMEText(text, "plain"))
+            text = msg.as_string()
+
         else:
             message = MIMEMultipart()
             message["From"] = self.sender_email
