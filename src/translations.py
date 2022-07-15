@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 {{ gettext('') }}
 """
@@ -38,15 +39,31 @@ i10n['search.notFound.short'] = ['no data', 'nejsou data', 'keine daten']
 i10n['sum.flights'] = ['Flights', 'Letů', 'Anzahl der Flüge']
 i10n['sum.hours'] = ['Hours', 'Hodin', 'Gesamtflugzeit']
 
-
 i10n['werbung.vfrmanual'] = ['VFR Manual', 'VFR Manuál', 'VFR Manual']
 i10n['werbung.krt2bt.link'] = ['https://ogn.ibisek.com/index.php/2022/04/20/krt2-bluetooth-adapter/', 'https://ogn.ibisek.com/index.php/en/2022/04/20/krt2-bluetooth/', 'https://ogn.ibisek.com/index.php/2022/04/20/krt2-bluetooth-adapter/']
 
-i10n[''] = ['', '']
+i10n['notif.mail.departure'] = ['departed from', 'odstartoval z', 'gestartet von']
+i10n['notif.mail.landing'] = ['landed at', 'přistál v', 'gelandet bei']
+i10n['notif.mail.datetime'] = ['Date and time', 'Datum a čas', 'Datum und Zeit']
+i10n['notif.mail.flightTracking'] = ['Flight tracking available at', 'Trackování letu dostupné z', 'Flugverfolgung verfügbar unter']
+i10n['notif.mail.flightDetails'] = ['Flight details available at', 'Detaily a záznam letu dostupné na', 'Flugdetails verfügbar unter']
+i10n['notif.mail.flightTime'] = ['Recorded flight-time', 'Zaznamenaná doba letu', 'Flugzeit']
+i10n['notif.mail.detectedTakoffLoc'] = ['Detected take-off location', 'Detekovaní míisto vzletu', 'Startort']
+i10n['notif.mail.detectedLandingLoc'] = ['Detected landing location', 'Detekované místo přistání', 'Landeplatz']
+i10n['notif.mail.map'] = ['map', 'mapa', 'Karte']
+i10n['notif.mail.footer'] = ['This is an automatically generated message from https://logbook.ibisek.com.\nYou can cancel or amend notification settings in your account at https://my.logbook.ibisek.com.',
+                             'Toto je automaticky generovaná zpráva z https://logbook.ibisek.com.\nZrušit či upravit nastavení zasílaní notifikací lze ve správě účtu na adrese https://my.logbook.ibisek.com.',
+                             'Dies ist eine automatisch generierte Nachricht von https://logbook.ibisek.com\nSie können die Benachrichtigungseinstellungen in Ihrem Konto unter https://my.logbook.ibisek.com ändern oder stornieren.']
+
+i10n[''] = ['', '', '']
 
 
-def gettext(key='x'):
-    lan = request.accept_languages.best
+def gettext(key='x', lan=None):
+    if not lan:
+        try:
+            lan = request.accept_languages.best
+        except RuntimeError:
+            lan = 'en'
 
     if not lan:
         return i10n[key][0]
