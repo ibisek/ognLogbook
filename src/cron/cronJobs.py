@@ -7,7 +7,7 @@ from cron.towLookup import TowLookup
 from cron.redisReaper import RedisReaper
 from cron.flownDistanceCalculator import FlownDistanceCalculator
 from cron.realTakeoff import RealTakeoffLookup
-from cron.eventWatcher import EventWatcher
+from cron.eventWatcher.eventWatcher import EventWatcher
 
 
 class CronJobs(object):
