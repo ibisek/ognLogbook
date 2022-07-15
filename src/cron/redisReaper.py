@@ -9,13 +9,14 @@ from datetime import datetime
 from redis import StrictRedis
 import tzlocal
 
-from configuration import dbConnectionInfo, redisConfig, INFLUX_DB_NAME, INFLUX_DB_HOST, REDIS_RECORD_EXPIRATION, ADDRESS_TYPE_PREFIX_LETTER
+from configuration import dbConnectionInfo, redisConfig, INFLUX_DB_NAME, INFLUX_DB_HOST, REDIS_RECORD_EXPIRATION, ADDRESS_TYPE_PREFIX, REVERSE_ADDRESS_TYPE
 from db.DbThread import DbThread
 from db.InfluxDbThread import InfluxDbThread
 from utils import getGroundSpeedThreshold
 from airfieldManager import AirfieldManager
 from dao.logbookDao import findMostRecentTakeoff
 from dataStructures import LogbookItem
+from cron.eventWatcher.eventWatcher import EventWatcher
 
 
 class RedisReaper(object):
@@ -43,7 +44,7 @@ class RedisReaper(object):
         keys = self.redis.keys('*status')
         for key in keys:
             key = key.decode('ascii')
-            ttl = self.redis.ttl(key)
+            # ttl = self.redis.ttl(key)
             value = self.redis.get(key)
             if value:   # entries could have been deleted in the mean while..
                 status = int(value.decode('ascii').split(';')[0])
@@ -56,7 +57,7 @@ class RedisReaper(object):
             prefix = addr[:1]
             addr = addr[1:]
             addrType = prefix   # REVERSE_ADDRESS_TYPE.get(prefix, None)
-            addrPrefixLong = ADDRESS_TYPE_PREFIX_LETTER.get(addrType, None)
+            addrPrefixLong = ADDRESS_TYPE_PREFIX.get(REVERSE_ADDRESS_TYPE.get(prefix, None), None)
 
             if not addrPrefixLong:
                 continue
@@ -93,7 +94,8 @@ class RedisReaper(object):
                     # print(f"addr: {addr}; dt: {dt / 60:.0f}min ; agl: {agl:.0f}m near {icaoLocation}")
 
                     # set status as Landed in redis (or delete?):
-                    self.redis.set(f"{prefix}{addr}-status", '0;0')  # 0 = on-ground; ts=0 to indicate forced landing
+                    key = f"{prefix}{addr}-status"
+                    self.redis.set(key, '0;0')  # 0 = on-ground; ts=0 to indicate forced landing
                     self.redis.expire(key, REDIS_RECORD_EXPIRATION)
 
                     # look-up related takeoff data:
@@ -115,6 +117,11 @@ class RedisReaper(object):
                         # print('strSql:', strSql)
 
                         self.dbt.addStatement(strSql)
+
+                        addrTypeNum = REVERSE_ADDRESS_TYPE.get(addrType, 1)
+                        EventWatcher.createEvent(redis=self.redis,
+                                                 ts=localTs, event='L', address=addr, addressType=addrTypeNum,
+                                                 lat=lat, lon=lon, icaoLocation=icaoLocation, flightTime=flightTime)
 
                         numLanded += 1
 
