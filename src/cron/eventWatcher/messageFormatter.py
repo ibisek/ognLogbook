@@ -18,7 +18,11 @@ def formatMailNotification(event, watcher):
 
     mapUrlTemplate = "https://en.mapy.cz/zakladni?x={lon:.5f}&y={lat:.5f}&z=16&base=ophoto&source=coor&id={lon:.5f}%2C{lat:.5f}"
 
-    location = event.icaoLocation if event.icaoLocation else '(??)'
+    location = event.icaoLocation
+    if not event.icaoLocation or event.icaoLocation == 'null':
+        location = '(??)'
+        event.icaoLocation = None
+
     subject = f"{watcher.aircraft_registration} ({watcher.aircraft_cn}) {eventStr} {location}"
 
     dt = datetime.fromtimestamp(event.ts)
