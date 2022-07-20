@@ -51,9 +51,9 @@ i10n['notif.mail.flightTime'] = ['Recorded flight-time', 'Zaznamenaná doba letu
 i10n['notif.mail.detectedTakoffLoc'] = ['Detected take-off location', 'Detekovaní míisto vzletu', 'Startort']
 i10n['notif.mail.detectedLandingLoc'] = ['Detected landing location', 'Detekované místo přistání', 'Landeplatz']
 i10n['notif.mail.map'] = ['map', 'mapa', 'Karte']
-i10n['notif.mail.footer'] = ['This is an automatically generated message by https://logbook.ibisek.com.\nYou can cancel or amend notification settings in your account at https://my.logbook.ibisek.com.',
-                             'Toto je automaticky generovaná zpráva z https://logbook.ibisek.com.\nZrušit či upravit nastavení zasílaní notifikací lze ve správě účtu na adrese https://my.logbook.ibisek.com.',
-                             'Dies ist eine automatisch generierte Nachricht von https://logbook.ibisek.com\nSie können die Benachrichtigungseinstellungen in Ihrem Konto unter https://my.logbook.ibisek.com ändern oder stornieren.']
+i10n['notif.mail.footer'] = ['This is an automatically generated message by https://logbook.ibisek.com.\nYou can cancel or amend notification settings in your account at https://logbook.ibisek.com/login.',
+                             'Toto je automaticky generovaná zpráva z https://logbook.ibisek.com.\nZrušit či upravit nastavení zasílaní notifikací lze ve správě účtu na adrese https://logbook.ibisek.com/login.',
+                             'Dies ist eine automatisch generierte Nachricht von https://logbook.ibisek.com\nSie können die Benachrichtigungseinstellungen in Ihrem Konto unter https://logbook.ibisek.com/login ändern oder stornieren.']
 
 i10n[''] = ['', '', '']
 
