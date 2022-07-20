@@ -31,17 +31,22 @@ def formatMailNotification(event, watcher):
 
     if event.event == 'T':  # take-off
         body = f"{dateTimeStr}: {dtStr}\n\n"
+
         if event.icaoLocation:
             body += f"{trackingStr} https://logbook.ibisek.com/loc/{event.icaoLocation}\n"
-        body += f"\n{takeoffLocationStr}:\n\tlat: {event.lat:.4f}\n\tlon: {event.lon:.4f}\n\t{mapStr}: {mapLink}\n"
+        else:
+            body += f"\n{takeoffLocationStr}:\n\tlat: {event.lat:.4f}\n\tlon: {event.lon:.4f}\n\t{mapStr}: {mapLink}\n"
 
     else:   # landing
         body = f"{dateTimeStr}: {dtStr}\n"
+
         if event.flightTime > 0:
             body += f"\n{flightTimeStr}: {formatDuration(event.flightTime)}\n"
+
         if event.icaoLocation:
             body += f"\n{flightRecordStr} https://logbook.ibisek.com/loc/{event.icaoLocation}\n"
-        body += f"\n{landingLocationStr}:\n\tlat: {event.lat:.4f}\n\tlon: {event.lon:.4f}\n\t{mapStr}: {mapLink}\n"
+        else:
+            body += f"\n{landingLocationStr}:\n\tlat: {event.lat:.4f}\n\tlon: {event.lon:.4f}\n\t{mapStr}: {mapLink}\n"
 
     body += '\n' + footerStr
 
