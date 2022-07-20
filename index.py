@@ -356,8 +356,9 @@ def robots():
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        token = request.form.get('token', None)
-        print(f"[XXX] token: {token}")
+        email = _saninitise(request.form.get('email', None))
+        token = _saninitise(request.form.get('token', None))
+        print(f"[LOGIN] email: {email}; token: {token}")
 
     return flask.render_template('login.html')
 
@@ -413,7 +414,10 @@ def _parseDate(date: str):
 
 
 def _saninitise(s):
-    return s.replace('\\', '').replace(';', '').replace('\'', '').replace('--', '').replace('"', '').strip()
+    if s:
+        return s.replace('\\', '').replace(';', '').replace('\'', '').replace('--', '').replace('"', '').strip()
+
+    return None
 
 
 def _formatRegistration(reg: str):
