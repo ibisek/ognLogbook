@@ -353,6 +353,15 @@ def robots():
     return send_from_directory(app.static_folder, request.path[1:])
 
 
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        token = request.form.get('token', None)
+        print(f"[XXX] token: {token}")
+
+    return flask.render_template('login.html')
+
+
 # # http://localhost:8000/api/af/1/2/3/4
 # @app.route('/api/af/<lat1>/<lat2>/<lon1>/<lon2>', methods=['GET'])
 # def listAirfields(lat1: str, lat2: str, lon1: str, lon2: str):
