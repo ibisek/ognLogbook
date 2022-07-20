@@ -207,7 +207,7 @@ CREATE TABLE watchers (
 	user_id BIGINT REFERENCES users.id,
     	addr_type VARCHAR(1),
     	addr VARCHAR(9),
-	w_toff BOOL DEFAULT true,
+	    w_toff BOOL DEFAULT true,
     	w_land BOOL DEFAULT true,
     	w_mon BOOL DEFAULT true,
     	w_tue BOOL DEFAULT true,
@@ -304,15 +304,15 @@ select * from logbook_entries where tow_id IS NOT null order by landing_ts DESC 
 
 select * from users;
 
---insert into users (token, email, lang) values ('zdenkuvtoken', 'zdenek.karmazin@gmail.com', 'cz');
+--insert into users (token, email, lang) values ('denkuvtoken', 'zdenek.karmazin@gmail.com', 'cz');
 
 select * from watchers;
 
---insert into watchers (user_id, addr, addr_type) VALUES (3, '062024', 'O');
+--insert into watchers (user_id, addr, addr_type) VALUES (1, '232855', 'O');
 
 select u.id, u.email, u.lang, d.aircraft_registration, d.aircraft_cn from watchers as w
 	left join users as u on u.id = w.user_id
 	left join ddb as d on d.device_id = w.addr and d.device_type=w.addr_type
-	where addr_type = 'O' and addr = 'C35001';
+	where addr_type = 'O' and addr = '062024';
 
 
