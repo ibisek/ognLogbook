@@ -206,7 +206,16 @@ CREATE TABLE watchers (
 	id BIGINT PRIMARY KEY auto_increment,
 	user_id BIGINT REFERENCES users.id,
     	addr_type VARCHAR(1),
-    	addr VARCHAR(9)
+    	addr VARCHAR(9),
+	w_toff BOOL DEFAULT true,
+    	w_land BOOL DEFAULT true,
+    	w_mon BOOL DEFAULT true,
+    	w_tue BOOL DEFAULT true,
+    	w_wed BOOL DEFAULT true,
+    	w_thu BOOL DEFAULT true,
+    	w_fri BOOL DEFAULT true,
+    	w_sat BOOL DEFAULT true,
+    	w_sun BOOL DEFAULT true
 );
 
 CREATE INDEX watchers_addr ON watchers(addr, addr_type);

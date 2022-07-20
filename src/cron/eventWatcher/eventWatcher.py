@@ -47,12 +47,17 @@ class EventWatcher:
         rec = f"{ts};{event};{address};{addressType};{lat:.5f};{lon:.5f};{icaoLocation};{flightTime}"
         redis.rpush(EventWatcher.REDIS_KEY, rec)
 
-    def _listWatchers(self, addressType: int, address: str):
+    @staticmethod
+    def _listWatchers(addressType: int, address: str, eventType: str):
         addressTypeChar: str = ADDRESS_TYPES[addressType]
+        eventCond = 'AND w.w_land IS true' if eventType == 'L' else 'AND w.w_toff IS true'
+        dayCond = f"AND w.w_{datetime.now().strftime('%a').lower()} IS true"
+
         strSql = f"SELECT u.id, u.email, u.lang, d.aircraft_registration, d.aircraft_cn FROM watchers AS w " \
                  f"LEFT JOIN users AS u ON u.id = w.user_id " \
                  f"LEFT JOIN ddb AS d ON d.device_id = w.addr AND d.device_type = w.addr_type " \
-                 f"WHERE addr_type = '{addressTypeChar}' AND addr = '{address}';"
+                 f"WHERE addr_type = '{addressTypeChar}' AND addr = '{address}' " \
+                 f"{eventCond} {dayCond};"
 
         watchers = []
         with DbSource(dbConnectionInfo).getConnection().cursor() as cur:
@@ -63,7 +68,8 @@ class EventWatcher:
 
         return watchers
 
-    def _notifyWatcher(self, watcher: Watcher, event: WatcherEvent):
+    @staticmethod
+    def _notifyWatcher(watcher: Watcher, event: WatcherEvent):
         if event.icaoLocation:
             print(f"[TEMP] WATCHER [{event.ts}] <{event.event}> @ {event.icaoLocation} {watcher.aircraft_registration} ({watcher.aircraft_cn})")
 
@@ -83,7 +89,7 @@ class EventWatcher:
                 break
 
             event = WatcherEvent(rec)
-            watchers = self._listWatchers(event.addressType, event.address)
+            watchers = self._listWatchers(addressType=event.addressType, address=event.address, eventType=event.event)
 
             for watcher in watchers:
                 self._notifyWatcher(watcher, event)
