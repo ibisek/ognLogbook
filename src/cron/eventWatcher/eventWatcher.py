@@ -37,6 +37,8 @@ class EventWatcher:
     REDIS_KEY = 'watcher_events'
     RUN_INTERVAL = 10  # [s]
 
+    busy = False
+
     def __init__(self):
         self.redis = self.redis = StrictRedis(**redisConfig)
 
@@ -77,7 +79,10 @@ class EventWatcher:
             SendMail3().sendMail(receiver_email=watcher.email, subject=subject, text=body)
 
     def processEvents(self):
-        pass
+        if self.busy:
+            return  # never execute another process when the previous is still running
+        self.busy = True
+
         numRecs = self.redis.llen(EventWatcher.REDIS_KEY)
         if numRecs == 0:
             return
@@ -93,6 +98,8 @@ class EventWatcher:
 
             for watcher in watchers:
                 self._notifyWatcher(watcher, event)
+
+        self.busy = False
 
 
 if __name__ == '__main__':
