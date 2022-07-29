@@ -76,7 +76,10 @@ class EventWatcher:
             print(f"[TEMP] WATCHER [{event.ts}] <{event.event}> @ {event.icaoLocation} {watcher.aircraft_registration} ({watcher.aircraft_cn})")
 
             subject, body = formatMailNotification(event, watcher)
-            SendMail3().sendMail(receiver_email=watcher.email, subject=subject, text=body)
+            try:
+                SendMail3().sendMail(receiver_email=watcher.email, subject=subject, text=body)
+            except Exception as e:
+                print("[ERROR] Email not sent due to ", e)  # TODO odchytavat specifickou vyjimku
 
     def processEvents(self):
         if self.busy:
