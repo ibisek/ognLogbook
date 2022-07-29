@@ -73,7 +73,8 @@ class EventWatcher:
     @staticmethod
     def _notifyWatcher(watcher: Watcher, event: WatcherEvent):
         if event.icaoLocation:
-            print(f"[TEMP] WATCHER [{event.ts}] <{event.event}> @ {event.icaoLocation} {watcher.aircraft_registration} ({watcher.aircraft_cn})")
+            dt = datetime.fromtimestamp(event.ts).isoformat()
+            print(f"[INFO] Watcher notif. [{event.ts} | {dt}] <{event.event}> @ {event.icaoLocation} {watcher.aircraft_registration} ({watcher.aircraft_cn}) to {watcher.email}")
 
             subject, body = formatMailNotification(event, watcher)
             try:
@@ -107,9 +108,10 @@ class EventWatcher:
 
 if __name__ == '__main__':
     redis = StrictRedis(**redisConfig)
-    EventWatcher.createEvent(redis=redis,
-                             ts=int(datetime.now().timestamp()), event='L', address='C35001', addressType=3,
-                             lat=49.123, lon=16.123, icaoLocation='LKKA', flightTime=666)
+
+    # EventWatcher.createEvent(redis=redis,
+    #                          ts=int(datetime.now().timestamp()), event='L', address='C35001', addressType=3,
+    #                          lat=49.123, lon=16.123, icaoLocation='LKKA', flightTime=666)
 
     ev = EventWatcher()
     ev.processEvents()
