@@ -80,7 +80,8 @@ class EventWatcher:
             try:
                 SendMail3().sendMail(receiver_email=watcher.email, subject=subject, text=body)
             except Exception as e:
-                print("[ERROR] Email not sent due to ", e)  # TODO odchytavat specifickou vyjimku
+                print("[ERROR] Email not sent due to ", e)
+                # TODO asi by to chtelo ulozit zpravu pro pozdejsi odeslani..
 
     def processEvents(self):
         if self.busy:
