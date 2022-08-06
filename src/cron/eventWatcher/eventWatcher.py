@@ -88,6 +88,8 @@ class EventWatcher:
             return  # never execute another process when the previous is still running
         self.busy = True
 
+        print("[XXX] watcher START")
+
         numRecs = self.redis.llen(EventWatcher.REDIS_KEY)
         if numRecs == 0:
             return
@@ -102,9 +104,16 @@ class EventWatcher:
             watchers = self._listWatchers(addressType=event.addressType, address=event.address, eventType=event.event)
 
             for watcher in watchers:
+                # if watcher.startTs and watcher.startTs > now():
+                #     continue # TODO not yet active watcher
+
                 self._notifyWatcher(watcher, event)
 
+                # if watcher.expirationTs < now():
+                #     # TODO delete the watcher
+
         self.busy = False
+        print("[XXX] watcher END")
 
 
 if __name__ == '__main__':
