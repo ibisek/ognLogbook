@@ -88,14 +88,8 @@ class EventWatcher:
             return  # never execute another process when the previous is still running
         self.busy = True
 
-        print("[XXX] watcher START")
-
-        numRecs = self.redis.llen(EventWatcher.REDIS_KEY)
-        if numRecs == 0:
-            return
-
         # while rec := self.redis.lpop(EventWatcher.REDIS_KEY):
-        while True:
+        while self.redis.llen(EventWatcher.REDIS_KEY) > 0:
             rec = self.redis.lpop(EventWatcher.REDIS_KEY)
             if not rec:
                 break
@@ -113,7 +107,6 @@ class EventWatcher:
                 #     # TODO delete the watcher
 
         self.busy = False
-        print("[XXX] watcher END")
 
 
 if __name__ == '__main__':
@@ -124,4 +117,6 @@ if __name__ == '__main__':
     #                          lat=49.123, lon=16.123, icaoLocation='LKKA', flightTime=666)
 
     ev = EventWatcher()
-    ev.processEvents()
+
+    while True:
+        ev.processEvents()
