@@ -32,6 +32,8 @@ i10n['stat.line4.hint'] = ['Location with the most dense traffic of the day (wit
 i10n['stat.none1'] = ['none', 'žádný', 'keiner']
 i10n['stat.none2'] = ['none', 'není', 'keiner']
 
+i10n['login'] = ['login', 'přihlásit', 'einmelden']
+
 i10n['search.hint'] = ['ICAO code or registration', 'ICAO kód nebo registrace', 'ICAO-Code oder Registrierung']
 i10n['search.notFound'] = ['No records have been found, recorded or we just don\'t know :P', 'Nic jsme nenašli, nezaznamenali, nebo prostě nevíme :P', 'Wir haben nichts gefunden, nichts bemerkt oder wir wissen einfach nicht :P']
 i10n['search.notFound.short'] = ['no data', 'nejsou data', 'keine daten']

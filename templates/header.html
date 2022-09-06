@@ -73,13 +73,18 @@
                     {{ gettext('stat.line2') }}: <b>{{ "{:,}".format(numFlightsToday).replace(',', ' ') }}</b>
                     <span class="tooltiptext">{{ gettext('stat.line2.hint') }}</span>
                 </div>
+                {#
                 <div class="tooltip">
                     {{ gettext('stat.line3') }}: <b>{% if longestFlightTime %}{{longestFlightTime}}&nbsp;<a href="/map/{{longestFlightId}}">&#128269;</a>{% else %}{{ gettext('stat.none1') }}{% endif %}</b>
                     <span class="tooltiptext">{{ gettext('stat.line3.hint') }}</span>
                 </div>
+                #}
                 <div class="tooltip">
-                    {{ gettext('stat.line4') }}: <b>{% if highestTrafficLocation %}<a href="/loc/{{highestTrafficLocation}}">{{highestTrafficLocation}}</a> ({{highestTrafficCount}}){% else %}{{ gettext('stat.none2') }}{% endif %}</b>
-                    <span class="tooltiptext">{{ gettext('stat.line4.hint') }}</span>
+                    {{ gettext('stat.line3') }}: <b>{% if highestTrafficLocation %}<a href="/loc/{{highestTrafficLocation}}">{{highestTrafficLocation}}</a> ({{highestTrafficCount}}){% else %}{{ gettext('stat.none2') }}{% endif %}</b>
+                    <span class="tooltiptext">{{ gettext('stat.line3.hint') }}</span>
+                </div>
+                <div class="tooltip">
+                    [ <a href="/login">{{ gettext('login') }}</a> ]
                 </div>
             </div>
             {% endif %}
