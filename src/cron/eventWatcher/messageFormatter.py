@@ -26,6 +26,7 @@ def formatMailNotification(event, watcher):
     subject = f"{watcher.aircraft_registration} ({watcher.aircraft_cn}) {eventStr} {location}"
 
     dt = datetime.fromtimestamp(event.ts)
+    dStr = datetime.strftime(dt, "%Y-%m-%d")
     dtStr = datetime.strftime(dt, "%Y-%m-%d %H:%M:%S")
     mapLink = mapUrlTemplate.format(lat=event.lat, lon=event.lon)
 
@@ -33,7 +34,7 @@ def formatMailNotification(event, watcher):
         body = f"{dateTimeStr}: {dtStr}\n\n"
 
         if event.icaoLocation:
-            body += f"{trackingStr} https://logbook.ibisek.com/loc/{event.icaoLocation}/{dtStr}\n"
+            body += f"{trackingStr} https://logbook.ibisek.com/loc/{event.icaoLocation}/{dStr}\n"
         else:
             body += f"\n{takeoffLocationStr}:\n\tlat: {event.lat:.4f}\n\tlon: {event.lon:.4f}\n\t{mapStr}: {mapLink}\n"
 
@@ -45,7 +46,7 @@ def formatMailNotification(event, watcher):
             print(f"[TEMP] XXX ft: {event.flightTime}; formatted: {formatDuration(event.flightTime)}")
 
         if event.icaoLocation:
-            body += f"\n{flightRecordStr} https://logbook.ibisek.com/loc/{event.icaoLocation}/{dtStr}\n"
+            body += f"\n{flightRecordStr} https://logbook.ibisek.com/loc/{event.icaoLocation}/{dStr}\n"
         else:
             body += f"\n{landingLocationStr}:\n\tlat: {event.lat:.4f}\n\tlon: {event.lon:.4f}\n\t{mapStr}: {mapLink}\n"
 
