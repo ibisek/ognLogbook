@@ -17,10 +17,10 @@ from email.header import Header
 class SendMail3:
     host = 'smtp.centrum.cz'
     port = 587
-    user = 'miroslav.cervenka@centrum.cz'
+    user = 'ognlogbook@centrum.cz'
     password = '**'
 
-    sender_email = 'miroslav.cervenka@centrum.cz'
+    sender_email = 'ognlogbook@centrum.cz'
 
     def sendMail(self, receiver_email, subject, text, attachment: str = None):
         # body = f"From:Automat\nSubject:{subject}\n\n{body}"
