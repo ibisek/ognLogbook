@@ -310,7 +310,7 @@ def getIgc(idType: str, flightId: int):
 
     try:
         flightId = int(_saninitise(flightId))
-        print(f"[INFO] IGC: flightId='{flightId}'")
+        # print(f"[INFO] IGC: flightId='{flightId}'")
     except ValueError:
         print(f"[INFO] IGC: invalid flightId='{flightId}'")
         return flask.render_template('error40x.html', code=404, message="Nope :P"), 404
