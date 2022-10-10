@@ -44,15 +44,15 @@ def flightToIGC(flightRecord: list, aircraftType='', registration='', competitio
 
         # latitude: 8 bytes (including the letter) DDMMmmmN/S
         lat = fr['lat']
-        deg = f"{abs(floor(lat)):02}"
-        min = f"{(lat - floor(lat)) * 60:06.3f}"
+        deg = f"{abs(int(lat)):02}"
+        min = f"{abs((lat - int(lat)) * 60):06.3f}"
         latLetter = 'N' if lat >= 0 else 'S'
         latStr = f"{deg}{min}{latLetter}".replace('.', '')
 
         # longitude: 9 bytes (including the letter) DDDMMmmmE/W
         lon = fr['lon']
-        deg = f"{abs(floor(lon)):03}"
-        min = f"{(lon - floor(lon)) * 60:06.3f}"
+        deg = f"{abs(int(lon)):03}"
+        min = f"{abs((lon - int(lon)) * 60):06.3f}"
         lonLetter = 'E' if lon >= 0 else 'W'
         lonStr = f"{deg}{min}{lonLetter}".replace('.', '')
 
