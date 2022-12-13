@@ -22,8 +22,8 @@ class AirfieldManager(object):  # , metaclass=Singleton
     def __init__(self):
         self.airfields, _ = self.loadAirfieldsFromFile()
 
-        # sort airfields by latitude:
-        self.airfields.sort(key=lambda af: af.lat)
+        # self.airfields.sort(key=lambda af: af.lat)    # sort airfields by latitude
+        self.airfields.sort(key=lambda af: af.lon)      # ordering by lon gives better & faster results
         # get airfields country codes:
         self.afCountryCodes = self._getCountryCodes(self.airfields)
         # split into four sections for faster lookup:
@@ -120,7 +120,7 @@ class AirfieldManager(object):  # , metaclass=Singleton
         n = 0
         while True:
             i = startI + int((endI - startI) / 2)
-            if latRad < airfields[i].lat:
+            if lonRad < airfields[i].lon:
                 endI = i
             else:
                 startI = i
