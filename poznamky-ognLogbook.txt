@@ -113,6 +113,7 @@ JS date picker(s):
 
 Dalsi DB letist:
     * https://ourairports.com/data/#
+    * https://metar-taf.com
 
 --
 Let s nufikem dynamikem:
