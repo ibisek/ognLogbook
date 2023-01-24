@@ -221,6 +221,20 @@ CREATE TABLE watchers (
 CREATE INDEX watchers_addr ON watchers(addr, addr_type);
 --SHOW INDEXES FROM watchers;
 
+--DROP TABLE IF EXISTS permanent_storage;
+CREATE TABLE permanent_storage (
+	id BIGINT PRIMARY KEY auto_increment,
+	user_id BIGINT REFERENCES users.id,
+    	addr_type VARCHAR(1),
+    	addr VARCHAR(9),
+	start_ts BIGINT,
+	end_ts BIGINT,
+    	active BOOL DEFAULT false
+);
+
+CREATE INDEX permanent_storage_addr_type ON permanent_storage(addr_type, active);
+--SHOW INDEXES FROM permanent_storage;
+
 --
 
 SELECT count(*) FROM logbook_events;

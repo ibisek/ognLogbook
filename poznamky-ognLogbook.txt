@@ -143,7 +143,7 @@ Let s nufikem dynamikem:
     (competition_number)
     (num_notifications)
 
--- SUBSCRIPTIONs --
+-- permanent_storage --
     id
     user_id             <- owner
     type                <- O = OGN, ..
