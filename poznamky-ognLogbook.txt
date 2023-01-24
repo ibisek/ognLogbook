@@ -143,5 +143,12 @@ Let s nufikem dynamikem:
     (competition_number)
     (num_notifications)
 
-
+-- SUBSCRIPTIONs --
+    id
+    user_id             <- owner
+    type                <- O = OGN, ..
+    address             <- device address
+    start_ts            <- by subcription plan
+    end_ts
+    active true/false   <- set by cron once an hour?
 
