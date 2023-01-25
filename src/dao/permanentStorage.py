@@ -12,7 +12,9 @@ class PermanentStorage:
         strSql = f"SELECT addr FROM permanent_storage WHERE addr_type='{self.addressType}' AND active=true"
         with DbSource(dbConnectionInfo).getConnection().cursor() as c:
             c.execute(strSql)
-            while row := c.fetchone():
+            # while row := c.fetchone():
+            rows = c.fetchall()
+            for row in rows:
                 address = row[0]
                 self.entries.add(address)
 
