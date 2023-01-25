@@ -28,6 +28,7 @@ class PermanentStorage:
 
 
 class PermanentStorageFactory:
+    RELOAD_INTERVAL = 10 * 60    # [s]
     permanentStorages = {}
 
     @staticmethod
@@ -42,6 +43,11 @@ class PermanentStorageFactory:
             PermanentStorageFactory.permanentStorages[addressType] = ps
 
         return ps
+
+    @staticmethod
+    def reloadAll():
+        for ps in PermanentStorageFactory.permanentStorages.values():
+            ps.reload()
 
 
 if __name__ == '__main__':
