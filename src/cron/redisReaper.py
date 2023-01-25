@@ -74,7 +74,14 @@ class RedisReaper(object):
                 lat = res[0]['lat']
                 lon = res[0]['lon']
 
-                utcDt = datetime.strptime(time, '%Y-%m-%dT%H:%M:%S%z')  # UTC
+                try:
+                    utcDt = datetime.strptime(time, '%Y-%m-%dT%H:%M:%S%z')  # UTC
+                except ValueError:
+                    try:
+                        utcDt = datetime.strptime(time, '%Y-%m-%dT%H:%M:%S.%fZ')  # UTC
+                    except ValueError:
+                        continue
+
                 localDt = utcDt.astimezone(tzlocal.get_localzone())
                 localTs = int(localDt.timestamp())
 
