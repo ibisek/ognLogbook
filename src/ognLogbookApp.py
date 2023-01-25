@@ -39,6 +39,8 @@ def process_beacon(raw_message):
 
         except AprsParseError:
             pass
+        except AttributeError:
+            pass
 
 
 def _cleanup():
