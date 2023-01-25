@@ -20,11 +20,12 @@ from ogn.parser import parse
 from ogn.parser.exceptions import ParseError
 
 from configuration import DEBUG, redisConfig, \
-    dbConnectionInfo, REDIS_RECORD_EXPIRATION, MQ_HOST, MQ_PORT, MQ_USER, MQ_PASSWORD, INFLUX_DB_NAME, INFLUX_DB_HOST, \
+    dbConnectionInfo, REDIS_RECORD_EXPIRATION, MQ_HOST, MQ_PORT, MQ_USER, MQ_PASSWORD, INFLUX_DB_NAME, INFLUX_DB_HOST, INFLUX_DB_NAME_PERMANENT_STORAGE, \
     GEOFILE_PATH, AGL_LANDING_LIMIT, ADDRESS_TYPES, ADDRESS_TYPE_PREFIX, USE_MULTIPROCESSING_INSTEAD_OF_THREADS
 from geofile import Geofile
 from db.DbThread import DbThread
 from db.InfluxDbThread import InfluxDbThread
+from dao.permanentStorage import PermanentStorageFactory
 from airfieldManager import AirfieldManager
 from dataStructures import Status
 from utils import getGroundSpeedThreshold
@@ -35,11 +36,12 @@ from cron.eventWatcher.eventWatcher import EventWatcher
 
 class RawWorker(Thread):
 
-    def __init__(self, id: int, rawQueue: Queue, dbThread: DbThread = None, influxDb: InfluxDbThread = None):
+    def __init__(self, id: int, rawQueue: Queue, addrType: str, dbThread: DbThread = None, influxDb: InfluxDbThread = None):
         """
         :param id:          worker identifier
-        :param dbThread:    if not supplied own will be created and closed upon exit
         :param rawQueue:    shared queue with work to process
+        :param addrType:    O/I/F/..
+        :param dbThread:    if not supplied own will be created and closed upon exit
         :param influxDb:    if not supplied own will be created and closed upon exit
         """
 
@@ -65,11 +67,16 @@ class RawWorker(Thread):
             self.influxDb.start()
             self.ownInfluxDb = True
 
+        self.influxDb_ps = InfluxDbThread(dbName=INFLUX_DB_NAME_PERMANENT_STORAGE, host=INFLUX_DB_HOST)
+        self.influxDb_ps.start()
+
         self.numProcessed = mp.Value('i', 0) if USE_MULTIPROCESSING_INSTEAD_OF_THREADS else 0
         self.airfieldManager = AirfieldManager()
         self.geofile = Geofile(filename=GEOFILE_PATH)
         self.redis = StrictRedis(**redisConfig)
         self.beaconDuplicateCache = ExpiringDict(ttl=1)     # [s]
+
+        self.permanentStorage = PermanentStorageFactory.storageFor(addrType)
 
         self.doRun = True
 
@@ -79,17 +86,18 @@ class RawWorker(Thread):
             self.dbThread.stop()
         if self.ownInfluxDb:
             self.influxDb.stop()
+        self.influxDb_ps.stop()
 
     def stop(self):
         self.doRun = False
 
-    def runProc(self, id: int, dbThread: DbThread, rawQueue: Queue, influxDb: InfluxDbThread):
-        self.id = id
-        self.dbThread = dbThread
-        self.rawQueue = rawQueue
-        self.influxDb = influxDb
-
-        self.run()
+    # def runProc(self, id: int, dbThread: DbThread, rawQueue: Queue, influxDb: InfluxDbThread):
+    #     self.id = id
+    #     self.dbThread = dbThread
+    #     self.rawQueue = rawQueue
+    #     self.influxDb = influxDb
+    #
+    #     self.run()
 
     def run(self):
         print(f"[INFO] Starting worker '{self.id}'")
@@ -209,7 +217,11 @@ class RawWorker(Thread):
         if agl is None or agl < 128000:  # groundSpeed > 0 and
             aglStr = 0 if agl is None else f"{agl:.0f}"
             q = f"pos,addr={ADDRESS_TYPE_PREFIX[addressType]}{address} lat={lat:.6f},lon={lon:.6f},alt={altitude:.0f},gs={groundSpeed:.2f},vs={verticalSpeed:.2f},tr={turnRate:.2f},agl={aglStr} {ts}000000000"
-            self.influxDb.addStatement(q)
+
+            if self.permanentStorage.eligible4ps(address):  # shall be saved into permanent storage?
+                self.influxDb_ps.addStatement(q)
+            else:
+                self.influxDb.addStatement(q)
 
         prevStatus: Status = None
         statusKey = f"{addressTypeStr}{address}-status"
@@ -308,12 +320,12 @@ class BeaconProcessor(object):
 
     queues = (rawQueueOGN, rawQueueFLR, rawQueueFLR, rawQueueICA, rawQueueSKY)  # one worker's performance on current CPU is 35k/min
     queueIds = ('ogn', 'flarm1', 'flarm2', 'icao1', 'sky1')
+    addrTypes = ('O', 'F', 'F', 'I', 'S')
     # TODO there shall be separate queues for each worker and traffic shall be split/shaped evenly for every worker of the same kind..
 
     workers = list()
 
     def __init__(self):
-
         # restore unprocessed data from redis:
         numRead = 0
         for key, queue in zip(self.queueIds, self.queues):
@@ -325,17 +337,8 @@ class BeaconProcessor(object):
                 numRead += 1
         print(f"[INFO] Loaded {numRead} raw message(s) from redis.")
 
-        self.dbThread = DbThread(dbConnectionInfo)
-        self.dbThread.start()
-
-        self.influxDb = InfluxDbThread(dbName=INFLUX_DB_NAME, host=INFLUX_DB_HOST)
-        self.influxDb.start()
-
-        for id, queue in zip(self.queueIds, self.queues):
-            # rawWorker = RawWorker(id=id, rawQueue=queue, dbThread=self.dbThread, influxDb=self.influxDb)
-            # rawWorker.start()    # python threads do not run in parallel on multiple cores!!
-
-            rawWorker = RawWorker(id=id, rawQueue=queue)
+        for id, queue, addrType in zip(self.queueIds, self.queues, self.addrTypes):
+            rawWorker = RawWorker(id=id, rawQueue=queue, addrType=addrType)
             if USE_MULTIPROCESSING_INSTEAD_OF_THREADS:
                 instance = mp.Process(target=rawWorker.run)
             else:
@@ -363,9 +366,6 @@ class BeaconProcessor(object):
         #         pass
         # print(f"[INFO] Flushed {n} rawQueueX items into redis.")
 
-        self.dbThread.stop()
-        self.influxDb.stop()
-
         self.timer.stop()
 
         print('[INFO] BeaconProcessor terminated.')
@@ -377,8 +377,8 @@ class BeaconProcessor(object):
         now = time.time()
         tDiff = now - self.startTime
         numTasksPerMin = self.numEnquedTasks / tDiff * 60
-        numQueuedTasks = self.rawQueueOGN.qsize() + self.rawQueueFLR.qsize() + self.rawQueueICA.qsize()
-        print(f"[INFO] Beacon rate: {numTasksPerMin:.0f}/min. {numQueuedTasks} queued.")
+        numQueuedTasks = self.rawQueueOGN.qsize() + self.rawQueueFLR.qsize() + self.rawQueueICA.qsize() + self.rawQueueSKY.qsize()
+        print(f"[INFO] Beacon rate: {numTasksPerMin:.0f}/min, {numQueuedTasks} queued.")
 
         traffic = dict()
         for worker in self.workers:
