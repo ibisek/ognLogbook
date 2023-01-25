@@ -225,8 +225,8 @@ CREATE INDEX watchers_addr ON watchers(addr, addr_type);
 CREATE TABLE permanent_storage (
 	id BIGINT PRIMARY KEY auto_increment,
 	user_id BIGINT REFERENCES users.id,
-    	addr_type VARCHAR(1),
-    	addr VARCHAR(9),
+    addr_type VARCHAR(1),
+    addr VARCHAR(9),
 	start_ts BIGINT,
 	end_ts BIGINT,
     	active BOOL DEFAULT false
