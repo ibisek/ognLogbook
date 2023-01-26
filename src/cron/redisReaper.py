@@ -62,8 +62,11 @@ class RedisReaper(object):
             if not addrPrefixLong:
                 continue
 
-            # get last received beacon:
-            rs = self.influx.client.query(f"SELECT * FROM pos WHERE addr='{addrPrefixLong}{addr}' ORDER BY time DESC LIMIT 1;")
+            try:
+                # fetch last received beacon:
+                rs = self.influx.client.query(f"SELECT * FROM pos WHERE addr='{addrPrefixLong}{addr}' ORDER BY time DESC LIMIT 1;")
+            except Exception:
+                continue
 
             for res in rs:
                 # print('res:', res)
