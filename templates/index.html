@@ -35,7 +35,7 @@
 		</div>
 		{% for item in list %}
 		<div class="row">
-			<div class="cell">{{item.takeoff_dt.strftime('%d.%m.')}} {% if eligibleForMapView(ts=item.takeoff_ts) %}<a href="/igc/t/{{item.id}}">&#128441{#<img src="/static/img/igc.png">#}</a>{% endif %}</div>
+			<div class="cell">{{item.takeoff_dt.strftime('%d.%m.')}} {% if item.in_ps or eligibleForMapView(ts=item.takeoff_ts) %}<a href="/igc/t/{{item.id}}">&#128441{#<img src="/static/img/igc.png">#}</a>{% endif %}</div>
 			<div class="cell">{{formatTsToHHMM(item.takeoff_dt)}}</div>
 			<div class="cell">{% if item.takeoff_icao %}<a href="/loc/{{item.takeoff_icao}}/{{date.strftime('%Y-%m-%d')}}">{{item.takeoff_icao}}</a>{% else %}<a href="https://mapy.cz/zakladni?x={{item.takeoff_lon}}&y={{item.takeoff_lat}}&z=14&source=coor&id={{item.takeoff_lon}}%2C{{item.takeoff_lat}}" target="_blank">{{ gettext('main.map') }}</a>{% endif %}</div>
 			<div class="cell">{% if item.registration %}<a href="/reg/{{item.registration}}/{{date.strftime('%Y-%m-%d')}}">{{item.registration}}</a>{% else %}{{ gettext('tab.hidden') }}{% endif %}</div>
@@ -93,7 +93,7 @@
 		</div>
 		{% for item in dayRecord.flights %}
 		<div class="row">
-			<div class="cell" style="white-space: nowrap;">{% if item.takeoff_dt %} {{item.takeoff_dt.strftime('%d.%m.')}} {% else %} {{item.landing_dt.strftime('%d.%m.')}} {% endif %}{% if eligibleForMapView(ts=item.takeoff_ts) %}<a href="/igc/f/{{item.id}}">&#128441</a>{% endif %}</div>
+			<div class="cell" style="white-space: nowrap;">{% if item.takeoff_dt %} {{item.takeoff_dt.strftime('%d.%m.')}} {% else %} {{item.landing_dt.strftime('%d.%m.')}} {% endif %}{% if item.in_ps or eligibleForMapView(ts=item.takeoff_ts) %}<a href="/igc/f/{{item.id}}">&#128441</a>{% endif %}</div>
 			<div class="cell">{% if item.registration %}<a href="/reg/{{item.registration}}/{{item.landing_dt.strftime('%Y-%m-%d')}}">{{item.registration}}</a>{% else %}{{ gettext('tab.hidden') }}{% endif %}</a></div>
 			<div class="cell">{% if item.cn %}{{item.cn}}{% endif %}</div>
 			<div class="cell">{% if item.aircraft_type %}{{item.aircraft_type}}{% endif %}</div>
@@ -111,7 +111,7 @@
 				{% else %}
 					&#8987;
 				{% endif %}</div>
-			{% if eligibleForMapView(ts=item.takeoff_ts) %}
+			{% if item.in_ps or eligibleForMapView(ts=item.takeoff_ts) %}
 			<div class="cell"><a href="/map/{{item.id}}">&#128269;</a></div>
 			{% else %}
 			<div class="cell"></div>
