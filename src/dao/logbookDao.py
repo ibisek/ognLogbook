@@ -46,7 +46,7 @@ def listDepartures(address=None, icaoCode=None, registration=None, forDay=None, 
     with DbSource(dbConnectionInfo).getConnection().cursor() as cur:
 
         # (d.tracked != false OR d.tracked IS NULL) AND (d.identified != false OR d.identified IS NULL)
-        strSql = f"""SELECT l.id, l.ts, l.address, l.address_type, l.aircraft_type, l.lat, l.lon, l.location_icao, 
+        strSql = f"""SELECT l.id, l.ts, l.address, l.address_type, l.aircraft_type, l.lat, l.lon, l.location_icao, l.in_ps,
                     d.device_type,	d.aircraft_type, d.aircraft_registration, d.aircraft_cn 
                     FROM logbook_events AS l 
                     LEFT JOIN ddb AS d ON l.address = d.device_id 
@@ -58,7 +58,7 @@ def listDepartures(address=None, icaoCode=None, registration=None, forDay=None, 
 
         rows = cur.fetchall()
         for row in rows:
-            (eventId, ts, address, addrType, aircraftTypeCode, lat, lon, locationIcao, devType, aircraftType, registration, cn) = row
+            (eventId, ts, address, addrType, aircraftTypeCode, lat, lon, locationIcao, in_ps, devType, aircraftType, registration, cn) = row
 
             item = LogbookItem(id=eventId,
                                address=address,
@@ -71,6 +71,7 @@ def listDepartures(address=None, icaoCode=None, registration=None, forDay=None, 
                                landing_lon=0,
                                landing_icao=None,
                                flight_time=0,
+                               in_ps=in_ps,
                                registration=registration,
                                cn=cn,
                                aircraft_type=aircraftType)
@@ -109,7 +110,8 @@ def listArrivals(address=None, icaoCode=None, registration=None, forDay=None, li
     with DbSource(dbConnectionInfo).getConnection().cursor() as cur:
 
         # (d.tracked != false OR d.tracked IS NULL) AND (d.identified != false OR d.identified IS NULL)
-        strSql = f"""SELECT l.ts, l.address, l.address_type, l.aircraft_type, l.lat, l.lon, l.location_icao, l.flight_time,
+        strSql = f"""SELECT l.ts, l.address, l.address_type, l.aircraft_type, l.lat, l.lon, l.location_icao, 
+                    l.flight_time, l.in_ps,
                     d.device_type,	d.aircraft_type, d.aircraft_registration, d.aircraft_cn 
                     FROM logbook_events AS l 
                     LEFT JOIN ddb AS d ON l.address = d.device_id 
@@ -121,7 +123,7 @@ def listArrivals(address=None, icaoCode=None, registration=None, forDay=None, li
 
         rows = cur.fetchall()
         for row in rows:
-            (ts, address, addrType, aircraftTypeCode, lat, lon, locationIcao, flightTime, devType, aircraftType,
+            (ts, address, addrType, aircraftTypeCode, lat, lon, locationIcao, flightTime, in_ps, devType, aircraftType,
              registration, cn) = row
 
             item = LogbookItem(id=None,
@@ -134,6 +136,7 @@ def listArrivals(address=None, icaoCode=None, registration=None, forDay=None, li
                                landing_lat=float(lat),
                                landing_lon=float(lon),
                                landing_icao=locationIcao,
+                               in_ps=in_ps,
                                flight_time=flightTime,
                                device_type=devType,
                                registration=registration,
@@ -181,7 +184,7 @@ def listFlights(address=None, icaoCode=None, registration=None, forDay=None, lim
 
         # (d.tracked != false OR d.tracked IS NULL) AND (d.identified != false OR d.identified IS NULL)
         strSql = f"""SELECT l.id, l.address, l.takeoff_ts, l.takeoff_lat, l.takeoff_lon, l.takeoff_icao, 
-                    l.landing_ts, l.landing_lat, l.landing_lon, l.landing_icao, l.flight_time, l.flown_distance, l.tow_id,
+                    l.landing_ts, l.landing_lat, l.landing_lon, l.landing_icao, l.flight_time, l.flown_distance, l.tow_id, l.in_ps,
                     d.device_type, d.aircraft_type, d.aircraft_registration, d.aircraft_cn
                     FROM logbook_entries as l 
                     LEFT JOIN ddb AS d ON l.address = d.device_id
@@ -194,7 +197,7 @@ def listFlights(address=None, icaoCode=None, registration=None, forDay=None, lim
         rows = cur.fetchall()
         for row in rows:
             (id, address, ts1, lat1, lon1, locationIcao1, ts2, lat2, lon2, locationIcao2, flightTime, flownDistance,
-             towId, devType, aircraftType, registration, cn) = row
+             towId, in_ps, devType, aircraftType, registration, cn) = row
 
             item = LogbookItem(id=id,
                                address=address,
@@ -208,6 +211,7 @@ def listFlights(address=None, icaoCode=None, registration=None, forDay=None, lim
                                landing_icao=locationIcao2,
                                flight_time=flightTime,
                                flown_distance=flownDistance,
+                               in_ps=in_ps,
                                device_type=devType,
                                registration=registration,
                                cn=cn,
@@ -226,7 +230,7 @@ def getFlight(flightId) -> LogbookItem:
     :return: basic information about specified flight
     """
     strSql = f"SELECT le.address, le.address_type, le.takeoff_ts, le.landing_ts, le.takeoff_icao, le.landing_icao, " \
-             f"le.flight_time, le.flown_distance, d.aircraft_type, d.aircraft_registration, d.aircraft_cn " \
+             f"le.flight_time, le.flown_distance, le.in_ps d.aircraft_type, d.aircraft_registration, d.aircraft_cn " \
              "FROM logbook_entries AS le " \
              "LEFT JOIN ddb as d ON le.address = d.device_id " \
              f"WHERE le.id={flightId}"
@@ -234,11 +238,11 @@ def getFlight(flightId) -> LogbookItem:
         c.execute(strSql)
         row = c.fetchone()
         if row:
-            address, address_type, takeoff_ts, landing_ts, takeoff_icao, landing_icao, flight_time, flown_distance, aircraft_type, registration, cn = row
+            address, address_type, takeoff_ts, landing_ts, takeoff_icao, landing_icao, flight_time, flown_distance, in_ps, aircraft_type, registration, cn = row
             return LogbookItem(id=flightId, address=address, address_type=address_type,
                                takeoff_ts=takeoff_ts, landing_ts=landing_ts,
                                takeoff_icao=takeoff_icao, landing_icao=landing_icao,
-                               flight_time=flight_time, flown_distance=flown_distance,
+                               flight_time=flight_time, flown_distance=flown_distance, in_ps=in_ps,
                                aircraft_type=aircraft_type, registration=registration, cn=cn)
 
     return None
@@ -267,7 +271,7 @@ def getFlightInfoForTakeoff(takeoffId) -> LogbookItem:
     :param takeoffId: ID of a take-off event
     :return a not-completely-populated LogbookItem for requested takeoffId (event ID for take-off)
     """
-    strSql = f"SELECT e.ts, e.address, e.address_type, d.aircraft_type, d.aircraft_registration, d.aircraft_cn " \
+    strSql = f"SELECT e.ts, e.address, e.address_type, e.in_ps, d.aircraft_type, d.aircraft_registration, d.aircraft_cn " \
              f"FROM logbook_events AS e " \
              f"LEFT JOIN ddb AS d ON e.address = d.device_id " \
              f"WHERE e.event='T' AND e.id={takeoffId};"
@@ -276,11 +280,11 @@ def getFlightInfoForTakeoff(takeoffId) -> LogbookItem:
         c.execute(strSql)
         row = c.fetchone()
         if row:
-            takeoff_ts, address, address_type, aircraft_type, registration, cn = row
+            takeoff_ts, address, address_type, in_ps, aircraft_type, registration, cn = row
 
             return LogbookItem(id=takeoffId,
                                address=address, address_type=address_type,
-                               takeoff_ts=takeoff_ts,
+                               takeoff_ts=takeoff_ts, in_ps=in_ps,
                                aircraft_type=aircraft_type, registration=registration, cn=cn)
 
     return None
