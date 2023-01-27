@@ -34,7 +34,8 @@ class LogbookItem(object):
     def __init__(self, id, address, address_type=None,
                  takeoff_ts=0, takeoff_lat=0, takeoff_lon=0, takeoff_icao=None,
                  landing_ts=0, landing_lat=0, landing_lon=0, landing_icao=None,
-                 flight_time=0, flown_distance=0, device_type=None,
+                 flight_time=0, flown_distance=0, in_ps=False,
+                 device_type=None,
                  registration=None, cn=None, aircraft_type=None, tow_id=None):
 
         self.id = id
@@ -53,6 +54,7 @@ class LogbookItem(object):
 
         self.flight_time = flight_time
         self.flown_distance = flown_distance
+        self.in_ps = in_ps
 
         self.device_type = device_type
 
