@@ -31,11 +31,15 @@ CREATE TRIGGER IF NOT EXISTS logbook_events_after_insert
 AFTER INSERT ON logbook_events FOR EACH ROW
 BEGIN
 IF (new.event = 'L') THEN
+SELECT e.ts, e.address_type, e.aircraft_type, e.lat, e.lon, e.location_icao, e.in_ps
+INTO @t_ts, @t_addrtype, @t_type, @t_lat, @t_lon, @t_loc, @in_ps
 SELECT e.ts, e.address_type, e.aircraft_type, e.lat, e.lon, e.location_icao
 INTO @t_ts, @t_addrtype, @t_type, @t_lat, @t_lon, @t_loc
 FROM logbook_events as e
 WHERE e.address = new.address and e.event='T' and e.ts < new.ts and e.ts > (new.ts - 16*60*60)
 ORDER BY e.ts DESC LIMIT 1;
+INSERT INTO logbook_entries (address, address_type, aircraft_type, takeoff_ts, takeoff_lat, takeoff_lon, takeoff_icao, landing_ts, landing_lat, landing_lon, landing_icao, flight_time, tow_id, in_ps)
+VALUES (new.address, @t_addrtype, @t_type, @t_ts, @t_lat, @t_lon, @t_loc, new.ts, new.lat, new.lon, new.location_icao, new.ts-@t_ts, null, @in_ps);
 INSERT INTO logbook_entries (address, address_type, aircraft_type, takeoff_ts, takeoff_lat, takeoff_lon, takeoff_icao, landing_ts, landing_lat, landing_lon, landing_icao, flight_time, tow_id)
 VALUES (new.address, @t_addrtype, @t_type, @t_ts, @t_lat, @t_lon, @t_loc, new.ts, new.lat, new.lon, new.location_icao, new.ts-@t_ts, null);
 END IF;
@@ -320,18 +324,13 @@ select * from logbook_entries where tow_id IS NOT null order by landing_ts DESC 
 
 select * from users;
 
---insert into users (token, email, lang) values ('pepubtoken', 'aaa@bbb.cz', 'cz');
+--insert into users (token, email, lang) values ('denkuvtoken', 'zdenek.karmazin@gmail.com', 'cz');
 
 select * from watchers;
 
---insert into watchers (user_id, addr, addr_type) VALUES (6, 'C35008', 'O');
+--insert into watchers (user_id, addr, addr_type) VALUES (1, '232855', 'O');
 
 select u.id, u.email, u.lang, d.aircraft_registration, d.aircraft_cn from watchers as w
 	left join users as u on u.id = w.user_id
 	left join ddb as d on d.device_id = w.addr and d.device_type=w.addr_type
 	where addr_type = 'O' and addr = '062024';
-
---
-
-ALTER TABLE logbook_events ADD COLUMN in_ps bool DEFAULT false
-ALTER TABLE logbook_entries ADD COLUMN in_ps bool DEFAULT false
