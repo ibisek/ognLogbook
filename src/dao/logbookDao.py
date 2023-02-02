@@ -230,7 +230,7 @@ def getFlight(flightId) -> LogbookItem:
     :return: basic information about specified flight
     """
     strSql = f"SELECT le.address, le.address_type, le.takeoff_ts, le.landing_ts, le.takeoff_icao, le.landing_icao, " \
-             f"le.flight_time, le.flown_distance, le.in_ps d.aircraft_type, d.aircraft_registration, d.aircraft_cn " \
+             f"le.flight_time, le.flown_distance, le.in_ps, d.aircraft_type, d.aircraft_registration, d.aircraft_cn " \
              "FROM logbook_entries AS le " \
              "LEFT JOIN ddb as d ON le.address = d.device_id " \
              f"WHERE le.id={flightId}"
