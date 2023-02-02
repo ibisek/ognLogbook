@@ -33,15 +33,11 @@ BEGIN
 IF (new.event = 'L') THEN
 SELECT e.ts, e.address_type, e.aircraft_type, e.lat, e.lon, e.location_icao, e.in_ps
 INTO @t_ts, @t_addrtype, @t_type, @t_lat, @t_lon, @t_loc, @in_ps
-SELECT e.ts, e.address_type, e.aircraft_type, e.lat, e.lon, e.location_icao
-INTO @t_ts, @t_addrtype, @t_type, @t_lat, @t_lon, @t_loc
 FROM logbook_events as e
 WHERE e.address = new.address and e.event='T' and e.ts < new.ts and e.ts > (new.ts - 16*60*60)
 ORDER BY e.ts DESC LIMIT 1;
 INSERT INTO logbook_entries (address, address_type, aircraft_type, takeoff_ts, takeoff_lat, takeoff_lon, takeoff_icao, landing_ts, landing_lat, landing_lon, landing_icao, flight_time, tow_id, in_ps)
 VALUES (new.address, @t_addrtype, @t_type, @t_ts, @t_lat, @t_lon, @t_loc, new.ts, new.lat, new.lon, new.location_icao, new.ts-@t_ts, null, @in_ps);
-INSERT INTO logbook_entries (address, address_type, aircraft_type, takeoff_ts, takeoff_lat, takeoff_lon, takeoff_icao, landing_ts, landing_lat, landing_lon, landing_icao, flight_time, tow_id)
-VALUES (new.address, @t_addrtype, @t_type, @t_ts, @t_lat, @t_lon, @t_loc, new.ts, new.lat, new.lon, new.location_icao, new.ts-@t_ts, null);
 END IF;
 END;//
 DELIMITER ;
@@ -324,7 +320,7 @@ select * from logbook_entries where tow_id IS NOT null order by landing_ts DESC 
 
 select * from users;
 
---insert into users (token, email, lang) values ('denkuvtoken', 'zdenek.karmazin@gmail.com', 'cz');
+--insert into users (token, email, lang) values ('abc_token', 'aaa@gmail.com', 'cz');
 
 select * from watchers;
 
