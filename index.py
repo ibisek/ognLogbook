@@ -238,7 +238,7 @@ def _getFlightData(flight: LogbookItem):
 
     # TODO check user's access rights & rules
     # check flight >= -24H (data retention rule max 24H)
-    if not flight.in_ps or not eligibleForMapView(flight.takeoff_ts):
+    if not eligibleForMapView(flight.takeoff_ts) and not flight.in_ps:
         return flask.render_template('error40x.html', code=410, message="The requested data is no longer available."), 410  # 410 = Gone ;)
 
     influxDb = InfluxDbThread(dbName=INFLUX_DB_NAME, host=INFLUX_DB_HOST, startThread=False)
