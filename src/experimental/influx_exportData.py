@@ -1,3 +1,6 @@
+"""
+Dumps the entire influx dabatase into a file.
+"""
 
 from dateutil import parser
 
@@ -34,7 +37,7 @@ if __name__ == '__main__':
                     tr = res['tr']
                     vs = res['vs']
 
-                    insert = f"pos,addr={addr} alt={alt},gs={gs},lat={lat},lon={lon},tr={tr},vs={vs} {ts}000000000"
+                    insert = f"pos,addr={addr} alt={alt:.1f},gs={gs:.1f},lat={lat:.5f},lon={lon:.5f},tr={tr},vs={vs:.2f} {ts}000000000"
                     print(insert)
 
                     f.write(insert)
