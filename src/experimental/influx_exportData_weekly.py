@@ -14,6 +14,9 @@ from db.InfluxDbThread import InfluxDbThread
 
 DUMP_FILEPATH_TEMPLATE = '/tmp/00/ogn_logbook.{}_{:02}.csv'
 
+# TODO configurable INFLUX_DB_NAME
+# TODO configurable DUMP_FILEPATH_TEMPLATE
+
 if __name__ == '__main__':
 
     dt = datetime.utcnow()
