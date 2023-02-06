@@ -27,7 +27,6 @@ def _getTsIntervalsByHour(startDt: datetime, endDt: datetime) -> List[Interval]:
     hours = (endDt-startDt).days*24
     l = []
     for h in range(0, hours):
-        print(f"h: {h}")
         startTs = int((startDt + timedelta(hours=h)).replace(tzinfo=timezone.utc).timestamp())
         endTs = int((startDt + timedelta(hours=h+1)).replace(tzinfo=timezone.utc).timestamp())
         interval = Interval(startTs=startTs, endTs=endTs)
