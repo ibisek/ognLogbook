@@ -2,7 +2,7 @@
 Dumps data stored in the 'pos' buckets during the previous week into a file
 
 Crontab entry:
-0 5 * * 0 cd /home/ibisek/wqz/prog/python/ognLogbook; ./exportInfluxDataWeekly.sh > /dev/null
+0 5 * * mon cd /home/ibisek/wqz/prog/python/ognLogbook; ./exportInfluxDataWeekly.sh > /dev/null
 """
 
 from collections import namedtuple
