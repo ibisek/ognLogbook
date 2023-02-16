@@ -18,7 +18,7 @@ requests==2.27.1
 six==1.16.0
 tzlocal==4.2
 urllib3==1.26.9
-Werkzeug==2.1.0
+Werkzeug==2.2.3
 zipp==3.7.0
 
 GDAL==3.0.4
