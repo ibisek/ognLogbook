@@ -9,7 +9,8 @@ import json
 AIRFIELDS_FN = '../../data/airfields.json'
 AIRFIELDS_FN_new = '../../data/airfields.json.new'
 
-AIRFIELDS_FN_WIKI = '../../data/airfields-wikipedia.json'
+# AIRFIELDS_FN_WIKI = '../../data/airfields-wikipedia.json'
+AIRFIELDS_FN_WIKI = '../../data/airfields-wikipedia-canada.json'
 
 new = 0
 old = 0
@@ -26,6 +27,8 @@ if __name__ == '__main__':
             lon = float(item.get('lon', 0))
             airfields[code] = {'lat': lat, 'lon': lon}
 
+    nAccepted = 0
+    nRejected = 0
     with open(AIRFIELDS_FN_WIKI, 'r') as f:
         l = json.load(f)
         for item in l:
@@ -38,8 +41,12 @@ if __name__ == '__main__':
 
             if code not in airfields:
                 airfields[code] = {'lat': lat, 'lon': lon}
+                nAccepted += 1
+            else:
+                nRejected += 1
 
     print('Total num of airfield locations:', len(airfields))
+    print(f"  nAccepted: {nAccepted}\n  nRejected: {nRejected}")
 
     with open(AIRFIELDS_FN_new, 'w') as f:
         l = list()
