@@ -30,7 +30,7 @@ URLS_LEVEL0 = [
 ]
 
 
-def readPage(url: str) -> str:
+def readPage(url: str, retries: int =3) -> str:
     try:
         response = requests.get(url)
         if response.status_code != 200:
@@ -38,10 +38,11 @@ def readPage(url: str) -> str:
 
         return response.text
 
-    except ConnectionError as e:
-        pass
+    except requests.exceptions.ConnectionError as e:
+        return readPage(url, retries - 1)
     except Exception as e:
         pass
+
 
     return None
 
