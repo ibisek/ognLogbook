@@ -153,6 +153,7 @@ if __name__ == '__main__':
     recs.append(AirfieldRecord({'lat': -32.2144, 'lon': 148.2247, 'code': 'YNRM'}))
     recs.append(AirfieldRecord({'lat': 47.2620200, 'lon': 11.3483200, 'code': 'LOWI'}))
     recs.append(AirfieldRecord({'lat': -32.5488500, 'lon': 151.0252500, 'code': 'YWKW'}))
+    recs.append(AirfieldRecord({'lat': 43.7535000, 'lon': -79.8711000, 'code': 'CNC3'}))    # lehce bokem podle db ale najde
     # recs.append(AirfieldRecord({'lat': , 'lon': , 'code': ''}))
 
     for rec in recs:
@@ -161,5 +162,5 @@ if __name__ == '__main__':
         out = sys.stderr if not match else sys.stdout
         print(f"match: {match}, {rec.code} -> found: {icao}", file=out)
 
-    am.listInRange(49.1611, 49.1822, 16.4011, 16.9001)
+    # am.listInRange(49.1611, 49.1822, 16.4011, 16.9001)
 
