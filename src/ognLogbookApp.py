@@ -20,8 +20,11 @@ def process_beacon(raw_message):
     # print("RAW:", raw_message)
 
     # accept only supported types of messages:
-    if raw_message[:3] in ['OGN', 'FLR', 'ICA', 'SKY']:
+    if raw_message[:3] in {'OGN', 'FLR', 'ICA', 'SKY'}:
         bp.enqueueForProcessing(raw_message)
+
+    elif "OGNEMO" in raw_message and "fpm" in raw_message:
+        bp.enqueueforProcessingWithPrefix(raw_message, 'ICA')     # OGNEMO beacons seem to be mostly 'ICA'
 
     elif DEBUG:
         try:

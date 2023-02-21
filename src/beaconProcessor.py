@@ -175,8 +175,11 @@ class RawWorker(Thread):
         aircraftType = beacon.get('aircraft_type', 8)  # icao-crafts are often 'powered aircraft's (8)
 
         if 'address' not in beacon:
-            address = beacon['name'][3:]
-            beacon['address_type'] = 1
+            beacon['address_type'] = 1      # 1 = icao
+            if len(beacon['name']) == 9:    # with prefix; e.g. OGN123456
+                address = beacon['name'][3:]
+            else:
+                address = beacon['comment'][4:10]   # NEMO beacon address is in comment
         else:
             address = beacon['address']
 
@@ -405,8 +408,7 @@ class BeaconProcessor(object):
         self.numEnquedTasks = 0
         self.startTime = now
 
-    def enqueueForProcessing(self, raw_message: str):
-        prefix = raw_message[:3]
+    def enqueueforProcessingWithPrefix(self, raw_message: str, prefix: str):
         if prefix == 'OGN':
             self.rawQueueOGN.put(raw_message)
         elif prefix == 'FLR':
@@ -420,3 +422,7 @@ class BeaconProcessor(object):
             return
 
         self.numEnquedTasks += 1
+
+    def enqueueForProcessing(self, raw_message: str):
+        prefix = raw_message[:3]
+        self.enqueueforProcessingWithPrefix(raw_message, prefix)
