@@ -8,6 +8,7 @@ from cron.redisReaper import RedisReaper
 from cron.flownDistanceCalculator import FlownDistanceCalculator
 from cron.realTakeoff import RealTakeoffLookup
 from cron.eventWatcher.eventWatcher import EventWatcher
+from dao.ddb import DDB
 from dao.permanentStorage import PermanentStorageFactory
 
 
@@ -36,6 +37,9 @@ class CronJobs(object):
         self.permanentStorageTimer = PeriodicTimer(PermanentStorageFactory.RELOAD_INTERVAL, PermanentStorageFactory.reloadAll)
         self.permanentStorageTimer.start()
 
+        self.ddbTimer = PeriodicTimer(DDB.CRON_INTERVAL, DDB.getInstance().cron)
+        self.ddbTimer.start()
+
     def stop(self):
         self.towLookupTimer.stop()
 
@@ -49,5 +53,7 @@ class CronJobs(object):
         self.eventWatcherTimer.stop()
 
         self.permanentStorageTimer()
+
+        self.ddbTimer.stop()
 
         print("[INFO] Cron terminated.")

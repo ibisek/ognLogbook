@@ -25,6 +25,7 @@ from configuration import DEBUG, redisConfig, \
 from geofile import Geofile
 from db.DbThread import DbThread
 from db.InfluxDbThread import InfluxDbThread
+from dao.ddb import DDB, DDBRecord
 from dao.permanentStorage import PermanentStorageFactory
 from airfieldManager import AirfieldManager
 from dataStructures import Status
@@ -77,6 +78,8 @@ class RawWorker(Thread):
         self.beaconDuplicateCache = ExpiringDict(ttl=1)     # [s]
 
         self.permanentStorage = PermanentStorageFactory.storageFor(addrType)
+
+        self.beaconType = addrType  # O/I/F/.. keeps the info for which beacon type is processed by this worker
 
         self.doRun = True
 
@@ -147,6 +150,36 @@ class RawWorker(Thread):
                 return agl
 
         return None
+
+    def _retainAircraftRegistration(self, raw_message, address):
+        """
+        OGNEMO beacons contain aircraft registration which may not be in the DDB. For that matter
+        this is to extract the registration
+        :param raw_message:
+        :param address:
+        :return:
+        """
+
+        ddb = DDB.getInstance()
+        ddbRec = ddb.get('I', address)
+        if ddbRec:
+            if not ddbRec.aircraft_registration:
+                registration = raw_message[:raw_message.index('>')]     # duplicate code #1
+                if not registration:
+                    return
+
+                ddbRec.aircraft_registration = registration
+                ddbRec.dirty = True
+        else:
+            registration = raw_message[:raw_message.index('>')]     # duplicate code #2 to avoid parsing the string for performance reasons
+            if not registration:
+                return
+
+            rec = DDBRecord()
+            rec.device_type = 'I'
+            rec.device_id = address
+            rec.aircraft_registration = registration
+            ddb.insert(rec)
 
     def _processMessage(self, raw_message: str):
         beacon = None
@@ -302,6 +335,9 @@ class RawWorker(Thread):
             EventWatcher.createEvent(redis=self.redis,
                                      ts=ts, event=event, address=address, addressType=addressType,
                                      lat=lat, lon=lon, icaoLocation=icaoLocation, flightTime=flightTime)
+
+            if self.beaconType == 'I' and "OGNEMO" in raw_message[:16]:     # ICAO worker processes OGNEMO beacons that carry registration
+                self._retainAircraftRegistration(address=address, raw_message=raw_message)
 
         self.beaconDuplicateCache.tick()    # cleanup the cache (cannot be called from PeriodicTimer due to subprocess/threading troubles :|)
 

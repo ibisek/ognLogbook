@@ -1,6 +1,6 @@
 """
 DDB = Device DataBase
-Maintains DDB and adds+synces newly discovered records into db.
+Maintains DDB and adds & stores newly discovered records into db.
 """
 
 from configuration import dbConnectionInfo
@@ -42,15 +42,28 @@ class DDBRecord:
         return f"{self.device_type}{self.device_id}"
 
 
-class DDB(Singleton):
+class DDB:  # ..extends (Singleton)
+    CRON_INTERVAL = 5 * 60  # [s]
+
+    _instance = None
     records = {}
 
     def __init__(self):
+        """
+        !DO NOT USE! Use getInstance() instead!
+        """
         super(DDB, self).__init__()
         self._loadFromDb()
 
         self.dbThread = DbThread(dbConnectionInfo)
         self.dbThread.start()
+
+    @staticmethod
+    def getInstance():
+        if not DDB._instance:
+            DDB._instance = DDB()
+
+        return DDB._instance
 
     def stop(self):
         self.dbThread.stop()
@@ -78,14 +91,22 @@ class DDB(Singleton):
         return False
 
     def exists(self, device_type: str, device_id: str) -> bool:
+        """
+        :param device_type: O/I/F..
+        :param device_id: device address
+        """
         key = f"{device_type}{device_id}"
         return key in self.records
 
     def get(self, device_type: str, device_id: str) -> DDBRecord:
+        """
+        :param device_type: O/I/F..
+        :param device_id: device address
+        """
         key = f"{device_type}{device_id}"
         return self.records.get(key, None)
 
-    def syncToDb(self):
+    def _syncToDb(self):
         dirtyRecords = [rec for rec in self.records.values() if rec.dirty]
 
         for rec in dirtyRecords:
@@ -113,9 +134,15 @@ class DDB(Singleton):
                       f"{tracked}, {identified});"
                 self.dbThread.addStatement(sql)
 
+            rec.dirty = False
+
+    def cron(self):
+        self._syncToDb()
+        self._loadFromDb()
+
 
 if __name__ == '__main__':
-    ddb = DDB()
+    ddb = DDB.getInstance()
     print("ddb size:", len(ddb.records))
 
     rec = DDBRecord()
