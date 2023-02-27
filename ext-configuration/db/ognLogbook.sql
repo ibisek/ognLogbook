@@ -180,8 +180,8 @@ CREATE TABLE ddb (
 	aircraft_type VARCHAR(32) DEFAULT 0,
 	aircraft_registration VARCHAR(8),
 	aircraft_cn VARCHAR(3),
-	tracked BOOL,
-	identified BOOL
+	tracked BOOL DEFAULT true,
+	identified BOOL DEFAULT true
 );
 
 CREATE INDEX ddb_device_id ON ddb(device_id);
