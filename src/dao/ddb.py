@@ -14,7 +14,7 @@ class DDBRecord:
         self.id = 0
         self.device_type = None  # O/F/I
         self.device_id = None  # tracker id
-        self.aircraft_type = None  # default 0
+        self.aircraft_type = None  # default ''
         self.aircraft_registration = None
         self.aircraft_cn = None
         self.tracked = True
@@ -113,7 +113,7 @@ class DDB:  # ..extends (Singleton)
             if not rec.device_type or not rec.device_id or not rec.aircraft_registration:
                 continue  # no point of inserting into db
 
-            aircraftType = rec.aircraft_type if rec.aircraft_type else 0
+            aircraftType = rec.aircraft_type if rec.aircraft_type else ''
             aircraftCn = rec.aircraft_cn if rec.aircraft_cn else ''
             tracked = 'true' if rec.tracked else 'false'
             identified = 'true' if rec.identified else 'false'
@@ -141,28 +141,29 @@ class DDB:  # ..extends (Singleton)
         self._loadFromDb()
 
 
-if __name__ == '__main__':
-    ddb = DDB.getInstance()
-    print("ddb size:", len(ddb.records))
-
-    rec = DDBRecord()
-    rec.device_type = 'X'
-    rec.device_id = "123456"
-    rec.aircraft_registration = 'OK-XXX'
-    res = ddb.insert(rec)
-    print("insert res1:", res)
-
-    exists = ddb.exists(rec.device_type, rec.device_id)
-    print("exists:", exists)
-
-    res = ddb.insert(rec)
-    print("insert res2:", res)
-
-    # rec2 = ddb.get('O', 'C35001')
-    # rec2.aircraft_registration = "zmeneno"
-    # rec2.dirty = True
-    # print(rec2)
-
-    ddb.syncToDb()
-
-    print('KOHEU.')
+# if __name__ == '__main__':
+#     ddb = DDB.getInstance()
+#     print("ddb size:", len(ddb.records))
+#
+#     rec = DDBRecord()
+#     rec.device_type = 'X'
+#     rec.device_id = "123456"
+#     rec.aircraft_registration = 'OK-TEST'
+#     rec.aircraft_cn = 'TST'
+#     res = ddb.insert(rec)
+#     print("insert res1:", res)
+#
+#     exists = ddb.exists(rec.device_type, rec.device_id)
+#     print("exists:", exists)
+#
+#     res = ddb.insert(rec)
+#     print("insert res2:", res)
+#
+#     # rec2 = ddb.get('O', 'C35001')
+#     # rec2.aircraft_registration = "zmeneno"
+#     # rec2.dirty = True
+#     # print(rec2)
+#
+#     ddb.syncToDb()
+#
+#     print('KOHEU.')
