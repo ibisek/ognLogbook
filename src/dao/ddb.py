@@ -119,19 +119,19 @@ class DDB:  # ..extends (Singleton)
             identified = 'true' if rec.identified else 'false'
 
             if rec.id:
-                sql = f"UPDATE ddb " \
-                      f"SET (device_type='{rec.device_type}', device_id='{rec.device_id}', " \
-                      f"aircraft_type='{aircraftType}', aircraft_registration='{rec.aircraft_registration}', aircraft_cn='{aircraftCn}', " \
-                      f"tracked={tracked}, identified={identified}) " \
-                      f"WHERE id = {rec.id};"
+                sql = (f"UPDATE ddb "
+                       f"SET (device_type='{rec.device_type}', device_id='{rec.device_id}', "
+                       f"aircraft_type='{aircraftType}', aircraft_registration='{rec.aircraft_registration}', aircraft_cn='{aircraftCn}', "
+                       f"tracked={tracked}, identified={identified}) "
+                       f"WHERE id = {rec.id};")
                 self.dbThread.addStatement(sql)
 
             else:
-                sql = f"INSERT INTO ddb " \
-                      f"(device_type, device_id, aircraft_type, aircraft_registration, aircraft_cn, tracked, identified) " \
-                      f"VALUES " \
-                      f"('{rec.device_type}', '{rec.device_id}', {aircraftType}, '{rec.aircraft_registration}', '{aircraftCn}', " \
-                      f"{tracked}, {identified});"
+                sql = (f"INSERT INTO ddb "
+                       f"(device_type, device_id, aircraft_type, aircraft_registration, aircraft_cn, tracked, identified) "
+                       f"VALUES "
+                       f"('{rec.device_type}', '{rec.device_id}', '{aircraftType}', '{rec.aircraft_registration}', '{aircraftCn}', "
+                       f"{tracked}, {identified});")
                 self.dbThread.addStatement(sql)
 
             rec.dirty = False
