@@ -23,12 +23,12 @@ def process_beacon(raw_message):
     if raw_message[:3] in {'OGN', 'FLR', 'ICA', 'SKY'}:
         bp.enqueueForProcessing(raw_message)
 
-    elif "OGNEMO" in raw_message and "fpm" in raw_message:
+    elif "OGNEMO" in raw_message[:16] and "fpm" in raw_message:
         bp.enqueueforProcessingWithPrefix(raw_message, 'ICA')     # OGNEMO beacons seem to be mostly 'ICA'
 
     elif DEBUG:
         try:
-            if raw_message[:3] in ['PAW', 'RND']:  # # PAW (PilotAWare), RND(?) (not decided if they are worth processing yet)
+            if raw_message[:3] in ['PAW', 'RND', 'FNT']:  # PAW (PilotAWare), RND(?), FNT (FANET?) (not decided if they are worth processing yet)
                 return
 
             beacon = parse(raw_message)
