@@ -53,7 +53,7 @@ def _insertOrAmendRecord(cursor: Cursor,
 
         (id1, devType1, devId1, aircraftType1, registration1, cn1, tracked1,
          identified1) = cursor.fetchone()  # (id, 'F', '000000', 'HPH 304CZ-17', 'OK-7777', 'KN', 1, 1)
-        if devType1 != deviceType or aircraftType1 != aircraftType or registration1 != registration1 or cn1 != cn or tracked1 != tracked or identified1 != identified:
+        if devType1 != deviceType or aircraftType1 != aircraftType or registration1 != registration or cn1 != cn or tracked1 != tracked or identified1 != identified:
             update = f"UPDATE ddb SET device_type = '{deviceType}', aircraft_type='{aircraftType}', aircraft_registration='{registration}', " \
                      f"aircraft_cn='{cn}', tracked={tracked}, identified={identified} " \
                      f"WHERE id = {id1};"
