@@ -175,11 +175,16 @@ class RawWorker(Thread):
             if not registration:
                 return
 
-            rec = DDBRecord()
-            rec.device_type = 'I'
-            rec.device_id = address
-            rec.aircraft_registration = registration
-            ddb.insert(rec)
+            ddbRec = DDBRecord()
+            ddbRec.device_type = 'I'
+            ddbRec.device_id = address
+            ddbRec.aircraft_registration = registration
+            ddb.insert(ddbRec)
+
+        if ddbRec.dirty:
+            # Workaround: in multiprocessing environment the DDB instance is unique per process and thus cannot be synced from cronJobs!
+            # Furthermore, new on-the-fly DDB records are based on the OGNEMO beacons and inserted only in the ICAO process.
+            ddb.cron()
 
     def _processMessage(self, raw_message: str):
         beacon = None
