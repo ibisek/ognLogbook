@@ -37,8 +37,8 @@ class CronJobs(object):
         self.permanentStorageTimer = PeriodicTimer(PermanentStorageFactory.RELOAD_INTERVAL, PermanentStorageFactory.reloadAll)
         self.permanentStorageTimer.start()
 
-        self.ddbTimer = PeriodicTimer(DDB.CRON_INTERVAL, DDB.getInstance().cron)
-        self.ddbTimer.start()
+        # self.ddbTimer = PeriodicTimer(DDB.CRON_INTERVAL, DDB.getInstance().cron)
+        # self.ddbTimer.start()
 
     def stop(self):
         self.towLookupTimer.stop()
@@ -54,6 +54,6 @@ class CronJobs(object):
 
         self.permanentStorageTimer()
 
-        self.ddbTimer.stop()
+        # self.ddbTimer.stop()
 
         print("[INFO] Cron terminated.")
