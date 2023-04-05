@@ -152,3 +152,12 @@ Let s nufikem dynamikem:
     end_ts
     active true/false   <- set by cron once an hour?
 
+
+-- TODO --
+
+* all time info to UTC
+* all time info to local TZ (using https://github.com/evansiroky/timezone-boundary-builder)
+* event watcher mailing queue
+* user management
+* fleet management for users
+
