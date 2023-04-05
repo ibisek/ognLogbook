@@ -1,6 +1,7 @@
 
-from datetime import datetime
+import pytz
 
+from datetime import datetime
 from utils import formatDuration
 
 
@@ -62,8 +63,11 @@ class LogbookItem(object):
         self.cn = cn
         self.aircraft_type = aircraft_type
 
-        self.takeoff_dt = datetime.fromtimestamp(takeoff_ts) if self.takeoff_ts else None
-        self.landing_dt = datetime.fromtimestamp(landing_ts) if self.landing_ts else None
+        takeoff_tz = pytz.utc   # TODO tady ziskat TZ mista vzletu
+        landing_tz = pytz.utc   # TODO tady ziskat TZ mista pristani
+
+        self.takeoff_dt = datetime.fromtimestamp(takeoff_ts, tz=takeoff_tz) if self.takeoff_ts else None
+        self.landing_dt = datetime.fromtimestamp(landing_ts, tz=landing_tz) if self.landing_ts else None
 
         self.flight_time = formatDuration(self.flight_time)
 
