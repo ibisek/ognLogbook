@@ -1,6 +1,8 @@
 from typing import Union
 from datetime import datetime, time, timedelta
 
+from configuration import MAX_DAYS_IN_RANGE
+
 
 def formatDuration(seconds):
     if not seconds:
@@ -128,3 +130,50 @@ def eligibleForMapView(ts):
         return False
     else:
         return ts >= (datetime.utcnow().timestamp() - 24*60*60)
+
+
+def saninitise(s):
+    if s:
+        return s.replace('\\', '').replace(';', '').replace('\'', '').replace('--', '').replace('"', '').strip()
+
+    return None
+
+
+def parseDate(date: str, default=None, endOfTheDay: bool = False):
+    """
+    Sanitizes input and attempts to parse date string in expected format '%Y-%m-%d'.
+    :param date:
+    :param default:
+    :param endOfTheDay: set last second of the day (applicable for example for date-to interval)
+    :return: parsed date or current date in case of wrong format or default
+    """
+    if date:
+        date = saninitise(date)
+        try:
+            date = datetime.strptime(date, '%Y-%m-%d')
+        except ValueError:
+            date = datetime.now()
+    else:
+        if default:
+            date = datetime.now()
+        else:
+            date = None
+
+    if endOfTheDay:
+        date += timedelta(hours=23, minutes=59, seconds=59)  # set last second of the day
+
+    return date
+
+
+def limitDateRange(date: datetime, dateTo: datetime):
+    """
+    Limits max ranges of date-records to be listed.
+    :param date:    date from
+    :param dateTo:  date to
+    :return:
+    """
+    numDays = round((dateTo.timestamp() - date.timestamp()) / 86400) if dateTo else 1  # timedelta.seconds doesn't work correctly
+    if numDays > MAX_DAYS_IN_RANGE:
+        numDays = MAX_DAYS_IN_RANGE
+
+    return numDays

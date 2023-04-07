@@ -23,7 +23,7 @@ from dao.stats import getNumFlightsToday, getTotNumFlights, getLongestFlightToda
 from db.InfluxDbThread import InfluxDbThread
 from igc import flightToIGC
 
-from utils import getDaysLinks, formatDuration, formatTsToHHMM, eligibleForMapView
+from utils import getDaysLinks, formatDuration, formatTsToHHMM, eligibleForMapView, saninitise, parseDate, limitDateRange
 from translations import gettext
 
 app = flask.Flask(__name__)
@@ -78,20 +78,17 @@ def index():
 @app.route('/loc/<icaoCode>/<date>/<dateTo>', methods=['GET'])
 def filterByIcaoCode(icaoCode, date=None, dateTo=None):
     if icaoCode:
-        icaoCode = _saninitise(icaoCode)
+        icaoCode = saninitise(icaoCode)
 
     if not icaoCode:
         return flask.redirect('/')
 
-    date = _parseDate(date)
-    dateTo = _parseDate(dateTo) if dateTo else None
-    dateNow = datetime.now()
+    date = parseDate(date)
+    dateTo = parseDate(dateTo, default=None, endOfTheDay=True)
     if dateTo:
+        dateNow = datetime.now()
         if dateTo > dateNow:
             dateTo = dateNow
-
-        # set last second of the day:
-        dateTo += timedelta(hours=23, minutes=59, seconds=59)
 
     numDays = round((dateTo.timestamp() - date.timestamp()) / 86400) if dateTo else 1   # timedelta.seconds doesn't work correctly
     if numDays > MAX_DAYS_IN_RANGE:
@@ -117,7 +114,7 @@ def filterByIcaoCode(icaoCode, date=None, dateTo=None):
         ar: AirfieldRecord = airfieldsDict[icaoCode]
         lat, lon = math.degrees(ar.lat), math.degrees(ar.lon)
 
-        return flask.render_template('index.html', debugMode=DEBUG, date=date, icaoCode=icaoCode,
+        return flask.render_template('index.html', debugMode=DEBUG, date=date, dateTo=dateTo, icaoCode=icaoCode,
                                      linkPrevDay=linkPrevDay, linkNextDay=linkNextDay,
                                      dayRecords=dayRecords,
                                      lat=lat, lon=lon,
@@ -131,13 +128,13 @@ def filterByIcaoCode(icaoCode, date=None, dateTo=None):
 @app.route('/reg/<registration>/<date>', methods=['GET'])
 @app.route('/reg/<registration>/<date>/<dateTo>', methods=['GET'])
 def filterByRegistration(registration, date=None, dateTo=None):
-    registration = _saninitise(registration)
+    registration = saninitise(registration)
 
     if not registration:
         return flask.redirect('/')
 
-    date = _parseDate(date)
-    dateTo = _parseDate(dateTo) if dateTo else None
+    date = parseDate(date)
+    dateTo = parseDate(dateTo) if dateTo else None
 
     dateNow = datetime.now()
     if dateTo:
@@ -166,7 +163,7 @@ def filterByRegistration(registration, date=None, dateTo=None):
         if numFlights > 0:
             dayRecords.append(dayRecord)
 
-    return flask.render_template('index.html', debugMode=DEBUG, date=date, registration=registration,
+    return flask.render_template('index.html', debugMode=DEBUG, date=date, dateTo=dateTo, registration=registration,
                                  linkPrevDay=linkPrevDay, linkNextDay=linkNextDay,
                                  dayRecords=dayRecords,
                                  showFlightsOnly=True,
@@ -176,10 +173,10 @@ def filterByRegistration(registration, date=None, dateTo=None):
 def _prepareData(icaoCode=None, registration=None, forDay=None, limit=None, icaoFilter=[], sortTsDesc=False, orderByCol='takeoff_ts'):
 
     if icaoCode:
-        icaoCode = _saninitise(icaoCode)
+        icaoCode = saninitise(icaoCode)
 
     if registration:
-        registration = _saninitise(registration)
+        registration = saninitise(registration)
 
     departures = listDepartures(icaoCode=icaoCode, registration=registration, forDay=forDay, limit=limit, icaoFilter=icaoFilter, sortTsDesc=sortTsDesc)
     arrivals = listArrivals(icaoCode=icaoCode, registration=registration, forDay=forDay, limit=limit, icaoFilter=icaoFilter, sortTsDesc=sortTsDesc)
@@ -191,7 +188,7 @@ def _prepareData(icaoCode=None, registration=None, forDay=None, limit=None, icao
 
 @app.route('/search/<text>', methods=['GET'])
 def search(text=None):
-    text = _saninitise(text)
+    text = saninitise(text)
 
     # TODO determine if that is an ICAO code or registration!
 
@@ -201,29 +198,48 @@ def search(text=None):
         return flask.redirect(f"/reg/{text}")
 
 
-@app.route('/csv/<icaoCode>', methods=['GET'])
-@app.route('/csv/<icaoCode>/<date>', methods=['GET'])
-def getCsv(icaoCode, date=None):
-    if not icaoCode:
+@app.route('/csv/<type>/<code>', methods=['GET'])
+@app.route('/csv/<type>/<code>/<date>', methods=['GET'])
+@app.route('/csv/<type>/<code>/<date>/<dateTo>', methods=['GET'])
+def getCsv(type: str, code: str, date=None, dateTo=None):
+    """
+    :param type: loc | reg
+    :param code: icaoCode | registration
+    :param date:
+    :param dateTo: optional
+    :return:
+    """
+    if not type or not code:
         return flask.redirect('/')
 
-    if date:
-        date = _saninitise(date)
-        try:
-            date = datetime.strptime(date, '%Y-%m-%d')
-        except ValueError:
-            date = datetime.now()
-    else:
-        date = datetime.now()
+    type = saninitise(type).upper()
+    code = saninitise(code).upper()
+    date = parseDate(date, default=datetime.now())
+    dateTo = parseDate(dateTo, default=None, endOfTheDay=True)
 
-    icaoCode = _saninitise(icaoCode).upper()
+    if dateTo:
+        dateNow = datetime.now()
+        if dateTo > dateNow:
+            dateTo = dateNow
 
-    flights = listFlights(icaoCode=icaoCode, forDay=date, limit=100)
+    numDays = limitDateRange(date, dateTo)
+
+    flights = []
+    for i in range(numDays):
+        currentDate = date + timedelta(days=i)
+
+        if type == 'LOC':
+            flights += listFlights(icaoCode=code, forDay=currentDate, limit=100)
+        elif type == 'REG':
+            flights += listFlights(registration=code, forDay=currentDate, limit=100)
+        else:
+            return flask.redirect('/')
+
     csvText = _toFlightOfficeCsv(flights)
 
     output = flask.make_response(csvText)
 
-    output.headers["Content-Disposition"] = f"attachment; filename={icaoCode}_{date.strftime('%Y-%m-%d')}.csv"
+    output.headers["Content-Disposition"] = f"attachment; filename={code}_{date.strftime('%Y-%m-%d')}.csv"
     output.headers["Content-type"] = "text/csv"
 
     return output
@@ -264,7 +280,7 @@ def _getFlightData(flight: LogbookItem):
 @app.route('/map/<flightId>', methods=['GET'])
 def getMap(flightId: int):
     try:
-        flightId = int(_saninitise(flightId))
+        flightId = int(saninitise(flightId))
         print(f"[INFO] MAP: flightId='{flightId}'")
     except:
         print(f"[INFO] MAP: invalid flightId='{flightId}'")
@@ -309,7 +325,7 @@ def getIgc(idType: str, flightId: int):
         return flask.render_template('error40x.html', code=404, message="Nope :P"), 404
 
     try:
-        flightId = int(_saninitise(flightId))
+        flightId = int(saninitise(flightId))
         # print(f"[INFO] IGC: flightId='{flightId}'")
     except ValueError:
         print(f"[INFO] IGC: invalid flightId='{flightId}'")
@@ -356,8 +372,8 @@ def robots():
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        email = _saninitise(request.form.get('email', None))
-        token = _saninitise(request.form.get('token', None))
+        email = saninitise(request.form.get('email', None))
+        token = saninitise(request.form.get('token', None))
         print(f"[LOGIN] email: {email}; token: {token}")
 
     return flask.render_template('login.html')
@@ -395,30 +411,6 @@ def handle_error(error):
 #     # logger.error(msg)
 #     # app.logger.error(msg)
 #     return flask.render_template('error40x.html', code=500), 500
-
-def _parseDate(date: str):
-    """
-    :param date: parsed date or current date in case of wrong format or None
-    :return:
-    """
-    if date:
-        date = _saninitise(date)
-        try:
-            date = datetime.strptime(date, '%Y-%m-%d')
-        except ValueError:
-            date = datetime.now()
-    else:
-        date = datetime.now()
-
-    return date
-
-
-def _saninitise(s):
-    if s:
-        return s.replace('\\', '').replace(';', '').replace('\'', '').replace('--', '').replace('"', '').strip()
-
-    return None
-
 
 def _formatRegistration(reg: str):
     if not reg:

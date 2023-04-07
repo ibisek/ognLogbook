@@ -27,8 +27,8 @@
                 <span class="menuitem">
                     <div>
                     {% if date %}
-                        <a href="/csv/{{icaoCode}}/{{date.strftime('%Y-%m-%d')}}">{{icaoCode}}
-                            {% if flights|length > 0 %}
+                        <a href="/csv/loc/{{icaoCode}}/{{date.strftime('%Y-%m-%d')}}{% if dateTo %}/{{dateTo.strftime('%Y-%m-%d')}}{% endif %}">{{icaoCode}}
+                            {% if dayRecords|length > 0 %}
                             <img src="/static/img/csv-file-icon-green.svg" style="width: 25px; height:25px; vertical-align: middle; padding-left: 5px;"/>
                             {% endif %}
                         </a>
@@ -37,13 +37,25 @@
                             <img src="/static/img/map.svg" style="width: 30px; height:30px; vertical-align: middle; padding-left: 5px;"/>
                         </a>
                     {% else %}
-                        {{icaoCode}}
+                            {{icaoCode}}
                     {% endif %}
                     </div>
                 </span>
                 {% endif %}
                 {% if registration %}
-                <span class="menuitem"><div>{{registration}}</div></span>
+                <span class="menuitem">
+                    <div>
+                    {% if date %}
+                        <a href="/csv/reg/{{registration}}/{{date.strftime('%Y-%m-%d')}}{% if dateTo %}/{{dateTo.strftime('%Y-%m-%d')}}{% endif %}">{{registration}}
+                            {% if dayRecords|length > 0 %}
+                            <img src="/static/img/csv-file-icon-green.svg" style="width: 25px; height:25px; vertical-align: middle; padding-left: 5px;"/>
+                            {% endif %}
+                        </a>
+                    {% else %}
+                        {{registration}}
+                    {% endif %}
+                    </div>
+                </span>
                 {% endif %}
 
                 <span class="menuitem">
