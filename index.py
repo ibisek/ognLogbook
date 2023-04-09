@@ -83,7 +83,7 @@ def filterByIcaoCode(icaoCode, date=None, dateTo=None):
     if not icaoCode:
         return flask.redirect('/')
 
-    date = parseDate(date)
+    date = parseDate(date, default=datetime.now())
     dateTo = parseDate(dateTo, default=None, endOfTheDay=True)
     if dateTo:
         dateNow = datetime.now()
@@ -133,7 +133,7 @@ def filterByRegistration(registration, date=None, dateTo=None):
     if not registration:
         return flask.redirect('/')
 
-    date = parseDate(date)
+    date = parseDate(date, default=datetime.now())
     dateTo = parseDate(dateTo) if dateTo else None
 
     dateNow = datetime.now()
