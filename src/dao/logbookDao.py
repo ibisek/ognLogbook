@@ -1,4 +1,5 @@
 from datetime import datetime
+import pytz
 
 from configuration import dbConnectionInfo
 from db.DbSource import DbSource
@@ -18,7 +19,7 @@ def _prepareCondition(address=None, icaoCode=None, registration=None):
 
 
 def listDepartures(address=None, icaoCode=None, registration=None, forDay=None, limit=None, icaoFilter: list = [],
-                   sortTsDesc=False):
+                   sortTsDesc=False, display_tz=pytz.utc):
     cond = _prepareCondition(address=address, icaoCode=icaoCode, registration=registration)
 
     condTs = ''
@@ -74,7 +75,8 @@ def listDepartures(address=None, icaoCode=None, registration=None, forDay=None, 
                                in_ps=in_ps,
                                registration=registration,
                                cn=cn,
-                               aircraft_type=aircraftType)
+                               aircraft_type=aircraftType,
+                               display_tz=display_tz)
 
             records.append(item)
 
@@ -82,7 +84,7 @@ def listDepartures(address=None, icaoCode=None, registration=None, forDay=None, 
 
 
 def listArrivals(address=None, icaoCode=None, registration=None, forDay=None, limit=None, icaoFilter: list = [],
-                 sortTsDesc=False):
+                 sortTsDesc=False, display_tz=pytz.utc):
     cond = _prepareCondition(address=address, icaoCode=icaoCode, registration=registration)
 
     condTs = ''
@@ -141,7 +143,8 @@ def listArrivals(address=None, icaoCode=None, registration=None, forDay=None, li
                                device_type=devType,
                                registration=registration,
                                cn=cn,
-                               aircraft_type=aircraftType)
+                               aircraft_type=aircraftType,
+                               display_tz=display_tz)
 
             records.append(item)
 
@@ -149,7 +152,7 @@ def listArrivals(address=None, icaoCode=None, registration=None, forDay=None, li
 
 
 def listFlights(address=None, icaoCode=None, registration=None, forDay=None, limit=None, icaoFilter: list = [],
-                sortTsDesc=False, orderByCol='takeoff_ts'):
+                sortTsDesc=False, orderByCol='takeoff_ts', display_tz=pytz.utc):
     c1 = c2 = ''
     if icaoCode:
         c1 = f" AND (l.takeoff_icao = '{icaoCode}' OR l.landing_icao = '{icaoCode}')"
@@ -216,17 +219,19 @@ def listFlights(address=None, icaoCode=None, registration=None, forDay=None, lim
                                registration=registration,
                                cn=cn,
                                aircraft_type=aircraftType,
-                               tow_id=towId)
+                               tow_id=towId,
+                               display_tz=display_tz)
 
             records.append(item)
 
     return records
 
 
-def getFlight(flightId) -> LogbookItem:
+def getFlight(flightId, display_tz=pytz.utc) -> LogbookItem:
     """
     Used by map view.
     :param flightId:
+    :param display_tz:
     :return: basic information about specified flight
     """
     strSql = f"SELECT le.address, le.address_type, le.takeoff_ts, le.landing_ts, le.takeoff_icao, le.landing_icao, " \
@@ -243,7 +248,8 @@ def getFlight(flightId) -> LogbookItem:
                                takeoff_ts=takeoff_ts, landing_ts=landing_ts,
                                takeoff_icao=takeoff_icao, landing_icao=landing_icao,
                                flight_time=flight_time, flown_distance=flown_distance, in_ps=in_ps,
-                               aircraft_type=aircraft_type, registration=registration, cn=cn)
+                               aircraft_type=aircraft_type, registration=registration, cn=cn,
+                               display_tz=display_tz)
 
     return None
 
@@ -266,9 +272,10 @@ def getFlightIdForTakeoffId(takeoffId) -> LogbookItem:
     return None
 
 
-def getFlightInfoForTakeoff(takeoffId) -> LogbookItem:
+def getFlightInfoForTakeoff(takeoffId, display_tz:pytz.utc) -> LogbookItem:
     """
     :param takeoffId: ID of a take-off event
+    :param display_tz:
     :return a not-completely-populated LogbookItem for requested takeoffId (event ID for take-off)
     """
     strSql = f"SELECT e.ts, e.address, e.address_type, e.in_ps, d.aircraft_type, d.aircraft_registration, d.aircraft_cn " \
@@ -285,7 +292,8 @@ def getFlightInfoForTakeoff(takeoffId) -> LogbookItem:
             return LogbookItem(id=takeoffId,
                                address=address, address_type=address_type,
                                takeoff_ts=takeoff_ts, in_ps=in_ps,
-                               aircraft_type=aircraft_type, registration=registration, cn=cn)
+                               aircraft_type=aircraft_type, registration=registration, cn=cn,
+                               display_tz=display_tz)
 
     return None
 
@@ -320,7 +328,7 @@ def getSums(registration, forDay=None, limit=None):
     return numFlights, totalFlightTime
 
 
-def findMostRecentTakeoff(address: str, addressType: str) -> LogbookItem:
+def findMostRecentTakeoff(address: str, addressType: str, display_tz: pytz.utc) -> LogbookItem:
     strSql = f"SELECT id, ts, address, address_type, aircraft_type, event, lat, lon, location_icao " \
              f"FROM logbook_events " \
              f"WHERE address = '{address}' AND address_type='{addressType}' AND event='T' " \
@@ -339,7 +347,8 @@ def findMostRecentTakeoff(address: str, addressType: str) -> LogbookItem:
                                takeoff_ts=ts,
                                takeoff_lat=lat,
                                takeoff_lon=lon,
-                               takeoff_icao=location)
+                               takeoff_icao=location,
+                               display_tz=display_tz)
 
             return item
 

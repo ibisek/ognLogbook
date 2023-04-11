@@ -37,7 +37,8 @@ class LogbookItem(object):
                  landing_ts=0, landing_lat=0, landing_lon=0, landing_icao=None,
                  flight_time=0, flown_distance=0, in_ps=False,
                  device_type=None,
-                 registration=None, cn=None, aircraft_type=None, tow_id=None):
+                 registration=None, cn=None, aircraft_type=None, tow_id=None,
+                 display_tz=pytz.utc):    # pytz.utc | pytz.timezone('Europe/Vienna')
 
         self.id = id
         self.address = address
@@ -63,8 +64,8 @@ class LogbookItem(object):
         self.cn = cn
         self.aircraft_type = aircraft_type
 
-        takeoff_tz = pytz.utc   # TODO tady ziskat TZ mista vzletu
-        landing_tz = pytz.utc   # TODO tady ziskat TZ mista pristani
+        takeoff_tz = display_tz   # TODO tady ziskat TZ mista vzletu
+        landing_tz = display_tz   # TODO tady ziskat TZ mista pristani
 
         self.takeoff_dt = datetime.fromtimestamp(takeoff_ts, tz=takeoff_tz) if self.takeoff_ts else None
         self.landing_dt = datetime.fromtimestamp(landing_ts, tz=landing_tz) if self.landing_ts else None

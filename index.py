@@ -6,14 +6,15 @@ Created on 20. 5. 2020
 import json
 import sys
 import math
-from distutils.log import Log
+from datetime import datetime, timedelta
+from collections import namedtuple
 
+from distutils.log import Log
+from flask import request, send_from_directory
 import flask
 import getopt
 from platform import node
-from datetime import datetime, timedelta
-from flask import request, send_from_directory
-from collections import namedtuple
+import pytz
 
 from configuration import DEBUG, MAX_DAYS_IN_RANGE, INFLUX_DB_HOST, INFLUX_DB_NAME
 from airfieldManager import AirfieldManager, AirfieldRecord
@@ -38,6 +39,24 @@ airfieldManager = AirfieldManager()
 afCountryCodes = airfieldManager.afCountryCodes
 
 
+@app.route('/set_timezone', methods=['POST'])
+def set_timezone():
+    """Get timezone from the browser and store it in the session object."""
+    timezone = request.data.decode('utf-8')
+    flask.session['browser_timezone'] = timezone
+    return ""
+
+
+def _getBrowserTimezone():
+    if 'browser_timezone' in flask.session:
+        try:
+            return pytz.timezone(flask.session.get('browser_timezone'))
+        except pytz.UnknownTimeZoneError:
+            return pytz.utc
+
+    return pytz.utc
+
+
 @app.route('/')
 def index():
     # langs = [al[0].lower() for al in request.accept_languages]
@@ -55,7 +74,9 @@ def index():
     #     icaoFilter.append('EF')     # fi
     #     icaoFilter.append('ES')     # se
 
-    departures, arrivals, flights = _prepareData(limit=25, icaoFilter=icaoFilter, sortTsDesc=True, orderByCol='landing_ts')
+    display_tz = _getBrowserTimezone()
+
+    departures, arrivals, flights = _prepareData(limit=25, icaoFilter=icaoFilter, sortTsDesc=True, orderByCol='landing_ts', display_tz=display_tz)
 
     dayRecord: DayRecord = DayRecord(date=None, numFlights=None, totalFlightTime=None,
                                      departures=departures, arrivals=arrivals, flights=flights)
@@ -77,9 +98,7 @@ def index():
 @app.route('/loc/<icaoCode>/<date>', methods=['GET'])
 @app.route('/loc/<icaoCode>/<date>/<dateTo>', methods=['GET'])
 def filterByIcaoCode(icaoCode, date=None, dateTo=None):
-    if icaoCode:
-        icaoCode = saninitise(icaoCode)
-
+    icaoCode = saninitise(icaoCode)
     if not icaoCode:
         return flask.redirect('/')
 
@@ -96,11 +115,12 @@ def filterByIcaoCode(icaoCode, date=None, dateTo=None):
 
     linkPrevDay, linkNextDay = getDaysLinks(f"/loc/{icaoCode}", date)
 
+    display_tz = _getBrowserTimezone()
     dayRecords = []
     for i in range(numDays):
         currentDate = date + timedelta(days=i)
 
-        departures, arrivals, flights = _prepareData(icaoCode=icaoCode, forDay=currentDate)
+        departures, arrivals, flights = _prepareData(icaoCode=icaoCode, forDay=currentDate, display_tz=display_tz)
 
         dayRecord: DayRecord = DayRecord(date=currentDate, numFlights=None, totalFlightTime=None,
                                          departures=departures, arrivals=arrivals, flights=flights)
@@ -150,13 +170,14 @@ def filterByRegistration(registration, date=None, dateTo=None):
 
     linkPrevDay, linkNextDay = getDaysLinks(f"/reg/{registration}", date)
 
+    display_tz = _getBrowserTimezone()
     dayRecords = []
     for i in range(numDays):
         currentDate = date + timedelta(days=i)
 
         numFlights, totalFlightTime = getSums(registration=registration, forDay=currentDate)
         totalFlightTime = formatDuration(totalFlightTime)
-        departures, arrivals, flights = _prepareData(registration=registration, forDay=currentDate)
+        departures, arrivals, flights = _prepareData(registration=registration, forDay=currentDate, display_tz=display_tz)
 
         dayRecord: DayRecord = DayRecord(date=currentDate, numFlights=numFlights, totalFlightTime=totalFlightTime,
                                          departures=departures, arrivals=arrivals, flights=flights)
@@ -170,7 +191,7 @@ def filterByRegistration(registration, date=None, dateTo=None):
                                  showDatePicker=True)
 
 
-def _prepareData(icaoCode=None, registration=None, forDay=None, limit=None, icaoFilter=[], sortTsDesc=False, orderByCol='takeoff_ts'):
+def _prepareData(icaoCode=None, registration=None, forDay=None, limit=None, icaoFilter=[], sortTsDesc=False, orderByCol='takeoff_ts', display_tz=pytz.utc):
 
     if icaoCode:
         icaoCode = saninitise(icaoCode)
@@ -178,10 +199,10 @@ def _prepareData(icaoCode=None, registration=None, forDay=None, limit=None, icao
     if registration:
         registration = saninitise(registration)
 
-    departures = listDepartures(icaoCode=icaoCode, registration=registration, forDay=forDay, limit=limit, icaoFilter=icaoFilter, sortTsDesc=sortTsDesc)
-    arrivals = listArrivals(icaoCode=icaoCode, registration=registration, forDay=forDay, limit=limit, icaoFilter=icaoFilter, sortTsDesc=sortTsDesc)
+    departures = listDepartures(icaoCode=icaoCode, registration=registration, forDay=forDay, limit=limit, icaoFilter=icaoFilter, sortTsDesc=sortTsDesc, display_tz=display_tz)
+    arrivals = listArrivals(icaoCode=icaoCode, registration=registration, forDay=forDay, limit=limit, icaoFilter=icaoFilter, sortTsDesc=sortTsDesc, display_tz=display_tz)
     flights = listFlights(icaoCode=icaoCode, registration=registration, forDay=forDay, limit=limit, icaoFilter=icaoFilter,
-                          sortTsDesc=sortTsDesc, orderByCol=orderByCol)
+                          sortTsDesc=sortTsDesc, orderByCol=orderByCol, display_tz=display_tz)
 
     return departures, arrivals, flights
 
@@ -224,14 +245,15 @@ def getCsv(type: str, code: str, date=None, dateTo=None):
 
     numDays = limitDateRange(date, dateTo)
 
+    display_tz = _getBrowserTimezone()
     flights = []
     for i in range(numDays):
         currentDate = date + timedelta(days=i)
 
         if type == 'LOC':
-            flights += listFlights(icaoCode=code, forDay=currentDate, limit=100)
+            flights += listFlights(icaoCode=code, forDay=currentDate, limit=200, display_tz=display_tz)
         elif type == 'REG':
-            flights += listFlights(registration=code, forDay=currentDate, limit=100)
+            flights += listFlights(registration=code, forDay=currentDate, limit=200, display_tz=display_tz)
         else:
             return flask.redirect('/')
 
@@ -500,5 +522,7 @@ if __name__ == '__main__':
     print(f"DEBUG: {DEBUG}")
     if DEBUG:
         app.config['TEMPLATES_AUTO_RELOAD'] = True
+
+    app.config['SECRET_KEY'] = 'some random key'
 
     app.run(debug=DEBUG)
