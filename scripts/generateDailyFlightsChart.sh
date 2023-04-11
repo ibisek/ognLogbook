@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # crontab entry:
-# 1 0 * * * cd /home/ibisek/wqz/prog/python/ognLogbook/scripts; ./generateDailyFlightsChart.sh
+# 1 0 * * * cd /home/ibisek/wqz/prog/python/ognLogbook; ./scripts/generateDailyFlightsChart.sh
 #
 
 source ./venv/bin/activate
