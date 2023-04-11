@@ -328,7 +328,7 @@ def getSums(registration, forDay=None, limit=None):
     return numFlights, totalFlightTime
 
 
-def findMostRecentTakeoff(address: str, addressType: str, display_tz: pytz.utc) -> LogbookItem:
+def findMostRecentTakeoff(address: str, addressType: str, display_tz=pytz.utc) -> LogbookItem:
     strSql = f"SELECT id, ts, address, address_type, aircraft_type, event, lat, lon, location_icao " \
              f"FROM logbook_events " \
              f"WHERE address = '{address}' AND address_type='{addressType}' AND event='T' " \
