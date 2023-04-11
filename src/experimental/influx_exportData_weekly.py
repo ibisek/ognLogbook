@@ -78,7 +78,7 @@ if __name__ == '__main__':
 
     numRecords = 0
     with open(outFilePath, 'w') as f:
-        header = 'ts;addr;alt;gs;lat;lon;tr;vs\n'
+        header = 'ts;addr;alt;gs;lat;lon;tr;vs;ss\n'
         f.write(header)
 
         tsIntervals = _getTsIntervalsByHour(monday1, monday2)
@@ -91,13 +91,14 @@ if __name__ == '__main__':
                     ts = int(parser.parse(res['time']).timestamp()*1000000000)
                     addr = res['addr']
                     alt = res['alt']
-                    gs = res['gs']
+                    gs = res['gs']          # ground speed
                     lat = res['lat']
                     lon = res['lon']
-                    tr = res['tr']
-                    vs = res['vs']
+                    tr = res['tr']          # turn rate
+                    vs = res['vs']          # vertical speed
+                    ss = res.get('ss', 0)   # signal strength
 
-                    line = f"{ts};{addr};{alt:.1f};{gs:.1f};{lat:.5f};{lon:.5f};{tr};{vs:.2f}\n"
+                    line = f"{ts};{addr};{alt:.1f};{gs:.1f};{lat:.5f};{lon:.5f};{tr};{vs:.2f};{ss}\n"
                     # print(line.strip())
                     f.write(line)
 
