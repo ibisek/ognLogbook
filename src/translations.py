@@ -57,6 +57,9 @@ i10n['notif.mail.footer'] = ['This is an automatically generated message by http
                              'Toto je automaticky generovaná zpráva z https://logbook.ibisek.com.\nZrušit či upravit nastavení zasílaní notifikací lze ve správě účtu na adrese https://logbook.ibisek.com/login.',
                              'Dies ist eine automatisch generierte Nachricht von https://logbook.ibisek.com\nSie können die Benachrichtigungseinstellungen in Ihrem Konto unter https://logbook.ibisek.com/login ändern oder stornieren.']
 
+i10n['footer.timezone1'] = ['Your local timezone seems to be', 'Vaše časová zóna je zřejmě', 'Ihre Zeitzone scheint']
+i10n['footer.timezone2'] = ['. All times shown are converted to this TZ.', '. Všechny zobrazené časy jsou přepočítány do této zóny.', 'zu sein. Alle angezeigten Zeiten werden in diese ZZ umgerechnet.']
+
 i10n[''] = ['', '', '']
 
 

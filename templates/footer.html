@@ -14,7 +14,7 @@
 	<a href="https://www.wikipedia.org/" target="_blank">wikipedia.org</a>
 
 	<br>
-	Your local timezone seems to be <b>{{ session['browser_timezone'] }}</b>.
+	{{ gettext('footer.timezone1') }} <b>{{ session['browser_timezone'] }}</b>{{ gettext('footer.timezone2') }}
 
 	<br>
 	<a href="http://www.ibisek.com" target="_blank">www.ibisek.com</a>
