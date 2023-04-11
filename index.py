@@ -10,7 +10,7 @@ from datetime import datetime, timedelta
 from collections import namedtuple
 
 from distutils.log import Log
-from flask import request, send_from_directory
+from flask import request, send_from_directory, session
 import flask
 import getopt
 from platform import node
@@ -43,14 +43,15 @@ afCountryCodes = airfieldManager.afCountryCodes
 def set_timezone():
     """Get timezone from the browser and store it in the session object."""
     timezone = request.data.decode('utf-8')
-    flask.session['browser_timezone'] = timezone
+    session['browser_timezone'] = timezone
+    session.modified = True
     return ""
 
 
 def _getBrowserTimezone():
-    if 'browser_timezone' in flask.session:
+    if 'browser_timezone' in session:
         try:
-            return pytz.timezone(flask.session.get('browser_timezone'))
+            return pytz.timezone(session.get('browser_timezone'))
         except pytz.UnknownTimeZoneError:
             return pytz.utc
 
