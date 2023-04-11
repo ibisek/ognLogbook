@@ -55,6 +55,9 @@ def _getBrowserTimezone():
     # 2. or get it from cookie:
     if not browser_timezone:
         browser_timezone = request.cookies.get('browser_timezone')
+        if browser_timezone:
+            session['browser_timezone'] = browser_timezone
+            session.modified = True
 
     if browser_timezone:
         try:
