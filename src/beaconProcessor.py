@@ -250,6 +250,12 @@ class RawWorker(Thread):
         if addressType == 1 and groundSpeed > 400:  # ignore fast (icao) airliners and jets
             return
 
+        # extract beacon signal strength (if available):
+        signalStrength = 0
+        temp = raw_message[:raw_message.index('dB')] if 'dB' in raw_message else None
+        if temp:
+            signalStrength = round(float(temp[temp.rfind(' '):].strip()))
+
         # get altitude above ground level (AGL):
         agl = self._getAgl(lat, lon, altitude)  # [m]
 
@@ -257,7 +263,7 @@ class RawWorker(Thread):
         # pos ~ position, vs = vertical speed, tr = turn rate
         if agl is None or agl < 128000:  # groundSpeed > 0 and
             aglStr = 0 if agl is None else f"{agl:.0f}"
-            q = f"pos,addr={ADDRESS_TYPE_PREFIX[addressType]}{address} lat={lat:.6f},lon={lon:.6f},alt={altitude:.0f},gs={groundSpeed:.2f},vs={verticalSpeed:.2f},tr={turnRate:.2f},agl={aglStr} {ts}000000000"
+            q = f"pos,addr={ADDRESS_TYPE_PREFIX[addressType]}{address} lat={lat:.6f},lon={lon:.6f},alt={altitude:.0f},gs={groundSpeed:.2f},vs={verticalSpeed:.2f},tr={turnRate:.2f},agl={aglStr},ss={signalStrength} {ts}000000000"
 
             if self.permanentStorage.eligible4ps(address):  # shall be saved into permanent storage?
                 self.influxDb_ps.addStatement(q)
