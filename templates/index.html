@@ -22,7 +22,7 @@
 	<img alt="pocitadlo" src="https://counter.ibisek.com/log/img/ognLogbook.png">
 	{% endif %}
 
-	{% if 'timezone' not in session %}
+	{% if 'browser_timezone' not in session %}
 	<script type="text/javascript">
 	  const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 	  fetch("/set_timezone", {method: 'POST', body: timezone});
