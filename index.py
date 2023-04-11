@@ -41,17 +41,24 @@ afCountryCodes = airfieldManager.afCountryCodes
 
 @app.route('/set_timezone', methods=['POST'])
 def set_timezone():
-    """Get timezone from the browser and store it in the session object."""
+    """Receive timezone from the browser and store it in the session object."""
     timezone = request.data.decode('utf-8')
     session['browser_timezone'] = timezone
     session.modified = True
-    return ""
+    return ''
 
 
 def _getBrowserTimezone():
-    if 'browser_timezone' in session:
+    # 1. get it from session:
+    browser_timezone = session.get('browser_timezone')
+
+    # 2. or get it from cookie:
+    if not browser_timezone:
+        browser_timezone = request.cookies.get('browser_timezone')
+
+    if browser_timezone:
         try:
-            return pytz.timezone(session.get('browser_timezone'))
+            return pytz.timezone(browser_timezone)
         except pytz.UnknownTimeZoneError:
             return pytz.utc
 

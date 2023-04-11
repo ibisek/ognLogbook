@@ -26,6 +26,7 @@
 	<script type="text/javascript">
 	  const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 	  fetch("/set_timezone", {method: 'POST', body: timezone});
+	  document.cookie = `browser_timezone=${timezone};'`;
 	</script>
 	{% endif %}
 </head>
