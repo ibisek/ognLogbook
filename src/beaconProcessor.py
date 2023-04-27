@@ -368,9 +368,9 @@ class BeaconProcessor(object):
         rawQueueICA = Queue()
         rawQueueSKY = Queue()
 
-    queues = (rawQueueOGN, rawQueueFLR, rawQueueFLR, rawQueueICA, rawQueueSKY)  # one worker's performance on current CPU is 35k/min
-    queueIds = ('ogn', 'flarm1', 'flarm2', 'icao1', 'sky1')
-    addrTypes = ('O', 'F', 'F', 'I', 'S')
+    queues = (rawQueueOGN, rawQueueFLR, rawQueueICA, rawQueueSKY)  # one worker's performance on current CPU is 35k/min
+    queueIds = ('ogn', 'flarm1', 'icao1', 'sky1')
+    addrTypes = ('O', 'F', 'I', 'S')
     # TODO there shall be separate queues for each worker and traffic shall be split/shaped evenly for every worker of the same kind..
 
     workers = list()
