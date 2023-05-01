@@ -1,7 +1,7 @@
 certifi==2022.12.7
 charset-normalizer==2.0.12
 click==8.1.2
-Flask==2.1.1
+Flask==2.3.2
 idna==3.3
 importlib-metadata==4.11.3
 influxdb==5.3.1
