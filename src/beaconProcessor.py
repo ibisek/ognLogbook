@@ -52,17 +52,17 @@ class RawWorker(Thread):
 
         self.rawQueue = rawQueue
 
+        self.ownDbThread = False
         if dbThread:
             self.dbThread = dbThread
-            self.ownDbThread = False
         else:
             self.dbThread = DbThread(dbConnectionInfo)
             self.dbThread.start()
             self.ownDbThread = True
 
+        self.ownInfluxDb = False
         if influxDb:
             self.influxDb = influxDb
-            self.ownInfluxDb = False
         else:
             self.influxDb = InfluxDbThread(dbName=INFLUX_DB_NAME, host=INFLUX_DB_HOST)
             self.influxDb.start()
