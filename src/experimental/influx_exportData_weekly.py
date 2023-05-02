@@ -23,16 +23,30 @@ DUMP_FILEPATH_TEMPLATE = '{}/ogn_logbook.{}_{:02}.csv'
 Interval = namedtuple('Interval', ['startTs', 'endTs'])
 
 
-def _getTsIntervalsByHour(startDt: datetime, endDt: datetime) -> List[Interval]:
+def _getTsIntervals10Min(startDt: datetime, endDt: datetime) -> List[Interval]:
     hours = (endDt-startDt).days*24
+    minStep = 10   # [min]
     l = []
     for h in range(0, hours):
-        startTs = int((startDt + timedelta(hours=h)).replace(tzinfo=timezone.utc).timestamp())
-        endTs = int((startDt + timedelta(hours=h+1)).replace(tzinfo=timezone.utc).timestamp())
-        interval = Interval(startTs=startTs, endTs=endTs)
-        l.append(interval)
+        for m in range(0, 60, minStep):
+            startTs = int((startDt + timedelta(hours=h, minutes=m, seconds=0)).replace(tzinfo=timezone.utc).timestamp())
+            endTs = int((startDt + timedelta(hours=h, minutes=m+minStep-1, seconds=59, microseconds=999999)).replace(tzinfo=timezone.utc).timestamp())
+            interval = Interval(startTs=startTs, endTs=endTs)
+            l.append(interval)
 
     return l
+
+
+# def _getTsIntervalsByHour(startDt: datetime, endDt: datetime) -> List[Interval]:
+#     hours = (endDt-startDt).days*24
+#     l = []
+#     for h in range(0, hours):
+#         startTs = int((startDt + timedelta(hours=h)).replace(tzinfo=timezone.utc).timestamp())
+#         endTs = int((startDt + timedelta(hours=h+1)).replace(tzinfo=timezone.utc).timestamp())
+#         interval = Interval(startTs=startTs, endTs=endTs)
+#         l.append(interval)
+#
+#     return l
 
 
 def _dataFromInflux(influx, interval: Interval):
@@ -81,7 +95,8 @@ if __name__ == '__main__':
         header = 'ts;addr;alt;gs;lat;lon;tr;vs;ss\n'
         f.write(header)
 
-        tsIntervals = _getTsIntervalsByHour(monday1, monday2)
+        # tsIntervals = _getTsIntervalsByHour(monday1, monday2)
+        tsIntervals = _getTsIntervals10Min(monday1, monday2)
         for interval in tsIntervals:
             rs = _dataFromInflux(influx, interval)
 
