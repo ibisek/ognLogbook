@@ -319,7 +319,9 @@ def getMap(flightId: int):
         print(f"[INFO] MAP: invalid flightId='{flightId}'")
         return flask.render_template('error40x.html', code=404, message="Nope :P"), 404
 
-    flight: LogbookItem = getFlight(flightId=flightId)
+    display_tz = _getBrowserTimezone()
+
+    flight: LogbookItem = getFlight(flightId=flightId, display_tz=display_tz)
     flightRecord = _getFlightData(flight=flight)
     if type(flightRecord) is not list:  # it is an error response in fact
         return flightRecord

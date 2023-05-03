@@ -15,11 +15,11 @@
         {% if flight.aircraft_type %}{{flight.aircraft_type}} |{% endif %}
         {% if flight.registration %} <a href="/reg/{{flight.registration}}">{{flight.registration}}</a>{% else %}?{% endif %}
         {% if flight.cn %} ({{flight.cn}}){% endif %}
-        {% if flight.takeoff_ts %}| {{formatTsToHHMM(flight.takeoff_ts)}}{% endif %}
+        {% if flight.takeoff_ts %}| {{formatTsToHHMM(flight.takeoff_dt)}}{% endif %}
         {% if flight.takeoff_icao %} <a href="/loc/{{flight.takeoff_icao}}">{{flight.takeoff_icao}}</a>{% endif %}
          &#8605;
         {% if flight.landing_icao %} <a href="/loc/{{flight.landing_icao}}">{{flight.landing_icao}}</a>{% endif %}
-        {% if flight.landing_ts %} {{formatTsToHHMM(flight.landing_ts)}}{% endif %}
+        {% if flight.landing_ts %} {{formatTsToHHMM(flight.landing_dt)}}{% endif %}
         {% if flight.flight_time %}| {{flight.flight_time|safe}}{% endif %}
         {% if flight.flown_distance %}| {{flight.flown_distance}} km{% endif %}
     </div>
