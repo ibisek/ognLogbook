@@ -154,10 +154,8 @@ Let s nufikem dynamikem:
 
 
 -- TODO --
-
-* all time info to UTC
-* all time info to local TZ (using https://github.com/evansiroky/timezone-boundary-builder)
 * event watcher mailing queue
 * user management
 * fleet management for users
-
+* all time info to local TZ (using https://github.com/evansiroky/timezone-boundary-builder)
+* recognition of short winch flights, especially exceptional situation handling (2min flight limit vs. winch 'jumps')
