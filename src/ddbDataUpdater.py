@@ -81,7 +81,7 @@ def _downloadDataFile(url: str):
         return resp.text.split('\n')
 
     except Exception as e:
-        print(f"[ERROR] Download of the datafile failed with connectionException!\n\turl: '{url}'\n\t{str(e)}")
+        print(f"[ERROR] Download of the datafile failed!\n\turl: '{url}'\n\t{str(e)}")
         return []
 
 
@@ -151,3 +151,5 @@ def _processFlarmnet():
 if __name__ == '__main__':
     _processDDB()
     _processFlarmnet()
+
+    print("Done.")
