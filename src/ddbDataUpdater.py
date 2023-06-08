@@ -81,14 +81,15 @@ def _downloadDataFile(url: str):
         return resp.text.split('\n')
 
     except Exception as e:
-        print(f"[ERROR] Download of the datafile failed!\n\turl: '{url}'\n\t{str(e)}")
-        return []
+        print(f"[ERROR] Download of the datafile failed!\n\turl: '{url}'\n\terror:{str(e)}")
+
+    return []
 
 
 def _processDDB():
     lines = _downloadDataFile(DDB_URL)
     if len(lines) < 10000:
-        sys.exit(1)
+        return
 
     with DbSource(dbConnectionInfo).getConnection().cursor() as cur:
 
@@ -118,7 +119,7 @@ def _processDDB():
 def _processFlarmnet():
     lines = _downloadDataFile(FLARMNET_URL)
     if len(lines) < 10000:
-        sys.exit(1)
+        return
 
     with DbSource(dbConnectionInfo).getConnection().cursor() as cur:
 
