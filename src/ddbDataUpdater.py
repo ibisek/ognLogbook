@@ -71,13 +71,18 @@ def _insertOrAmendRecord(cursor: Cursor,
 
 def _downloadDataFile(url: str):
     print(f"Downloading data from {url}")
-    resp = requests.get(url)
+    try:
+        resp = requests.get(url)
 
-    if resp.status_code != 200:
-        print(f"[WARN] Download of the datafile failed with code {resp.status_code}")
-        sys.exit(1)
+        if resp.status_code != 200:
+            print(f"[WARN] Download of the datafile failed with code {resp.status_code}")
+            return []
 
-    return resp.text.split('\n')
+        return resp.text.split('\n')
+
+    except ConnectionError as e:
+        print(f"[ERROR] Download of the datafile failed with connectionException! url: '{url}'")
+        return []
 
 
 def _processDDB():
