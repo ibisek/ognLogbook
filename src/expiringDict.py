@@ -25,6 +25,13 @@ class ExpiringDict(dict):
     def __setitem__(self, key, val):
         dict.__setitem__(self, key, (val, time()))
 
+    def get(self, key, default=None):
+        val = dict.get(self, key, default)
+        if type(val) is tuple:
+            return val[0]   # the other element is the insertion timestamp
+        else:
+            return val
+
     def tick(self):
         """
         This needs to be called periodically from <somewhere> to drop expired records.
