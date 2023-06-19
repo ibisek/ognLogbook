@@ -75,6 +75,7 @@ class RawWorker(Thread):
         self.airfieldManager = AirfieldManager()
         self.geofile = Geofile(filename=GEOFILE_PATH)
         self.redis = StrictRedis(**redisConfig)
+        self.timeHorizonCache = ExpiringDict(ttl=60*60)     # [s]
         self.beaconDuplicateCache = ExpiringDict(ttl=1)     # [s]
 
         self.permanentStorage = PermanentStorageFactory.storageFor(addrType)
@@ -239,7 +240,17 @@ class RawWorker(Thread):
         verticalSpeed = beacon.get('climb_rate') or 0  # [m/s]
         turnRate = beacon.get('turn_rate') or 0  # [deg/s]
 
-        # skip beacons we received for the second time and got already processed:
+        # Check beacon's "time horizon".
+        # Beacons may be received in incorrect order while for example delayed 'airborne' beacons may result into repeated
+        # take-off or other atrocities. The 'timeHorizonCache' is to prevent such occurrences by skipping the out-of-order beacons.
+        beaconBehindTimeHorizon = False
+        prevTs = self.timeHorizonCache.get(address, None)
+        if not prevTs or ts >= prevTs:
+            self.timeHorizonCache[address] = ts
+        else:
+            beaconBehindTimeHorizon = True  # we've received some older beacon - it can be stored but not further processed
+
+        # Skip beacons we received for the second time and got already processed:
         key = f"{addressTypeStr}{address}-{lat:.4f}{lon:.4f}{altitude}{groundSpeed:.1f}{verticalSpeed:.1f}"
         if key in self.beaconDuplicateCache:
             del self.beaconDuplicateCache[key]
@@ -269,6 +280,9 @@ class RawWorker(Thread):
                 self.influxDb_ps.addStatement(q)
             else:
                 self.influxDb.addStatement(q)
+
+        if beaconBehindTimeHorizon:
+            return  # do not further consider out-of-order beacons
 
         prevStatus: Status = None
         statusKey = f"{addressTypeStr}{address}-status"
@@ -349,6 +363,9 @@ class RawWorker(Thread):
 
             if self.beaconType == 'I' and "OGNEMO" in raw_message[:16]:     # ICAO worker processes OGNEMO beacons that carry registration
                 self._retainAircraftRegistration(address=address, raw_message=raw_message)
+
+            self.timeHorizonCache.tick()  # cleanup the cache (cannot be called from PeriodicTimer due to subprocess/threading troubles :|)
+            # ^^ this is here as THC cleanup is not necessarily that frequent
 
         self.beaconDuplicateCache.tick()    # cleanup the cache (cannot be called from PeriodicTimer due to subprocess/threading troubles :|)
 
