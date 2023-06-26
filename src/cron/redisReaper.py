@@ -22,9 +22,7 @@ from cron.eventWatcher.eventWatcher import EventWatcher
 class RedisReaper(object):
     RUN_INTERVAL = 5*60  # [s]
 
-    REDIS_STALE_INTERVAL_1 = 1 * 60 * 60  # [s]
-    REDIS_STALE_INTERVAL_2 = 2 * 60 * 60  # [s]
-    REDIS_TTL_LIMIT = REDIS_RECORD_EXPIRATION - REDIS_STALE_INTERVAL_1
+    REDIS_STALE_INTERVAL = 40 * 60  # [s]   // 40 min shall be enough even for a patient pilot to find a reasonable thermal ;)
     GS_THRESHOLD = getGroundSpeedThreshold(1, 'L')
 
     def __init__(self):
@@ -93,7 +91,7 @@ class RedisReaper(object):
                     landingSuspected = True
                 else:
                     lastBeaconAge = datetime.now().timestamp() - localTs
-                    if lastBeaconAge > self.REDIS_STALE_INTERVAL_2:
+                    if lastBeaconAge > self.REDIS_STALE_INTERVAL:
                         landingSuspected = True
 
                 if landingSuspected:
@@ -136,7 +134,7 @@ class RedisReaper(object):
                         numLanded += 1
 
         if numLanded > 0:
-            print(f"[INFO] RedisReaper: cleared {numLanded} stale records")
+            print(f"[INFO] RedisReaper: cleared {numLanded} stale record(s)")
 
     def stop(self):
         self.dbt.stop()
