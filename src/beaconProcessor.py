@@ -88,8 +88,13 @@ class RawWorker(Thread):
         self.doRun = False
         if self.ownDbThread:
             self.dbThread.stop()
-        if self.ownInfluxDb:
-            self.influxDb.stop()
+
+        try:
+            if self.ownInfluxDb:
+                self.influxDb.stop()
+        except AttributeError:
+            pass
+
         self.influxDb_ps.stop()
 
     def stop(self):
