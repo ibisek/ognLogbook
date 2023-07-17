@@ -154,12 +154,16 @@ Let s nufikem dynamikem:
 
 
 -- TODO --
+
 * flight track map inversion (fetch data via api)
+* encounters (!!) detection and visualisation
 * user management
 * fleet management for users
-* configurable event watcher
 * mailing queue
+* configurable event watcher
+    - notifications on lost/stolen units
 * flight track into email upon landing
-* encounters detection and visualisation
-* all time info to local TZ (using https://github.com/evansiroky/timezone-boundary-builder)
 * recognition of short winch flights, especially exceptional situation handling (2min flight limit vs. winch 'jumps')
+
+Done:
+* all time info to local TZ (using https://github.com/evansiroky/timezone-boundary-builder)
