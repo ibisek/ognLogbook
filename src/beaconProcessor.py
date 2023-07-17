@@ -95,7 +95,11 @@ class RawWorker(Thread):
         except AttributeError:
             pass
 
-        self.influxDb_ps.stop()
+        try:
+            if self.influxDb_ps:
+                self.influxDb_ps.stop()
+        except AttributeError:
+            pass
 
     def stop(self):
         self.doRun = False
