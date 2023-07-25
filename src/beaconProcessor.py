@@ -125,9 +125,9 @@ class RawWorker(Thread):
                 except KeyboardInterrupt:
                     self.stop()
             except BrokenPipeError as ex:
-                print('[WARN] in worker:', str(ex))
+                logging.warning(f"[WARN] in worker: {ex}")
             except Exception as ex:
-                print('[ERROR] some other problem:', str(ex))
+                logging.error(f"[ERROR] some other problem: {ex}")
 
         print(f"[INFO] Worker '{self.id}' terminated.")
 
