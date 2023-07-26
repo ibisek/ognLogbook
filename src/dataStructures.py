@@ -8,6 +8,8 @@ from utils import formatDuration
 class Status(object):
 
     def __init__(self, s=-1, ts=0):
+        __slots__ = ('s', 'ts')
+
         """
         :param s: 0 = on ground, 1 = airborne, -1 = unknown
         :param ts: [s]
@@ -31,6 +33,14 @@ class Status(object):
 
 
 class LogbookItem(object):
+    __slots__ = ('id', 'address', 'address_type',
+                 'takeoff_ts', 'takeoff_lat', 'takeoff_lon', 'takeoff_icao',
+                 'landing_ts', 'landing_lat', 'landing_lon', 'landing_icao',
+                 'flight_time', 'flown_distance',
+                 'in_ps',
+                 'device_type', 'registration', 'cn', 'aircraft_type',
+                 'takeoff_dt', 'landing_dt', 'flight_time',
+                 'tow_id')
 
     def __init__(self, id, address, address_type=None,
                  takeoff_ts=0, takeoff_lat=0, takeoff_lon=0, takeoff_icao=None,
