@@ -10,6 +10,8 @@ from time import time
 
 class ExpiringDict(dict):
 
+    __slots__ = ('ttl', 'lastTickTs')
+
     def __init__(self, ttl: int, *args):
         """
         :param ttl: time-to-live [s]
