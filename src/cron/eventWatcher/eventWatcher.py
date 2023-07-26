@@ -12,6 +12,8 @@ from cron.eventWatcher.messageFormatter import formatMailNotification
 
 
 class WatcherEvent:
+    __slots__ = ('ts', 'addressType', 'lat', 'lon', 'flightTime')
+
     def __init__(self, line):
         self.ts, self.event, self.address, self.addressType, self.lat, self.lon, self.icaoLocation, self.flightTime = line.decode('utf-8').split(';')
 
@@ -28,6 +30,8 @@ class WatcherEvent:
 
 
 class Watcher:
+    __slots__ = ('userId', 'email', 'lang', 'aircraft_registration', 'aircraft_cn')
+
     def __init__(self, row):
         self.userId, self.email, self.lang, self.aircraft_registration, self.aircraft_cn = row
         self.userId = int(self.userId)
