@@ -10,6 +10,8 @@ from singleton import Singleton
 
 
 class DDBRecord:
+    __slots__ = ('id', 'device_type', 'device_id', 'aircraft_type', 'aircraft_registration', 'aircraft_cn', 'tracked', 'identified', 'dirty')
+
     def __init__(self):
         self.id = 0
         self.device_type = None  # O/F/I
