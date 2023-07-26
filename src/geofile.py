@@ -13,6 +13,8 @@ class Geofile(object):
 
     FILENAME = '/tmp/00/mosaic-500m.TIF'
 
+    __slots__ = ('dataset', 'geotransform', 'band', 'ct', 'gdalMajorVer')
+
     def __init__(self, filename=FILENAME):
         print(f"[INFO] Reading geofile from '{filename}'")
         self.dataset = gdal.Open(filename, gdal.GA_ReadOnly)
