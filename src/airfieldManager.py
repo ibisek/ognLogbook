@@ -7,6 +7,7 @@ from configuration import AIRFIELDS_FILE
 
 
 class AirfieldRecord(object):
+    __slots__ = ('lat', 'lon', 'code')
 
     def __init__(self, map: dict):
         self.lat = math.radians(map['lat'])
@@ -18,6 +19,8 @@ class AirfieldRecord(object):
 
 
 class AirfieldManager(object):  # , metaclass=Singleton
+
+    __slots__ = ('airfields', 'afCountryCodes')
 
     def __init__(self):
         self.airfields, _ = self.loadAirfieldsFromFile()
