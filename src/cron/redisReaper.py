@@ -39,7 +39,7 @@ class RedisReaper(object):
     def doWork(self):
         airborne = []
 
-        keys = self.redis.keys('*status')   # TODO uz davno nemusi byt airborne!!
+        keys = self.redis.keys('*status')
         for key in keys:
             key = key.decode('ascii')
             # ttl = self.redis.ttl(key)
@@ -52,7 +52,13 @@ class RedisReaper(object):
 
         numLanded = 0
         for addr in airborne:
-            # TODO overit, jestli je stale jeste airborne!! pokud ne, tak skip!!
+            # check if still airborne (situation might have changed); continue if not
+            key = f"{addr}-status"
+            value = self.redis.get(key)
+            if value:
+                status = int(value.decode('ascii').split(';')[0])
+                if not status:  # 0 = on ground
+                    continue
 
             prefix = addr[:1]
             addr = addr[1:]
