@@ -5,6 +5,8 @@ from threading import Thread
 
 class PeriodicTimer(Thread):
 
+    __slots__ = ('interval', 'function', 'doRun')
+
     def __init__(self, interval, function):
         """
         :param interval: [s]
