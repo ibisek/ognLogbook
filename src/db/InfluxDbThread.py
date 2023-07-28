@@ -21,10 +21,10 @@ from influxdb.exceptions import InfluxDBClientError, InfluxDBServerError
 
 class InfluxDbThread(threading.Thread):
 
-    toDoStatements = mp.Manager().Queue() if USE_MULTIPROCESSING_INSTEAD_OF_THREADS else Queue()
-
     def __init__(self, dbName: str, host: str, port: int = 8086, startThread=True):
         super(InfluxDbThread, self).__init__()
+
+        self.toDoStatements = mp.Manager().Queue() if USE_MULTIPROCESSING_INSTEAD_OF_THREADS else Queue()
 
         self.dbName = dbName
         self.host = host
