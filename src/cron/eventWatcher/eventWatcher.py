@@ -12,7 +12,7 @@ from cron.eventWatcher.messageFormatter import formatMailNotification
 
 
 class WatcherEvent:
-    __slots__ = ('ts', 'addressType', 'lat', 'lon', 'flightTime')
+    __slots__ = ('ts', 'event', 'address', 'addressType', 'lat', 'lon', 'icaoLocation', 'flightTime')
 
     def __init__(self, line):
         self.ts, self.event, self.address, self.addressType, self.lat, self.lon, self.icaoLocation, self.flightTime = line.decode('utf-8').split(';')
