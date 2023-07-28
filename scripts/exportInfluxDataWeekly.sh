@@ -1,14 +1,15 @@
 #!/bin/bash
 #
-# crontab entry:
-# 0 5 * * mon cd /home/ibisek/wqz/prog/python/ognLogbook; ./scripts/exportInfluxDataWeekly.sh > /dev/null
+# crontab entries:
+# 0 1 * * tue cd /home/ibisek/wqz/prog/python/ognLogbook && INFLUX_DB_NAME='ogn_logbook_ps' && ./scripts/exportInfluxDataWeekly.sh > /dev/null
+# 0 3 * * tue cd /home/ibisek/wqz/prog/python/ognLogbook && INFLUX_DB_NAME='ogn_logbook' && ./scripts/exportInfluxDataWeekly.sh > /dev/null
 #
 
 source ./venv/bin/activate
 
 export PYTHONPATH=.:./src:$PYTHONPATH
 
-export INFLUX_DB_NAME='ogn_logbook'
+#export INFLUX_DB_NAME='ogn_logbook'
 #export INFLUX_DB_NAME='ogn_logbook_stm'
 export STORAGE_DIR='/media/data/archive'
 
