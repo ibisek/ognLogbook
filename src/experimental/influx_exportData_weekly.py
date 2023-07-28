@@ -2,7 +2,8 @@
 Dumps data stored in the 'pos' buckets during the previous week into a file
 
 Crontab entry:
-0 5 * * mon cd /home/ibisek/wqz/prog/python/ognLogbook; ./exportInfluxDataWeekly.sh > /dev/null
+0 1 * * tue cd /home/ibisek/wqz/prog/python/ognLogbook && INFLUX_DB_NAME='ogn_logbook_ps' && ./scripts/exportInfluxDataWeekly.sh > /dev/null
+0 3 * * tue cd /home/ibisek/wqz/prog/python/ognLogbook && INFLUX_DB_NAME='ogn_logbook' && ./scripts/exportInfluxDataWeekly.sh > /dev/null
 """
 
 from collections import namedtuple
@@ -15,10 +16,7 @@ from datetime import datetime, timedelta, timezone
 from configuration import INFLUX_DB_NAME, INFLUX_DB_HOST
 from db.InfluxDbThread import InfluxDbThread
 
-DUMP_FILEPATH_TEMPLATE = '{}/ogn_logbook.{}_{:02}.csv'
-
-# TODO configurable INFLUX_DB_NAME
-# TODO configurable DUMP_FILEPATH_TEMPLATE
+DUMP_FILEPATH_TEMPLATE = '{}/{}.{}_{:02}.csv'   # storageDir, db_name, year, week
 
 Interval = namedtuple('Interval', ['startTs', 'endTs'])
 
@@ -83,7 +81,7 @@ if __name__ == '__main__':
 
     year = monday1.year
     week = monday1.isocalendar()[1]
-    outFilePath = DUMP_FILEPATH_TEMPLATE.format(storageDir, year, week)
+    outFilePath = DUMP_FILEPATH_TEMPLATE.format(storageDir, influxDbName, year, week)
     print(f"[INFO] Exporting influx data into '{outFilePath}'..")
 
     # --
