@@ -59,22 +59,30 @@ def _dataFromInflux(influx, interval: Interval):
 def _parseEnvVars():
     influxDbName = os.environ.get('INFLUX_DB_NAME', INFLUX_DB_NAME)
     storageDir = os.environ.get('STORAGE_DIR', '/tmp/00')
+    weekNumber = os.environ.get('WEEK_NUMBER', None)
 
-    print(f"[INFO] Using\n\tinfluxDbName: {influxDbName}\n\tarchive storageDir: {storageDir}")
+    print(f"[INFO] Using\n\tinfluxDbName: {influxDbName}\n\tarchive storageDir: {storageDir}\n\tweek number: {weekNumber}")
 
-    return (influxDbName, storageDir)
+    return (influxDbName, storageDir, weekNumber)
 
 
 if __name__ == '__main__':
-    influxDbName, storageDir = _parseEnvVars()
+    influxDbName, storageDir, weekNumber = _parseEnvVars()
 
     dt = datetime.utcnow()
 
-    prevMonday = dt + timedelta(days=-dt.weekday() - 7)
-    prevSunday = dt + timedelta(days=-dt.weekday())
+    if weekNumber:  # this is an override to export a specific week
+        d = f"{dt.year}-W{weekNumber}"
+        dt = datetime.strptime(d + '-1', "%Y-W%W-%w")
+        monday1 = dt                         # monday of the specified week
+        monday2 = dt + timedelta(days=7)     # monday of the specified week+1
 
-    monday1 = prevMonday.replace(hour=0, minute=0, second=0, microsecond=0)
-    monday2 = prevSunday.replace(hour=0, minute=0, second=0, microsecond=0)
+    else:
+        prevMonday = dt + timedelta(days=-dt.weekday() - 7)
+        prevSunday = dt + timedelta(days=-dt.weekday())
+
+        monday1 = prevMonday.replace(hour=0, minute=0, second=0, microsecond=0)
+        monday2 = prevSunday.replace(hour=0, minute=0, second=0, microsecond=0)
 
     print("monday1:", monday1)
     print("monday2:", monday2)
