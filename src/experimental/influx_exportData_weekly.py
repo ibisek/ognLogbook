@@ -2,8 +2,8 @@
 Dumps data stored in the 'pos' buckets during the previous week into a file
 
 Crontab entry:
-0 1 * * tue cd /home/ibisek/wqz/prog/python/ognLogbook && INFLUX_DB_NAME='ogn_logbook_ps' && ./scripts/exportInfluxDataWeekly.sh > /dev/null
-0 3 * * tue cd /home/ibisek/wqz/prog/python/ognLogbook && INFLUX_DB_NAME='ogn_logbook' && ./scripts/exportInfluxDataWeekly.sh > /dev/null
+0 1 * * tue cd /home/ibisek/wqz/prog/python/ognLogbook && export INFLUX_DB_NAME='ogn_logbook_ps' && ./scripts/exportInfluxDataWeekly.sh > /dev/null
+0 3 * * tue cd /home/ibisek/wqz/prog/python/ognLogbook && export INFLUX_DB_NAME='ogn_logbook' && ./scripts/exportInfluxDataWeekly.sh > /dev/null
 """
 
 from collections import namedtuple
