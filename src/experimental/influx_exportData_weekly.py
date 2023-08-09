@@ -4,6 +4,8 @@ Dumps data stored in the 'pos' buckets during the previous week into a file
 Crontab entry:
 0 1 * * tue cd /home/ibisek/wqz/prog/python/ognLogbook && export INFLUX_DB_NAME='ogn_logbook_ps' && ./scripts/exportInfluxDataWeekly.sh > /dev/null
 0 3 * * tue cd /home/ibisek/wqz/prog/python/ognLogbook && export INFLUX_DB_NAME='ogn_logbook' && ./scripts/exportInfluxDataWeekly.sh > /dev/null
+
+for i in {14..15}; do echo "WEEK: $i" && export INFLUX_DB_NAME='ogn_logbook_ps' && export WEEK_NUMBER=$i && ./scripts/exportInfluxDataWeekly.sh; done
 """
 
 from collections import namedtuple
