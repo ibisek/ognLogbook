@@ -117,7 +117,7 @@ if __name__ == '__main__':
                     lon = res['lon']
                     tr = res['tr']          # turn rate
                     vs = res['vs']          # vertical speed
-                    ss = round(res.get('ss', 0))   # signal strength
+                    ss = round(res.get('ss', 0) or 0)   # signal strength
 
                     line = f"{ts};{addr};{alt:.1f};{gs:.1f};{lat:.5f};{lon:.5f};{tr};{vs:.2f};{ss}\n"
                     # print(line.strip())
