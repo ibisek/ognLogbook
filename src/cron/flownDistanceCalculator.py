@@ -84,7 +84,7 @@ class FlownDistanceCalculator:
                 if not address or not addressType or not takeoffTs or not landingTs:
                     continue
 
-                dist = round(self._calcFlownDistance(addr=address, addressType=addressType, startTs=takeoffTs, endTs=landingTs))
+                dist = round(self._calcFlownDistance(address=address, addressType=addressType, startTs=takeoffTs, endTs=landingTs))
                 print(f"[INFO] Flown dist for '{addressPrefixes[addressType]}{address}' is {dist} km.")
 
                 sql = f"UPDATE logbook_entries SET flown_distance={round(dist)} WHERE id = {entryId};"
