@@ -4,7 +4,8 @@ A cron service to calculate real flown distance (point-to-point) for each flight
 
 from math import radians
 
-from configuration import dbConnectionInfo, INFLUX_DB_HOST, INFLUX_DB_NAME
+from configuration import dbConnectionInfo, INFLUX_DB_HOST, INFLUX_DB_NAME, INFLUX_DB_NAME_PERMANENT_STORAGE
+from dao.permanentStorage import PermanentStorageFactory
 from db.DbSource import DbSource
 from db.InfluxDbThread import InfluxDbThread
 from airfieldManager import AirfieldManager
@@ -18,18 +19,30 @@ class FlownDistanceCalculator:
     def __init__(self):
         print(f"[INFO] FlownDistanceCalculator scheduled to run every {self.RUN_INTERVAL}s.")
         self.influxDb = InfluxDbThread(dbName=INFLUX_DB_NAME, host=INFLUX_DB_HOST)
+        self.influxDbPs = InfluxDbThread(dbName=INFLUX_DB_NAME_PERMANENT_STORAGE, host=INFLUX_DB_HOST)
+
+        self.permanentStorages = dict()
 
     def __del__(self):
         self.influxDb.client.close()
 
     """
     @param addr: ogn ID with prefix OGN/ICA/FLR
+    @param addressType: O/I/F
     """
-    def _calcFlownDistance(self, addr: str, startTs: int, endTs: int):
+
+    def _calcFlownDistance(self, address: str, addressType: str, startTs: int, endTs: int):
         totalDist = 0
 
-        q = f"SELECT lat, lon FROM pos WHERE addr='{addr}' AND time >= {startTs}000000000 AND time <= {endTs}000000000"
-        rs = self.influxDb.client.query(query=q)
+        influxInstance = self.influxDb
+        permanentStorage = self.permanentStorages.setdefault(addressType, PermanentStorageFactory.storageFor(addressType))
+        if permanentStorage.eligible4ps(address):
+            influxInstance = self.influxDbPs
+
+        addrWithPrefix = f"{addressPrefixes[addressType]}{address}"
+
+        q = f"SELECT lat, lon FROM pos WHERE addr='{addrWithPrefix}' AND time >= {startTs}000000000 AND time <= {endTs}000000000"
+        rs = influxInstance.client.query(query=q)
         if rs:
             prevLat = prevLon = curLat = curLon = None
 
@@ -71,7 +84,7 @@ class FlownDistanceCalculator:
                 if not address or not addressType or not takeoffTs or not landingTs:
                     continue
 
-                dist = round(self._calcFlownDistance(addr=f"{addressPrefixes[addressType]}{address}", startTs=takeoffTs, endTs=landingTs))
+                dist = round(self._calcFlownDistance(addr=address, addressType=addressType, startTs=takeoffTs, endTs=landingTs))
                 print(f"[INFO] Flown dist for '{addressPrefixes[addressType]}{address}' is {dist} km.")
 
                 sql = f"UPDATE logbook_entries SET flown_distance={round(dist)} WHERE id = {entryId};"
@@ -89,10 +102,11 @@ class FlownDistanceCalculator:
 if __name__ == '__main__':
     calc = FlownDistanceCalculator()
 
-    addr = 'OGN1C2902'
-    startTs = 1641542747
-    endTs = 1641542876
-    dist = calc._calcFlownDistance(addr=addr, startTs=startTs, endTs=endTs)
+    addr = 'C35001'
+    addrType = 'O'
+    startTs = 1691750899
+    endTs = 1691766323
+    dist = calc._calcFlownDistance(address=addr, addressType=addrType, startTs=startTs, endTs=endTs)
     print('dist:', round(dist))
 
     # calc.calcDistances()
