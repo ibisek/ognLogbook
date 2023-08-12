@@ -16,10 +16,11 @@ import getopt
 from platform import node
 import pytz
 
-from configuration import DEBUG, MAX_DAYS_IN_RANGE, INFLUX_DB_HOST, INFLUX_DB_NAME
+from configuration import DEBUG, MAX_DAYS_IN_RANGE, INFLUX_DB_HOST, INFLUX_DB_NAME, INFLUX_DB_NAME_PERMANENT_STORAGE
 from airfieldManager import AirfieldManager, AirfieldRecord
 from dataStructures import LogbookItem, addressPrefixes
 from dao.logbookDao import listDepartures, listArrivals, listFlights, getSums, getFlight, getFlightIdForTakeoffId, getFlightInfoForTakeoff
+from dao.permanentStorage import PermanentStorageFactory
 from dao.stats import getNumFlightsToday, getTotNumFlights, getLongestFlightToday, getHighestTrafficToday
 from db.InfluxDbThread import InfluxDbThread
 from igc import flightToIGC
@@ -290,7 +291,12 @@ def _getFlightData(flight: LogbookItem):
     if not eligibleForMapView(flight.takeoff_ts) and not flight.in_ps:
         return flask.render_template('error40x.html', code=410, message="The requested data is no longer available."), 410  # 410 = Gone ;)
 
-    influxDb = InfluxDbThread(dbName=INFLUX_DB_NAME, host=INFLUX_DB_HOST, startThread=False)
+    influxDbName = INFLUX_DB_NAME
+    permanentStorage = PermanentStorageFactory.storageFor(flight.address_type)
+    if permanentStorage.eligible4ps(flight.address):
+        influxDbName = INFLUX_DB_NAME_PERMANENT_STORAGE
+
+    influxDb = InfluxDbThread(dbName=influxDbName, host=INFLUX_DB_HOST, startThread=False)
     flightRecord = []
 
     addr = f"{addressPrefixes[flight.address_type]}{flight.address}"
