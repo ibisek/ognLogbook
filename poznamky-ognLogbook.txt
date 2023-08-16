@@ -155,6 +155,7 @@ Let s nufikem dynamikem:
 
 -- TODO --
 
+* add MAX_ALT to .csv file (during flight distance calculation)
 * flight track map inversion (fetch data via api)
 * encounters (!!) detection and visualisation
 * user management
