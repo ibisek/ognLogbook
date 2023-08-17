@@ -501,7 +501,7 @@ def _toFlightOfficeCsv(flights: list):
         row.append(flight.landing_icao)    # LDG_AP LKxx
         row.append('')    # LDG_RWY
         row.append('')    # LDG_TURN
-        row.append('')    # MAX_ALT
+        row.append(flight.max_alt)    # MAX_ALT
         row.append('')    # AVERAGE_CLIMB_RATE
         row.append(str(flight.landing_dt - flight.takeoff_dt))    # FLIGHT_TIME
         row.append('')    # DAY_DIFFERENCE
