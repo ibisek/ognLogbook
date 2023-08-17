@@ -69,6 +69,7 @@ CREATE TABLE logbook_entries (
   flight_time BIGINT DEFAULT 0,
   tow_id BIGINT references logbook_entries.id,
   flown_distance INT DEFAULT null,
+  max_alt INT DEFAULT null,
   hidden BOOL DEFAULT false,
   in_ps BOOL DEFAULT false
 );
@@ -330,3 +331,4 @@ select u.id, u.email, u.lang, d.aircraft_registration, d.aircraft_cn from watche
 	left join users as u on u.id = w.user_id
 	left join ddb as d on d.device_id = w.addr and d.device_type=w.addr_type
 	where addr_type = 'O' and addr = '062024';
+
