@@ -31,7 +31,7 @@ class FlownDistanceCalculator:
     @param addressType: O/I/F
     """
 
-    def _calcFlownDistance(self, address: str, addressType: str, startTs: int, endTs: int):
+    def _calcFlownDistance(self, address: str, addressType: str, startTs: int, endTs: int) -> (int, int):
         totalDist = 0
         maxAlt = 0
 
@@ -68,7 +68,7 @@ class FlownDistanceCalculator:
         else:
             print(f"[WARN] No influx data for '{address}' between {startTs} and {endTs}.")
 
-        return totalDist, maxAlt
+        return round(totalDist), round(maxAlt)
 
     def calcDistances(self):
         if self.running:    # still running from the last cron call..
@@ -89,10 +89,10 @@ class FlownDistanceCalculator:
                 if not address or not addressType or not takeoffTs or not landingTs:
                     continue
 
-                dist, maxAlt = round(self._calcFlownDistance(address=address, addressType=addressType, startTs=takeoffTs, endTs=landingTs))
-                print(f"[INFO] Flown dist for '{addressPrefixes[addressType]}{address}' is {dist} km with maxAlt {maxAlt} m")
+                dist, maxAlt = self._calcFlownDistance(address=address, addressType=addressType, startTs=takeoffTs, endTs=landingTs)
+                print(f"[INFO] Flown dist for '{addressPrefixes[addressType]}{address}' is {dist} km with maxAlt of {maxAlt} m")
 
-                sql = f"UPDATE logbook_entries SET flown_distance={round(dist)}, max_alt={round(maxAlt)} WHERE id = {entryId};"
+                sql = f"UPDATE logbook_entries SET flown_distance={dist}, max_alt={maxAlt} WHERE id = {entryId};"
                 updateSqls.append(sql)
 
         if len(updateSqls) > 0:
@@ -112,7 +112,7 @@ if __name__ == '__main__':
     startTs = 1692252000
     endTs = 1692302237
     dist, maxAlt = calc._calcFlownDistance(address=addr, addressType=addrType, startTs=startTs, endTs=endTs)
-    print(f'dist: {round(dist)} km; maxAlt: {round(maxAlt)} m')
+    print(f'dist: {dist} km; maxAlt: {maxAlt} m')
 
     # calc.calcDistances()
 
