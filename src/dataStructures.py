@@ -36,7 +36,7 @@ class LogbookItem(object):
     __slots__ = ('id', 'address', 'address_type',
                  'takeoff_ts', 'takeoff_lat', 'takeoff_lon', 'takeoff_icao',
                  'landing_ts', 'landing_lat', 'landing_lon', 'landing_icao',
-                 'flight_time', 'flown_distance',
+                 'flight_time', 'flown_distance', 'max_alt',
                  'in_ps',
                  'device_type', 'registration', 'cn', 'aircraft_type',
                  'takeoff_dt', 'landing_dt', 'flight_time',
@@ -45,7 +45,7 @@ class LogbookItem(object):
     def __init__(self, id, address, address_type=None,
                  takeoff_ts=0, takeoff_lat=0, takeoff_lon=0, takeoff_icao=None,
                  landing_ts=0, landing_lat=0, landing_lon=0, landing_icao=None,
-                 flight_time=0, flown_distance=0, in_ps=False,
+                 flight_time=0, flown_distance=0, max_alt=0, in_ps=False,
                  device_type=None,
                  registration=None, cn=None, aircraft_type=None, tow_id=None,
                  display_tz=pytz.utc):    # pytz.utc | pytz.timezone('Europe/Vienna')
@@ -66,6 +66,7 @@ class LogbookItem(object):
 
         self.flight_time = flight_time
         self.flown_distance = flown_distance
+        self.max_alt = max_alt
         self.in_ps = in_ps
 
         self.device_type = device_type
