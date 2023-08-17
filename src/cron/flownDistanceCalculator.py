@@ -33,6 +33,7 @@ class FlownDistanceCalculator:
 
     def _calcFlownDistance(self, address: str, addressType: str, startTs: int, endTs: int):
         totalDist = 0
+        maxAlt = 0
 
         influxInstance = self.influxDb
         permanentStorage = self.permanentStorages.setdefault(addressType, PermanentStorageFactory.storageFor(addressType))
@@ -41,7 +42,7 @@ class FlownDistanceCalculator:
 
         addrWithPrefix = f"{addressPrefixes[addressType]}{address}"
 
-        q = f"SELECT lat, lon FROM pos WHERE addr='{addrWithPrefix}' AND time >= {startTs}000000000 AND time <= {endTs}000000000"
+        q = f"SELECT lat, lon, alt FROM pos WHERE addr='{addrWithPrefix}' AND time >= {startTs}000000000 AND time <= {endTs}000000000"
         rs = influxInstance.client.query(query=q)
         if rs:
             prevLat = prevLon = curLat = curLon = None
@@ -60,10 +61,14 @@ class FlownDistanceCalculator:
                 prevLat = curLat
                 prevLon = curLon
 
+                alt = row.get('alt', 0)
+                if alt > maxAlt:
+                    maxAlt = alt
+
         else:
             print(f"[WARN] No influx data for '{address}' between {startTs} and {endTs}.")
 
-        return totalDist
+        return totalDist, maxAlt
 
     def calcDistances(self):
         if self.running:    # still running from the last cron call..
@@ -84,10 +89,10 @@ class FlownDistanceCalculator:
                 if not address or not addressType or not takeoffTs or not landingTs:
                     continue
 
-                dist = round(self._calcFlownDistance(address=address, addressType=addressType, startTs=takeoffTs, endTs=landingTs))
-                print(f"[INFO] Flown dist for '{addressPrefixes[addressType]}{address}' is {dist} km.")
+                dist, maxAlt = round(self._calcFlownDistance(address=address, addressType=addressType, startTs=takeoffTs, endTs=landingTs))
+                print(f"[INFO] Flown dist for '{addressPrefixes[addressType]}{address}' is {dist} km with maxAlt {maxAlt} m")
 
-                sql = f"UPDATE logbook_entries SET flown_distance={round(dist)} WHERE id = {entryId};"
+                sql = f"UPDATE logbook_entries SET flown_distance={round(dist)}, max_alt={round(maxAlt)} WHERE id = {entryId};"
                 updateSqls.append(sql)
 
         if len(updateSqls) > 0:
@@ -102,12 +107,12 @@ class FlownDistanceCalculator:
 if __name__ == '__main__':
     calc = FlownDistanceCalculator()
 
-    addr = 'C35001'
+    addr = 'C35008'
     addrType = 'O'
-    startTs = 1691750899
-    endTs = 1691766323
-    dist = calc._calcFlownDistance(address=addr, addressType=addrType, startTs=startTs, endTs=endTs)
-    print('dist:', round(dist))
+    startTs = 1692252000
+    endTs = 1692302237
+    dist, maxAlt = calc._calcFlownDistance(address=addr, addressType=addrType, startTs=startTs, endTs=endTs)
+    print(f'dist: {round(dist)} km; maxAlt: {round(maxAlt)} m')
 
     # calc.calcDistances()
 
