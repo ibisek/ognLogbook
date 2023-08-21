@@ -258,8 +258,7 @@ class RawWorker(Thread):
         if not prevTs or ts > prevTs:
             self.timeHorizonCache[address] = ts
         else:
-            # beaconBehindTimeHorizon = True  # we've received some older beacon - it can be stored but not further processed
-            return
+            beaconBehindTimeHorizon = True  # we've received some older beacon - it can be stored but not further processed
 
         # Skip beacons we received for the second time and got already processed:
         key = f"{addressTypeStr}{address}-{lat:.4f}{lon:.4f}{altitude}{groundSpeed:.1f}{verticalSpeed:.1f}"
