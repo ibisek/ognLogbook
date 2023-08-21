@@ -75,7 +75,7 @@ class RawWorker(Thread):
         self.airfieldManager = AirfieldManager()
         self.geofile = Geofile(filename=GEOFILE_PATH)
         self.redis = StrictRedis(**redisConfig)
-        self.timeHorizonCache = ExpiringDict(ttl=60*60)     # [s]
+        self.timeHorizonCache = ExpiringDict(ttl=5*60*60)   # [s]
         self.beaconDuplicateCache = ExpiringDict(ttl=1)     # [s]
 
         self.permanentStorage = PermanentStorageFactory.storageFor(addrType)
