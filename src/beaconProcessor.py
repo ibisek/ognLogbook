@@ -250,14 +250,16 @@ class RawWorker(Thread):
         turnRate = beacon.get('turn_rate') or 0  # [deg/s]
 
         # Check beacon's "time horizon".
-        # Beacons may be received in incorrect order while for example delayed 'airborne' beacons may result into repeated
-        # take-off or other atrocities. The 'timeHorizonCache' is to prevent such occurrences by skipping the out-of-order beacons.
+        # Beacons may be received in incorrect order while for example delayed 'airborne' beacons may result into
+        # repeated take-off or other atrocities. The 'timeHorizonCache' is to prevent such occurrences by skipping
+        # the out-of-order beacons.
         beaconBehindTimeHorizon = False
         prevTs = self.timeHorizonCache.get(address, None)
-        if not prevTs or ts >= prevTs:
+        if not prevTs or ts > prevTs:
             self.timeHorizonCache[address] = ts
         else:
-            beaconBehindTimeHorizon = True  # we've received some older beacon - it can be stored but not further processed
+            # beaconBehindTimeHorizon = True  # we've received some older beacon - it can be stored but not further processed
+            return
 
         # Skip beacons we received for the second time and got already processed:
         key = f"{addressTypeStr}{address}-{lat:.4f}{lon:.4f}{altitude}{groundSpeed:.1f}{verticalSpeed:.1f}"
@@ -338,7 +340,7 @@ class RawWorker(Thread):
                     return
 
                 # check altitude above ground level:
-                if agl and agl > AGL_LANDING_LIMIT:  # [m]
+                if agl and agl > AGL_LANDING_LIMIT:  # [m]x
                     return  # most likely a false detection
 
             elif event == 'T':
