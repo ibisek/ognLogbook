@@ -1,0 +1,55 @@
+div.addButton {
+    z-index: +500;
+    position: absolute;
+    float: right;
+    right: 20px;
+    top: 20px;
+    width: 48px;
+    height: 48px;
+    background-image: url('/static/img/plus-blue48.png');
+}
+
+div.closeButton {
+    z-index: +500;
+    position: absolute;
+    float: right;
+    right: 15px;
+    top: 25px;
+    width: 30px;
+    height: 30px;
+}
+
+div.sideBar {
+    z-index: +500;
+    position: absolute;
+    float: right;
+    right: 0px;
+    top: 0px;
+    width: 260px;
+    height: 100vh;
+    background-color: lightsteelblue;
+    opacity: 0.8;
+    visibility: hidden;
+    padding: 10px;
+    font-family: 'Roboto', sans-serif;
+    font-size: 14px;
+    line-height: 20px;
+    font-weight: 400;
+}
+
+div.sideBar input {
+    width: 230px;
+}
+
+div.sideBar input.narrow {
+    width: 152px;
+}
+
+div.sideBar textarea {
+    width: 240px;
+}
+
+div.sideBarFormItem {
+    padding: 8px;
+    text-align: left;
+}
