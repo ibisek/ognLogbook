@@ -10,7 +10,7 @@ from datetime import datetime, timedelta
 from collections import namedtuple
 
 from distutils.log import Log
-from flask import request, send_from_directory, session
+from flask import request, send_from_directory, session, jsonify
 import flask
 import getopt
 from platform import node
@@ -353,6 +353,29 @@ def getMap(flightId: int):
                                  flight=flight,
                                  flightSegments=flightSegments,
                                  skipSegments=skipSegments)
+
+
+@app.route('/fd/<flightId>', methods=['GET'])
+def getFlightData(flightId: int):
+    try:
+        flightId = int(saninitise(flightId))
+        print(f"[INFO] MAP: flightId='{flightId}'")
+    except:
+        print(f"[INFO] MAP: invalid flightId='{flightId}'")
+        return flask.render_template('error40x.html', code=404, message="Nope :P"), 404
+
+    display_tz = _getBrowserTimezone()
+
+    flight: LogbookItem = getFlight(flightId=flightId, display_tz=display_tz)
+    flightRecord = _getFlightData(flight=flight)
+    if type(flightRecord) is not list:  # it is an error response in fact
+        return flightRecord
+
+    # transform into JSON structure to be used by leaflet:
+    frSimplified = [{'dt': fr['dt'], 'lat': fr['lat'], 'lon': fr['lon']} for fr in flightRecord]    # add 'alt' later
+    frSimplified.sort(key=lambda d: d['dt'])
+
+    return jsonify(frSimplified)
 
 
 @app.route('/igc/<idType>/<flightId>', methods=['GET'])
