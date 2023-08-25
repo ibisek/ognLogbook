@@ -160,7 +160,7 @@ def parseDate(date: str, default=None, endOfTheDay: bool = False):
             date = None
 
     if date and endOfTheDay:
-        date += timedelta(hours=23, minutes=59, seconds=59)  # set last second of the day
+        date = date.replace(hour=23, minute=59, second=59, microsecond=999999)  # set last second of the day
 
     return date
 
