@@ -5,6 +5,7 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" integrity="sha256-kLaT2GOSpHechhsozzB+flnD+zUyjE2LlfWPgU04xyI=" crossorigin=""/>
     <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js" integrity="sha256-WBkoXOwTeyKclOHuWtc+i2uENFpDZ9YPdf5Hf+D7ewM=" crossorigin=""></script>
     <link rel="stylesheet" href="/static/css/index.css"	type="text/css">
+    <link rel="stylesheet" href="/static/css/map.css"	type="text/css">
     <link rel="stylesheet" href="/static/css/font-awesome.min.css">
 </head>
 <body onload="onPageLoad();">
@@ -24,7 +25,42 @@
         {% if flight.flown_distance %}| {{flight.flown_distance}} km{% endif %}
     </div>
 
-    <div id="map" style="margin-top: 10px; width: 100vw; max-width: 1450px; height:80vh"></div>
+    <div id="map" style="margin-top: 10px; width: 100vw; max-width: 1450px; height:80vh">
+        <div id="addButton" class="addButton" onclick="addButtonClicked()"></div>
+        <div id="sideBar" class="sideBar">
+            <div id="closeButton" class="closeButton" onclick="closeSideBar()">&#128473;</div>
+            <form method="" action="">
+                <h2>{{gettext('map.sideBar.title')}}</h2>
+                <p>{{gettext('map.sideBar.subtitle')}}</p>
+                <center>
+                    <div class="sideBarFormItem">
+                        <label for="date">{{gettext('map.sideBar.date')}}</label>
+                        <input type="date" id="date" name="date" value="{{date.strftime('%Y-%m-%d')}}" min="{{dateMin}}" max="{{date.strftime('%Y-%m-%d')}}"/>
+                    </div>
+                    <div class="sideBarFormItem">
+                        <label for="location">{{gettext('map.sideBar.icaoLocation')}}:</label>
+                        <input type="text" id="location" name="location" value="{% if flight.landing_icao %}{{ flight.landing_icao }}{% endif %}"/>
+                    </div>
+                    <div class="sideBarFormItem">
+                        <label for="reg">{{gettext('map.sideBar.registration')}}:</label>
+                        <input type="text" id="reg" name="reg" value="{% if flight.registration %}{{ flight.registration }}{% endif %}" disabled/>
+                    </div>
+                    <div class="sideBarFormItem">
+                        <label for="cn"><label for="reg">{{gettext('map.sideBar.competitionNo')}}:</label>
+                        <input type="text" id="cn" name="cn" value="{% if flight.cn %}{{ flight.cn }}{% endif %}" disabled/>
+                    </div>
+                    <div class="sideBarFormItem">
+                        <input type="button" id="sideBarSearchBtn" value="{{gettext('form.search')}}" onclick="searchFlight()"/>
+                    </div>
+                    <div class="sideBarFormItem">
+                        <label id="labelForSearchResults" style="visibility:hidden;">{{gettext('map.sideBar.searchResults')}}:</label>
+                        <div id="searchResults"></div>
+                    </div>
+                </center>
+            </form>
+        </div>  {# ~sidebar #}
+    </div>  {# ~map #}
+
     <script src="/static/js/map.js"></script> {# !! needs to be here AFTER the map div !! #}
     <script>
         var flightSegments = [
