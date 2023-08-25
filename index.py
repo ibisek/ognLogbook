@@ -57,8 +57,8 @@ def _getBrowserTimezone():
     if not browser_timezone:
         browser_timezone = request.cookies.get('browser_timezone')
         # if browser_timezone:
-            # session['browser_timezone'] = browser_timezone    # TODO XXX TOTO NEJEDE NA PRODUKCI!! KURWA PROC??
-            # session.modified = True
+        # session['browser_timezone'] = browser_timezone    # TODO XXX TOTO NEJEDE NA PRODUKCI!! KURWA PROC??
+        # session.modified = True
 
     if browser_timezone:
         try:
@@ -316,6 +316,26 @@ def _getFlightData(flight: LogbookItem):
     return flightRecord
 
 
+def _prepareDataForMap(flightRecord) -> (list, list):
+    # detect continuous flight and out-of-signal segments:
+    flightSegments = []
+    skipSegments = []
+    startIndex = 0
+    for i in range(2, len(flightRecord)):
+        if (flightRecord[i]['dt'] - flightRecord[i - 1]['dt']).seconds > 60:
+            # print("DIFF:", (flightRecord[i]['dt'] - flightRecord[i - 1]['dt']).seconds)
+            flightSegments.append(flightRecord[startIndex:i - 1])
+            skipSegments.append(flightRecord[i - 2: i + 1])
+            startIndex = i
+    if startIndex > 0:
+        flightSegments.append(flightRecord[startIndex:])  # ..till the end
+
+    if len(flightSegments) == 0 and len(skipSegments) == 0:  # there was no signal outage
+        flightSegments.append(flightRecord)
+
+    return flightSegments, skipSegments
+
+
 @app.route('/map/<flightId>', methods=['GET'])
 def getMap(flightId: int):
     try:
@@ -332,24 +352,15 @@ def getMap(flightId: int):
     if type(flightRecord) is not list:  # it is an error response in fact
         return flightRecord
 
-    # detect continues flight and out-of-signal segments:
-    flightSegments = []
-    skipSegments = []
-    startIndex = 0
-    for i in range(2, len(flightRecord)):
-        if (flightRecord[i]['dt'] - flightRecord[i-1]['dt']).seconds > 60:
-            # print("DIFF:", (flightRecord[i]['dt'] - flightRecord[i - 1]['dt']).seconds)
-            flightSegments.append(flightRecord[startIndex:i-1])
-            skipSegments.append(flightRecord[i - 2: i + 1])
-            startIndex = i
-    if startIndex > 0:
-        flightSegments.append(flightRecord[startIndex:])    # ..till the end
+    flightSegments, skipSegments = _prepareDataForMap(flightRecord)
 
-    if len(flightSegments) == 0 and len(skipSegments) == 0:     # there was no signal outage
-        flightSegments.append(flightRecord)
+    date = datetime.utcfromtimestamp(flight.takeoff_ts)
+    # formatted dates for the search-sidebar date picker (YYYY-MM-DD):
+    dateMin = (date - timedelta(days=14)).strftime("%Y-%m-%d")
 
     return flask.render_template('map.html',
-                                 date=datetime.utcfromtimestamp(flight.takeoff_ts),
+                                 date=date,
+                                 dateMin=dateMin,
                                  flight=flight,
                                  flightSegments=flightSegments,
                                  skipSegments=skipSegments)
@@ -359,23 +370,51 @@ def getMap(flightId: int):
 def getFlightData(flightId: int):
     try:
         flightId = int(saninitise(flightId))
-        print(f"[INFO] MAP: flightId='{flightId}'")
+        print(f"[INFO] FD: flightId='{flightId}'")
     except:
-        print(f"[INFO] MAP: invalid flightId='{flightId}'")
+        print(f"[INFO] FD: invalid flightId='{flightId}'")
         return flask.render_template('error40x.html', code=404, message="Nope :P"), 404
 
-    display_tz = _getBrowserTimezone()
-
-    flight: LogbookItem = getFlight(flightId=flightId, display_tz=display_tz)
+    flight: LogbookItem = getFlight(flightId=flightId, display_tz=_getBrowserTimezone())
     flightRecord = _getFlightData(flight=flight)
     if type(flightRecord) is not list:  # it is an error response in fact
         return flightRecord
 
     # transform into JSON structure to be used by leaflet:
-    frSimplified = [{'dt': fr['dt'], 'lat': fr['lat'], 'lon': fr['lon']} for fr in flightRecord]    # add 'alt' later
+    frSimplified = [{'dt': fr['dt'], 'lat': fr['lat'], 'lon': fr['lon']} for fr in flightRecord]  # add 'alt' later
     frSimplified.sort(key=lambda d: d['dt'])
 
-    return jsonify(frSimplified)
+    flightSegments, skipSegments = _prepareDataForMap(flightRecord)
+
+    resp = {'flightSegments': flightSegments, 'skipSegments': skipSegments}
+
+    return jsonify(resp)
+
+
+@app.route('/ff', methods=['GET'])
+def findFlights():
+    date: datetime = parseDate(request.args.get("date", None), default=datetime.now(), endOfTheDay=True)
+    loc: str = saninitise(request.args.get("loc", None))
+    reg: str = saninitise(request.args.get("reg", None))
+    cn: str = saninitise(request.args.get("cn", None))
+
+    # TODO loc muze byt letiste startu nebo pristani
+
+    if reg or cn:
+        # TODO for reg & cn find device type + id
+        pass
+
+    # curl "http://localhost:5000/ff?date=2023-08-23&icao=LFNS&reg=OK1234&cn=IBI"
+
+    if not loc and (not reg or not cn):
+        return flask.render_template('error40x.html', code=404, message="Neumíme. Běž pryč! :P"), 404
+
+    flights = listFlights(icaoCode=loc, forDay=date, limit=10)   # TODO toto chce nejake fikanejsi a elegantnejsi hledani
+
+    resp = [{'id': f.id, 'reg': f.registration, 'cn': f.cn, 'to_ts': f.takeoff_ts, 'to_loc': f.takeoff_icao, 'la_ts': f.landing_ts, 'la_loc': f.landing_icao} for f in flights]
+    resp.sort(key=lambda f: f['to_ts'])
+
+    return jsonify(resp)
 
 
 @app.route('/igc/<idType>/<flightId>', methods=['GET'])
@@ -498,7 +537,7 @@ def _formatRegistration(reg: str):
 def _toFlightOfficeCsv(flights: list):
     DEV_TYPES = {'F': 'flarm', 'O': 'ogn', 'I': 'icao'}
 
-    rows = list()   # csv strings
+    rows = list()  # csv strings
 
     for flight in flights:
         idPrefix = DEV_TYPES[flight.device_type] if flight.device_type in DEV_TYPES else 'unknown'
