@@ -60,6 +60,19 @@ i10n['notif.mail.footer'] = ['This is an automatically generated message by http
 i10n['footer.timezone1'] = ['Your local timezone seems to be', 'Vaše časová zóna je zřejmě', 'Ihre Zeitzone scheint']
 i10n['footer.timezone2'] = ['. All times shown are converted to this TZ.', '. Všechny zobrazené časy jsou přepočítány do této zóny.', 'zu sein. Alle angezeigten Zeiten werden in diese ZZ umgerechnet.']
 
+i10n['map.sideBar.title'] = ['Add flight', 'Přidat let', 'Flug hinzufügen']
+i10n['map.sideBar.subtitle'] = ['Find a flight to be added to the map.', 'Najděte let, který chcete přidat na mapu.', 'Suchen Sie einen Flug, der der Karte hinzugefügt werden soll.']
+i10n['map.sideBar.date'] = ['Date', 'Datum', 'Datum']
+i10n['map.sideBar.icaoLocation'] = ['ICAO or air strip code', 'ICAO kód nebo označení letiště', 'ICAO-Code oder Flugplatzbezeichnung']
+i10n['map.sideBar.registration'] = ['Registration', 'Imatrikulačka', 'Kennzeichen']
+i10n['map.sideBar.competitionNo'] = ['Competition no.', 'Soutěční znak', 'Wettbewerbsnummer']
+i10n['map.sideBar.searchResults'] = ['Search results', 'Výsledky vyhledávání', 'Suchergebnisse']
+
+i10n['form.search'] = ['Search', 'Hledej', 'Suchen']
+i10n['form.save'] = ['Save', 'Uložit', 'Speichern']
+i10n['form.close'] = ['Close', 'Zavřít', 'Schließen']
+i10n['form.cancel'] = ['Cancel', 'Zrušit', 'Stornieren']
+
 i10n[''] = ['', '', '']
 
 
