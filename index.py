@@ -15,6 +15,8 @@ import flask
 import getopt
 from platform import node
 import pytz
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
 
 from configuration import DEBUG, DATA_AVAILABILITY_DAYS, MAX_DAYS_IN_RANGE, INFLUX_DB_HOST, INFLUX_DB_NAME, INFLUX_DB_NAME_PERMANENT_STORAGE
 from airfieldManager import AirfieldManager, AirfieldRecord
@@ -38,6 +40,8 @@ DayRecord = namedtuple('DayRecords', ['date', 'numFlights', 'totalFlightTime', '
 
 airfieldManager = AirfieldManager()
 afCountryCodes = airfieldManager.afCountryCodes
+
+limiter = Limiter(app=app, key_func=get_remote_address)
 
 
 @app.route('/set_timezone', methods=['POST'])
@@ -337,6 +341,7 @@ def _prepareDataForMap(flightRecord) -> (list, list):
 
 
 @app.route('/map/<flightId>', methods=['GET'])
+@limiter.limit("5/minute")
 def getMap(flightId: int):
     try:
         flightId = int(saninitise(flightId))
@@ -367,6 +372,7 @@ def getMap(flightId: int):
 
 
 @app.route('/api/fd/<flightId>', methods=['GET'])
+@limiter.limit("5/minute")
 def getFlightData(flightId: int):
     try:
         flightId = int(saninitise(flightId))
@@ -392,6 +398,7 @@ def getFlightData(flightId: int):
 
 
 @app.route('/api/ff', methods=['GET'])
+@limiter.limit("10/minute")
 def findFlights():
     date: datetime = parseDate(request.args.get("date", None), default=datetime.now(), endOfTheDay=True)
     loc: str = saninitise(request.args.get("loc", None))
@@ -416,6 +423,7 @@ def findFlights():
 
 
 @app.route('/api/igc/<idType>/<flightId>', methods=['GET'])
+@limiter.limit("10/minute")
 def getIgc(idType: str, flightId: int):
     """
     :param idType   'f' flight or 't' takeoff id
