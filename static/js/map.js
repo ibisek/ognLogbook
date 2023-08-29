@@ -82,7 +82,7 @@ function searchFlight() {
 
     const req = new XMLHttpRequest();
     req.open("GET", query, true);
-    req.onload = onFligthSearchResp;
+    req.onload = onFlightSearchResp;
     req.onerror = (e) => {
       console.error(req.statusText);
       alert('nejaky problem ve vyhledavani letu #2');
@@ -104,7 +104,7 @@ function searchFinished() {
     searchResults.innerHtml = "";
 }
 
-function onFligthSearchResp(e) {
+function onFlightSearchResp(e) {
     searchFinished();
 
     //var req = e.originalTarget;
