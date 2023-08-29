@@ -116,22 +116,26 @@ function onFlightSearchResp(e) {
 
     //var req = e.originalTarget;
     var resp = e.currentTarget;
-    if (resp.readyState === 4 && resp.status === 200) {
-        var content = "";
-        var flights = JSON.parse(resp.responseText);
-        for (const flight of flights) {
-            var reg = flight.reg ? flight.reg : '?';
-            var cn = flight.cn ? flight.cn : '?';
-            console.log("XXX:" + flight.to_loc);
-            var takeoffLoc = flight.to_loc ? flight.to_loc : '?';
-            //var to_ts = new Date(flight.to_ts*1000);
-            var landingLoc = flight.la_loc ? flight.la_loc : '?';
-            //var la_ts = new Date(flight.la_ts*1000);
+    if (resp.readyState === 4) {
+        if (resp.status === 200) {
+            var content = "";
+            var flights = JSON.parse(resp.responseText);
+            for (const flight of flights) {
+                var reg = flight.reg ? flight.reg : '?';
+                var cn = flight.cn ? flight.cn : '?';
+                console.log("XXX:" + flight.to_loc);
+                var takeoffLoc = flight.to_loc ? flight.to_loc : '?';
+                //var to_ts = new Date(flight.to_ts*1000);
+                var landingLoc = flight.la_loc ? flight.la_loc : '?';
+                //var la_ts = new Date(flight.la_ts*1000);
 
-            content += `<div id='SR${flight.id}' class="searchResult" onClick="addFoundFlightToMap(${flight.id});"><span id="FL${flight.id}"></span><div class='flex_item'>${reg} (${cn}) ${takeoffLoc} &#8605; ${landingLoc}</div></div>`
+                content += `<div id='SR${flight.id}' class="searchResult" onClick="addFoundFlightToMap(${flight.id});"><span id="FL${flight.id}"></span><div class='flex_item'>${reg} (${cn}) ${takeoffLoc} &#8605; ${landingLoc}</div></div>`
+            }
+
+            searchResults.innerHTML = content;
+        } else if (resp.status === 429) {
+            alert('Reached request rate limit. Try again in a minute.');
         }
-
-        searchResults.innerHTML = content;
 
     } else {
         alert('Nejaky problem ve vyhledavani letu #1');
@@ -146,24 +150,29 @@ function addFoundFlightToMap(flightId) {
 
     req.onload = (e) => {
         var resp = e.currentTarget;
-        if (resp.readyState === 4 && resp.status === 200) {
-            var flightData = JSON.parse(resp.responseText);
-            if(!flightData.hasOwnProperty('flightSegments') || !flightData.hasOwnProperty('skipSegments')) return;
+        if (resp.readyState === 4) {
+            if (resp.status === 200) {
+                var flightData = JSON.parse(resp.responseText);
+                if(!flightData.hasOwnProperty('flightSegments') || !flightData.hasOwnProperty('skipSegments')) return;
 
-            var flightSegments = flightData.flightSegments;
-            var skipSegments = flightData.skipSegments;
-            var color = colors[(colorIndex < colors.length ? colorIndex++ : colors.length-1)];
-            addFlightToMap(flightSegments, skipSegments, color);
+                var flightSegments = flightData.flightSegments;
+                var skipSegments = flightData.skipSegments;
+                var color = colors[(colorIndex < colors.length ? colorIndex++ : colors.length-1)];
+                addFlightToMap(flightSegments, skipSegments, color);
 
-            // change appearance in the search results:
-            var span = document.getElementById(`FL${flightId}`);
-            span.style.backgroundColor=color;
-            var searchResultDiv = document.getElementById(`SR${flightId}`);
-            searchResultDiv.className = "searchResultDisabled";
-            searchResultDiv.onclick = null;
+                // change appearance in the search results:
+                var span = document.getElementById(`FL${flightId}`);
+                span.style.backgroundColor=color;
+                var searchResultDiv = document.getElementById(`SR${flightId}`);
+                searchResultDiv.className = "searchResultDisabled";
+                searchResultDiv.onclick = null;
+
+            } else if (resp.status === 429) {
+                alert('Reached request rate limit. Try again in a minute.');
+            }
 
         } else {
-            alert('No data');
+            alert('No data..?');
         }
     };
 
