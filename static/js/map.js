@@ -1,19 +1,13 @@
+var map;
 var searchInProgress = false;
 var searchResults = document.getElementById("searchResults");
+var colors = ['Green', 'MidnightBlue', 'Sienna', 'Gray', 'Plum', 'Turquoise', 'Black', 'Aqua', 'Chartreuse', 'BlueViolet', 'CornflowerBlue', 'DarkMagenta' , 'DeepPink'];
+var colorIndex = 0;
 
-function onPageLoad() {
-    var map = L.map('map'); //.setView([51.505, -0.09], 13);
-
-    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        maxZoom: 18,
-        attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-    }).addTo(map);
-
-	L.control.scale().addTo(map);
-
+function addFlightToMap(flightSegments, skipSegments, lineColor='red') {
     var allPoints = new Array();
     for (var i = 0; i < flightSegments.length; i++) {
-        L.polyline(flightSegments[i], {color: 'red', weight: 2}).addTo(map);
+        L.polyline(flightSegments[i], {color: lineColor, weight: 2}).addTo(map);
         allPoints = allPoints.concat(flightSegments[i]);
     }
     for (var i = 0; i < skipSegments.length; i++) {
@@ -47,7 +41,19 @@ function onPageLoad() {
     var lastFlightSegment = flightSegments[flightSegments.length-1];
     var landingMarker = L.marker(lastFlightSegment[lastFlightSegment.length-1],{icon: redIcon}).addTo(map);
     landingMarker.bindPopup("<b>Landing</b>");
+}
 
+function onPageLoad() {
+    map = L.map('map'); //.setView([51.505, -0.09], 13);
+
+    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 18,
+        attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+    }).addTo(map);
+
+	L.control.scale().addTo(map);
+
+    addFlightToMap(flightSegments, skipSegments);
 }
 
 function addButtonClicked() {
@@ -78,14 +84,14 @@ function searchFlight() {
 
     searchStarted();
 
-    var query = `/ff?date=${date}&loc=${loc}&reg=${reg}&cn=${cn}`;
+    var query = `/api/ff?date=${date}&loc=${loc}&reg=${reg}&cn=${cn}`;
 
     const req = new XMLHttpRequest();
     req.open("GET", query, true);
     req.onload = onFlightSearchResp;
     req.onerror = (e) => {
       console.error(req.statusText);
-      alert('nejaky problem ve vyhledavani letu #2');
+      alert('Nejaky problem ve vyhledavani letu #2');
     };
     req.send(null);
 }
@@ -95,6 +101,7 @@ function searchStarted() {
     document.getElementById("sideBarSearchBtn").disabled=true;
     document.getElementById("labelForSearchResults").style.visibility='hidden';
     searchResults.textContent = "Working..";
+    colorIndex = 0;
 }
 
 function searchFinished() {
@@ -110,23 +117,60 @@ function onFlightSearchResp(e) {
     //var req = e.originalTarget;
     var resp = e.currentTarget;
     if (resp.readyState === 4 && resp.status === 200) {
-        var content = "<table>";
+        var content = "";
         var flights = JSON.parse(resp.responseText);
         for (const flight of flights) {
             var reg = flight.reg ? flight.reg : '?';
             var cn = flight.cn ? flight.cn : '?';
-            var takeoffLoc = flight.to_loc ? flight.to_loc : 'UNK';
+            console.log("XXX:" + flight.to_loc);
+            var takeoffLoc = flight.to_loc ? flight.to_loc : '?';
             //var to_ts = new Date(flight.to_ts*1000);
-            var landingLoc = flight.to_loc ? flight.la_loc : 'UNK';
+            var landingLoc = flight.la_loc ? flight.la_loc : '?';
             //var la_ts = new Date(flight.la_ts*1000);
 
-            content += `<tr><td>${reg} (${cn})</td><td>${takeoffLoc} &#8605; ${landingLoc}<td><td><a href="${flight.id}">(+)</a></td></tr>`
+            content += `<div id='SR${flight.id}' class="searchResult" onClick="addFoundFlightToMap(${flight.id});"><span id="FL${flight.id}"></span><div class='flex_item'>${reg} (${cn}) ${takeoffLoc} &#8605; ${landingLoc}</div></div>`
         }
-        content += "</table>"
 
         searchResults.innerHTML = content;
 
     } else {
-        alert('nejaky problem ve vyhledavani letu #1');
+        alert('Nejaky problem ve vyhledavani letu #1');
     }
+}
+
+function addFoundFlightToMap(flightId) {
+    var query = `/api/fd/${flightId}`;
+
+    const req = new XMLHttpRequest();
+    req.open("GET", query, true);
+
+    req.onload = (e) => {
+        var resp = e.currentTarget;
+        if (resp.readyState === 4 && resp.status === 200) {
+            var flightData = JSON.parse(resp.responseText);
+            if(!flightData.hasOwnProperty('flightSegments') || !flightData.hasOwnProperty('skipSegments')) return;
+
+            var flightSegments = flightData.flightSegments;
+            var skipSegments = flightData.skipSegments;
+            var color = colors[(colorIndex < colors.length ? colorIndex++ : colors.length-1)];
+            addFlightToMap(flightSegments, skipSegments, color);
+
+            // change appearance in the search results:
+            var span = document.getElementById(`FL${flightId}`);
+            span.style.backgroundColor=color;
+            var searchResultDiv = document.getElementById(`SR${flightId}`);
+            searchResultDiv.className = "searchResultDisabled";
+            searchResultDiv.onclick = null;
+
+        } else {
+            alert('No data');
+        }
+    };
+
+    req.onerror = (e) => {
+      console.error(req.statusText);
+      alert('Nejaky problem v pridavani letu na mapu.');
+    };
+    req.send(null);
+
 }

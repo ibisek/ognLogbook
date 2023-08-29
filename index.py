@@ -366,7 +366,7 @@ def getMap(flightId: int):
                                  skipSegments=skipSegments)
 
 
-@app.route('/fd/<flightId>', methods=['GET'])
+@app.route('/api/fd/<flightId>', methods=['GET'])
 def getFlightData(flightId: int):
     try:
         flightId = int(saninitise(flightId))
@@ -391,7 +391,7 @@ def getFlightData(flightId: int):
     return jsonify(resp)
 
 
-@app.route('/ff', methods=['GET'])
+@app.route('/api/ff', methods=['GET'])
 def findFlights():
     date: datetime = parseDate(request.args.get("date", None), default=datetime.now(), endOfTheDay=True)
     loc: str = saninitise(request.args.get("loc", None))
@@ -409,7 +409,7 @@ def findFlights():
     if not loc and (not reg or not cn):
         return flask.render_template('error40x.html', code=404, message="Neumíme. Běž pryč! :P"), 404
 
-    flights = listFlights(icaoCode=loc, forDay=date, limit=10)   # TODO toto chce nejake fikanejsi a elegantnejsi hledani
+    flights = listFlights(icaoCode=loc, forDay=date, limit=16)   # TODO toto chce nejake fikanejsi a elegantnejsi hledani
 
     resp = [{'id': f.id, 'reg': f.registration, 'cn': f.cn, 'to_ts': f.takeoff_ts, 'to_loc': f.takeoff_icao, 'la_ts': f.landing_ts, 'la_loc': f.landing_icao} for f in flights]
     resp.sort(key=lambda f: f['to_ts'])

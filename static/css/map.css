@@ -53,3 +53,40 @@ div.sideBarFormItem {
     padding: 8px;
     text-align: left;
 }
+
+#labelForSearchResults {
+  font-weight: bold;
+}
+
+.searchResult {
+  display: flex;
+  margin-top: 5px;
+}
+
+.searchResultDisabled {
+  display: flex;
+  margin-top: 5px;
+  font-weight: bold;
+}
+
+.searchResult:hover {
+    background-color: lightgray;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.searchResult span {
+    width: 16px;
+    margin-right: 5px;
+    background-image: url('/static/img/plus-blue16.png');
+    background-repeat: no-repeat;
+}
+
+.searchResultDisabled span {
+    width: 16px;
+    margin-right: 5px;
+}
+
+.searchResult div {
+  flex-grow: 1;
+}
