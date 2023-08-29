@@ -1,7 +1,7 @@
 from typing import Union
 from datetime import datetime, time, timedelta
 
-from configuration import MAX_DAYS_IN_RANGE
+from configuration import MAX_DAYS_IN_RANGE, DATA_AVAILABILITY_DAYS
 
 
 def formatDuration(seconds):
@@ -129,7 +129,7 @@ def eligibleForMapView(ts):
     if not ts:
         return False
     else:
-        return ts >= (datetime.utcnow().timestamp() - 24*60*60)
+        return ts >= (datetime.utcnow().timestamp() - DATA_AVAILABILITY_DAYS * 24*60*60)
 
 
 def saninitise(s):

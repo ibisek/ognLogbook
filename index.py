@@ -16,7 +16,7 @@ import getopt
 from platform import node
 import pytz
 
-from configuration import DEBUG, MAX_DAYS_IN_RANGE, INFLUX_DB_HOST, INFLUX_DB_NAME, INFLUX_DB_NAME_PERMANENT_STORAGE
+from configuration import DEBUG, DATA_AVAILABILITY_DAYS, MAX_DAYS_IN_RANGE, INFLUX_DB_HOST, INFLUX_DB_NAME, INFLUX_DB_NAME_PERMANENT_STORAGE
 from airfieldManager import AirfieldManager, AirfieldRecord
 from dataStructures import LogbookItem, addressPrefixes
 from dao.logbookDao import listDepartures, listArrivals, listFlights, getSums, getFlight, getFlightIdForTakeoffId, getFlightInfoForTakeoff
@@ -356,7 +356,7 @@ def getMap(flightId: int):
 
     date = datetime.utcfromtimestamp(flight.takeoff_ts)
     # formatted dates for the search-sidebar date picker (YYYY-MM-DD):
-    dateMin = (date - timedelta(days=14)).strftime("%Y-%m-%d")
+    dateMin = (date - timedelta(days=DATA_AVAILABILITY_DAYS)).strftime("%Y-%m-%d")
 
     return flask.render_template('map.html',
                                  date=date,
@@ -404,8 +404,6 @@ def findFlights():
         # TODO for reg & cn find device type + id
         pass
 
-    # curl "http://localhost:5000/ff?date=2023-08-23&icao=LFNS&reg=OK1234&cn=IBI"
-
     if not loc and (not reg or not cn):
         return flask.render_template('error40x.html', code=404, message="Neumíme. Běž pryč! :P"), 404
 
@@ -417,7 +415,7 @@ def findFlights():
     return jsonify(resp)
 
 
-@app.route('/igc/<idType>/<flightId>', methods=['GET'])
+@app.route('/api/igc/<idType>/<flightId>', methods=['GET'])
 def getIgc(idType: str, flightId: int):
     """
     :param idType   'f' flight or 't' takeoff id
