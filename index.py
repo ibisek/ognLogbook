@@ -341,7 +341,7 @@ def _prepareDataForMap(flightRecord) -> (list, list):
 
 
 @app.route('/map/<flightId>', methods=['GET'])
-@limiter.limit("5/minute")
+@limiter.limit("10/minute")
 def getMap(flightId: int):
     try:
         flightId = int(saninitise(flightId))
@@ -372,7 +372,7 @@ def getMap(flightId: int):
 
 
 @app.route('/api/fd/<flightId>', methods=['GET'])
-@limiter.limit("5/minute")
+@limiter.limit("20/minute")
 def getFlightData(flightId: int):
     try:
         flightId = int(saninitise(flightId))
@@ -398,7 +398,7 @@ def getFlightData(flightId: int):
 
 
 @app.route('/api/ff', methods=['GET'])
-@limiter.limit("10/minute")
+@limiter.limit("20/minute")
 def findFlights():
     date: datetime = parseDate(request.args.get("date", None), default=datetime.now(), endOfTheDay=True)
     loc: str = saninitise(request.args.get("loc", None))
