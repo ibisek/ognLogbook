@@ -25,7 +25,7 @@ div.sideBar {
     float: right;
     right: 0px;
     top: 0px;
-    width: 260px;
+    width: 300px;
     height: 100vh;
     background-color: lightsteelblue;
     opacity: 0.8;
@@ -38,7 +38,7 @@ div.sideBar {
 }
 
 div.sideBar input {
-    width: 230px;
+    width: 97%;
 }
 
 div.sideBar input.narrow {
@@ -56,6 +56,11 @@ div.sideBarFormItem {
 
 #labelForSearchResults {
   font-weight: bold;
+}
+
+.searchResults {
+  max-height: 100vh;
+  overflow: auto;
 }
 
 .searchResult {
