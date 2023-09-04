@@ -125,11 +125,11 @@ function onFlightSearchResp(e) {
                 var cn = flight.cn ? flight.cn : '?';
                 console.log("XXX:" + flight.to_loc);
                 var takeoffLoc = flight.to_loc ? flight.to_loc : '?';
-                //var to_ts = new Date(flight.to_ts*1000);
+                var to_ts = new Date(flight.to_ts*1000).toLocaleTimeString('en-US', { hour: 'numeric', hour12: false, minute: 'numeric' });
                 var landingLoc = flight.la_loc ? flight.la_loc : '?';
-                //var la_ts = new Date(flight.la_ts*1000);
+                var la_ts = new Date(flight.la_ts*1000).toLocaleTimeString('en-US', { hour: 'numeric', hour12: false, minute: 'numeric' });;
 
-                content += `<div id='SR${flight.id}' class="searchResult" onClick="addFoundFlightToMap(${flight.id});"><span id="FL${flight.id}"></span><div class='flex_item'>${reg} (${cn}) ${takeoffLoc} &#8605; ${landingLoc}</div></div>`
+                content += `<div id='SR${flight.id}' class="searchResult" onClick="addFoundFlightToMap(${flight.id});"><span id="FL${flight.id}"></span><div class='flex_item'>${reg} (${cn}) ${takeoffLoc} ${to_ts} &#8605; ${landingLoc} ${la_ts}</div></div>`
             }
 
             searchResults.innerHTML = content;
