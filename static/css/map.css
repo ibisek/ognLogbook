@@ -74,6 +74,11 @@ div.sideBarFormItem {
   font-weight: bold;
 }
 
+.searchResultDisabled span {
+  border-radius: 5px;
+  -moz-border-radius: 5px;
+}
+
 .searchResult:hover {
     background-color: lightgray;
     text-decoration: underline;
