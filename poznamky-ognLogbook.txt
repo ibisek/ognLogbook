@@ -155,8 +155,7 @@ Let s nufikem dynamikem:
 
 -- TODO --
 
-* add MAX_ALT to .csv file (during flight distance calculation)
-* flight track map inversion (fetch data via api)
+* airfield flags into map?
 * encounters (!!) detection and visualisation
 * user management
 * fleet management for users
@@ -168,3 +167,5 @@ Let s nufikem dynamikem:
 
 Done:
 * all time info to local TZ (using https://github.com/evansiroky/timezone-boundary-builder)
+* add MAX_ALT to .csv file (during flight distance calculation)
+* flight track map inversion (fetch data via api)
