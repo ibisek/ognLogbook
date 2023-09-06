@@ -41,11 +41,11 @@
                         <label for="location">{{gettext('map.sideBar.icaoLocation')}}:</label>
                         <input type="text" id="location" name="location" value="{% if flight.landing_icao %}{{ flight.landing_icao }}{% endif %}"/>
                     </div>
-                    <div class="sideBarFormItem">
+                    <div class="sideBarFormItem" style="display:none;">
                         <label for="reg">{{gettext('map.sideBar.registration')}}:</label>
                         <input type="text" id="reg" name="reg" value="{% if flight.registration %}{{ flight.registration }}{% endif %}" disabled/>
                     </div>
-                    <div class="sideBarFormItem">
+                    <div class="sideBarFormItem" style="display:none;">
                         <label for="cn"><label for="reg">{{gettext('map.sideBar.competitionNo')}}:</label>
                         <input type="text" id="cn" name="cn" value="{% if flight.cn %}{{ flight.cn }}{% endif %}" disabled/>
                     </div>
