@@ -162,7 +162,7 @@ Let s nufikem dynamikem:
 * mailing queue
 * configurable event watcher
     - notifications on lost/stolen units
-* flight track into email upon landing
+* flight track into email upon landing?
 * recognition of short winch flights, especially exceptional situation handling (2min flight limit vs. winch 'jumps')
 
 Done:
