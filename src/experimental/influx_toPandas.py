@@ -98,8 +98,11 @@ if __name__ == '__main__':
     # ADDR = 'OGNxxxxxx'  # prievidza #2
     # startDate = '2022-04-26'
 
-    ADDR = 'ICA4B4DB7'  # DG-808 Svajc (flarm)
-    startDate = '2022-05-28'
+    # ADDR = 'ICA4B4DB7'  # DG-808 Svajc (flarm)
+    # startDate = '2022-05-28'
+
+    # ADDR = 'FLR25A390'  # LZOC blanik chybi pristani
+    # startDate = '2022-11-03'
 
     dt: datetime = datetime.strptime(startDate, '%Y-%m-%d')
     ts = dt.timestamp()     # [s]
