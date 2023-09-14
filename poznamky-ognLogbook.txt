@@ -156,6 +156,7 @@ Let s nufikem dynamikem:
 -- TODO --
 
 * SAR: find all flights in ATZ (or given lat+lon) during specified time period
+* Pro vyhlidkare: instantni poslani mapy v PDF mailem, aby se mohli pochlubit doma, kde vsude byli :)
 * airfield flags into map?
 * encounters (!!) detection and visualisation
 * user management
