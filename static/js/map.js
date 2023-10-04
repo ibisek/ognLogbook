@@ -7,6 +7,7 @@ var colorIndex = 0;
 function addFlightToMap(flightSegments, skipSegments, lineColor='red') {
     var allPoints = new Array();
     for (var i = 0; i < flightSegments.length; i++) {
+        L.polyline(flightSegments[i], {color: 'white', weight: 4}).addTo(map);
         L.polyline(flightSegments[i], {color: lineColor, weight: 2}).addTo(map);
         allPoints = allPoints.concat(flightSegments[i]);
     }
