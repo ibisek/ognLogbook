@@ -232,11 +232,20 @@ CREATE TABLE permanent_storage (
     addr VARCHAR(9),
 	start_ts BIGINT,
 	end_ts BIGINT,
-    	active BOOL DEFAULT false
+    active BOOL DEFAULT false
 );
 
 CREATE INDEX permanent_storage_addr_type ON permanent_storage(addr_type, active);
 --SHOW INDEXES FROM permanent_storage;
+
+--DROP TABLE IF EXISTS log_igc_download;
+CREATE TABLE log_igc_download (
+	id BIGINT PRIMARY KEY auto_increment,
+	ts BIGINT,
+	user_id BIGINT references users.id default null,
+	entry_id references logbook_entries.id,
+	remote_addr VARCHAR(15)
+);
 
 --
 
