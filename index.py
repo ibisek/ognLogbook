@@ -442,7 +442,7 @@ def getIgc(idType: str, flightId: int):
         return flask.render_template('error40x.html', code=404, message="Nope :P"), 404
 
     userId = 0  # TODO logged user ID
-    remoteAddr = request.remote_addr
+    remoteAddr = request.headers.getlist("X-Forwarded-For")[0] if request.headers.getlist("X-Forwarded-For") else request.remote_addr
     logIgcDownload(userId=userId, recType=idType, recId=flightId, remoteAddr=remoteAddr)
 
     display_tz = _getBrowserTimezone()
