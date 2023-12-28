@@ -273,7 +273,7 @@ def getFlightIdForTakeoffId(takeoffId) -> LogbookItem:
     return None
 
 
-def getFlightInfoForTakeoff(takeoffId, display_tz:pytz.utc) -> LogbookItem:
+def getFlightInfoForTakeoff(takeoffId: int, display_tz: pytz = pytz.utc) -> LogbookItem:
     """
     :param takeoffId: ID of a take-off event
     :param display_tz:

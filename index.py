@@ -22,6 +22,7 @@ from configuration import DEBUG, DATA_AVAILABILITY_DAYS, MAX_DAYS_IN_RANGE, INFL
 from airfieldManager import AirfieldManager, AirfieldRecord
 from dataStructures import LogbookItem, addressPrefixes
 from dao.logbookDao import listDepartures, listArrivals, listFlights, getSums, getFlight, getFlightIdForTakeoffId, getFlightInfoForTakeoff
+from dao.logs import logIgcDownload
 from dao.permanentStorage import PermanentStorageFactory
 from dao.stats import getNumFlightsToday, getTotNumFlights, getLongestFlightToday, getHighestTrafficToday
 from db.InfluxDbThread import InfluxDbThread
@@ -440,14 +441,19 @@ def getIgc(idType: str, flightId: int):
         print(f"[INFO] IGC: invalid flightId='{flightId}'")
         return flask.render_template('error40x.html', code=404, message="Nope :P"), 404
 
+    userId = 0  # TODO logged user ID
+    remoteAddr = request.remote_addr
+    logIgcDownload(userId=userId, recType=idType, recId=flightId, remoteAddr=remoteAddr)
+
+    display_tz = _getBrowserTimezone()
     flight: LogbookItem = None
     if idType == 't':
-        tmpFlightId = getFlightIdForTakeoffId(takeoffId=flightId)
+        tmpFlightId = getFlightIdForTakeoffId(flightId)
         if tmpFlightId:
             flightId = tmpFlightId
             idType = 'f'    # let the following 'f'-if' do the heavy lifting
         else:
-            flight: LogbookItem = getFlightInfoForTakeoff(takeoffId=flightId)
+            flight: LogbookItem = getFlightInfoForTakeoff(flightId)
             flightRecord = _getFlightData(flight=flight)
             if type(flightRecord) is not list:  # it is an error response in fact
                 return flightRecord

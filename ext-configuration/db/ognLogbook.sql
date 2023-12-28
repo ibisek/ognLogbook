@@ -242,7 +242,7 @@ CREATE INDEX permanent_storage_addr_type ON permanent_storage(addr_type, active)
 CREATE TABLE log_igc_download (
 	id BIGINT PRIMARY KEY auto_increment,
 	ts BIGINT,
-	user_id BIGINT references users.id default null,
+	user_id BIGINT REFERENCES users.id,
 	rec_type ENUM('f', 't'),  -- 'f' (flight -> refs tab. logbook_entries) or 't' (take-off -> refs tab. logbook_events)
 	rec_id BIGINT,  -- references either logbook_entries or logbook_events based on rec_type
 	remote_addr VARCHAR(15)
