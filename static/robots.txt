@@ -1,5 +1,8 @@
 User-agent: *
-Disallow: /map* /csv* /igc* /*igc
+Disallow: /map*
+Disallow: /csv*
+Disallow: /igc*
+Disallow: /*igc
 Crawl-delay: 30
 Request-rate: 1/30s
 
