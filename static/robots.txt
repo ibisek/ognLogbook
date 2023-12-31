@@ -1,5 +1,5 @@
 User-agent: *
-Disallow: /map /igc
-Crawl-delay: 10
-Request-rate: 1/10s
+Disallow: /map /igc /*igc
+Crawl-delay: 30
+Request-rate: 1/30s
 
