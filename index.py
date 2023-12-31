@@ -16,7 +16,8 @@ import getopt
 from platform import node
 import pytz
 from flask_limiter import Limiter
-from flask_limiter.util import get_remote_address
+#from flask_limiter.util import get_remote_address
+from utils import getRemoteAddr
 
 from configuration import DEBUG, DATA_AVAILABILITY_DAYS, MAX_DAYS_IN_RANGE, INFLUX_DB_HOST, INFLUX_DB_NAME, INFLUX_DB_NAME_PERMANENT_STORAGE
 from airfieldManager import AirfieldManager, AirfieldRecord
@@ -42,7 +43,7 @@ DayRecord = namedtuple('DayRecords', ['date', 'numFlights', 'totalFlightTime', '
 airfieldManager = AirfieldManager()
 afCountryCodes = airfieldManager.afCountryCodes
 
-limiter = Limiter(app=app, key_func=get_remote_address)
+limiter = Limiter(app=app, key_func=getRemoteAddr)
 
 
 @app.route('/set_timezone', methods=['POST'])
@@ -442,7 +443,7 @@ def getIgc(idType: str, flightId: int):
         return flask.render_template('error40x.html', code=404, message="Nope :P"), 404
 
     userId = 0  # TODO logged user ID
-    remoteAddr = request.headers.getlist("X-Forwarded-For")[0] if request.headers.getlist("X-Forwarded-For") else request.remote_addr
+    remoteAddr = getRemoteAddr()
     logIgcDownload(userId=userId, recType=idType, recId=flightId, remoteAddr=remoteAddr)
 
     display_tz = _getBrowserTimezone()
