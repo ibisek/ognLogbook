@@ -1,6 +1,8 @@
 from typing import Union
 from datetime import datetime, time, timedelta
 
+from flask import request
+
 from configuration import MAX_DAYS_IN_RANGE, DATA_AVAILABILITY_DAYS
 
 
@@ -177,3 +179,12 @@ def limitDateRange(date: datetime, dateTo: datetime):
         numDays = MAX_DAYS_IN_RANGE
 
     return numDays
+
+
+def getRemoteAddr():
+    """
+    :return: correct remote addr even while behind proxy
+    """
+    remoteAddr = request.headers.getlist("X-Forwarded-For")[0] if request.headers.getlist("X-Forwarded-For") else request.remote_addr
+
+    return remoteAddr
