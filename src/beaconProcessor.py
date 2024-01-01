@@ -466,14 +466,14 @@ class BeaconProcessor(object):
                 traffic[worker.id] = worker.numProcessed
                 worker.numProcessed = 0
 
-        if not DEBUG and numTasksPerMin >= 1000:
+        if not DEBUG and numTasksPerMin >= 100:
             cmd = f"mosquitto_pub -h {MQ_HOST} -p {MQ_PORT} -u {MQ_USER} -P {MQ_PASSWORD} -t ognLogbook/rate -m '{round(numTasksPerMin)}'; " \
                   f"mosquitto_pub -h {MQ_HOST} -p {MQ_PORT} -u {MQ_USER} -P {MQ_PASSWORD} -t ognLogbook/queued -m '{round(numQueuedTasks)}'; "
 
             trafficKeys = ['ogn', 'flarm1', 'icao1', 'sky1']
             for trafficType in trafficKeys:
                 n = traffic[trafficType]
-                if n > 100:
+                if n >= 1000:
                     t = trafficType[:-1] if trafficType.endswith('1') else trafficType
                     cmd += f"mosquitto_pub -h {MQ_HOST} -p {MQ_PORT} -u {MQ_USER} -P {MQ_PASSWORD} -t ognLogbook/{t} -m '{traffic[trafficType]}';"
 
