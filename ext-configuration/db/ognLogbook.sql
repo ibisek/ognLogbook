@@ -248,6 +248,34 @@ CREATE TABLE log_igc_download (
 	remote_addr VARCHAR(15)
 );
 
+
+-- queue for further encounters detection populated by a trigger after flight insertion into logbook_entries
+--DROP TABLE IF EXISTS encounters_q;
+CREATE TABLE encounters_q (
+	id BIGINT PRIMARY KEY auto_increment,
+	flight_id BIGINT NOT NULL	-- REFEFENCES logbook_entries.id,
+);
+
+--DROP TRIGGER IF EXISTS logbook_entries_after_insert;
+DELIMITER //
+CREATE TRIGGER IF NOT EXISTS logbook_entries_after_insert
+AFTER INSERT ON logbook_entries FOR EACH ROW
+BEGIN
+INSERT INTO encounters_q (flight_id) VALUES (new.id);
+END;//
+DELIMITER ;
+
+
+--DROP TABLE IF EXISTS encounters;
+CREATE TABLE encounters (
+	id BIGINT PRIMARY KEY auto_increment,
+	ts BIGINT,
+	dev_id_1 VARCHAR(7) NOT NULL,	-- e.g. O123456, I123456 or F123456
+	dev_id_2 VARCHAR(7) NOT NULL,	-- 1-2 ordered 'alphabetically'
+	flight_id_1 BIGINT DEFAULT NULL, 	-- REFEFENCES logbook_entries.id,
+	flight_id_2 BIGINT DEFAULT NULL	-- REFEFENCES logbook_entries.id,
+);
+
 --
 
 SELECT count(*) FROM logbook_events;
