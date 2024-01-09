@@ -2,7 +2,7 @@
 import pytz
 
 from datetime import datetime
-from utils import formatDuration
+from utilsTime import formatDuration
 
 
 class Status(object):
@@ -87,3 +87,4 @@ class LogbookItem(object):
 
 
 addressPrefixes = {'O': 'OGN', 'I': 'ICA', 'F': 'FLR', 'S': 'SKY'}
+addressPrefixesLong2Short = {'OGN': 'O', 'ICA': 'I', 'FLR': 'F', 'SKY': 'S'}
