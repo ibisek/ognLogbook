@@ -4,30 +4,7 @@ from datetime import datetime, time, timedelta
 from flask import request
 
 from configuration import MAX_DAYS_IN_RANGE, DATA_AVAILABILITY_DAYS
-
-
-def formatDuration(seconds):
-    if not seconds:
-        return 0
-
-    h = seconds // 3600
-    s = seconds % 3600
-    m = s // 60
-    s = s % 60
-
-    if s >= 30:
-        if m == 59:
-            h += 1
-            m = 0
-        else:
-            m += 1
-
-    if h > 0:
-        dur = f"{h}\N{DEGREE SIGN} {m}'"
-    else:
-        dur = f"{m}'"
-
-    return dur
+from dataStructures import addressPrefixes, addressPrefixesLong2Short
 
 
 def getDayTimestamps(forDay: datetime = None):
@@ -188,3 +165,20 @@ def getRemoteAddr():
     remoteAddr = request.headers.getlist("X-Forwarded-For")[0] if request.headers.getlist("X-Forwarded-For") else request.remote_addr
 
     return remoteAddr
+
+
+def splitAddress(deviceAddr:str):
+    if len(deviceAddr) == 7:
+        shortType = deviceAddr[0]
+        addr = deviceAddr[1:]
+        longType = addressPrefixes[shortType]
+
+    elif len(deviceAddr) == 9:
+        longType = deviceAddr[0:3]
+        addr = deviceAddr[3:]
+        shortType = addressPrefixesLong2Short[longType]
+
+    else:
+        raise ValueError(f"Incorrect format of given address '{deviceAddr}'!")
+
+    return shortType, longType, addr
