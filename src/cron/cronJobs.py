@@ -41,7 +41,7 @@ class CronJobs(object):
         # self.ddbTimer = PeriodicTimer(DDB.CRON_INTERVAL, DDB.getInstance().cron)
         # self.ddbTimer.start()
 
-        self.encountersLookupTimer = PeriodicTimer(EncountersLookup.RELOAD_INTERVAL, EncountersLookup.doLookup())
+        self.encountersLookupTimer = PeriodicTimer(EncountersLookup.RUN_INTERVAL, EncountersLookup.doLookup())
         self.encountersLookupTimer.start()
 
     def stop(self):
