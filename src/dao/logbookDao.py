@@ -255,7 +255,7 @@ def getFlight(flightId, display_tz=pytz.utc) -> LogbookItem:
     return None
 
 
-def getFlightIdForTakeoffId(takeoffId) -> LogbookItem:
+def getFlightIdForTakeoffId(takeoffId) -> int:
     """
     Used when looking up a complete flight for specified takeoffId
     :param takeoffId:
@@ -263,6 +263,25 @@ def getFlightIdForTakeoffId(takeoffId) -> LogbookItem:
     strSql = f"SELECT ent.id FROM logbook_entries AS ent, logbook_events AS ev " \
              f"WHERE ent.address = ev.address AND ent.takeoff_ts = ev.ts " \
              f"AND ev.id={takeoffId};"
+
+    with DbSource(dbConnectionInfo).getConnection().cursor() as c:
+        c.execute(strSql)
+        row = c.fetchone()
+        if row:
+            return row[0]   # flightId
+
+    return None
+
+
+def getFlightIdForDevIdAndTs(addr: str, addrType: str, ts: int) -> int:
+    """
+    Attempt to find a flight for specified address that took place over given ts.
+    :param addr:    ogn id
+    :param addrType: short type
+    :param ts:      ts within searched flight
+    :return:        flight id (logbook_entries.id)
+    """
+    strSql = f"SELECT id FROM logbook_entries where address_type = '{addrType}' AND address = '{addr}' AND takeoff_ts <= {ts} and landing_ts >= {ts};"
 
     with DbSource(dbConnectionInfo).getConnection().cursor() as c:
         c.execute(strSql)
