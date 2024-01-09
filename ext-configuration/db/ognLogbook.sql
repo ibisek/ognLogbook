@@ -261,7 +261,9 @@ DELIMITER //
 CREATE TRIGGER IF NOT EXISTS logbook_entries_after_insert
 AFTER INSERT ON logbook_entries FOR EACH ROW
 BEGIN
+IF (new.flight_time > 600) THEN
 INSERT INTO encounters_q (flight_id) VALUES (new.id);
+END IF;
 END;//
 DELIMITER ;
 
@@ -389,4 +391,4 @@ SELECT * FROM logbook_entries where address_type = 'F' AND address = 'C821D8' AN
 
 
 
-SELECT * FROM logbook_entries where address_type = 'F' AND address = 'C821D8' AND takeoff_ts <= 1704673638 and landing_ts >= 1704673638;
+SELECT * FROM logbook_entries LIMIT 10;
