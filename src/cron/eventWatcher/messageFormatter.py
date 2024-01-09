@@ -1,7 +1,7 @@
 from datetime import datetime
 
 from translations import gettext
-from utils import formatDuration
+from utilsTime import formatDuration
 
 
 def formatMailNotification(event, watcher):
