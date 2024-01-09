@@ -269,12 +269,21 @@ DELIMITER ;
 --DROP TABLE IF EXISTS encounters;
 CREATE TABLE encounters (
 	id BIGINT PRIMARY KEY auto_increment,
-	ts BIGINT,
-	dev_id_1 VARCHAR(7) NOT NULL,	-- e.g. O123456, I123456 or F123456
-	dev_id_2 VARCHAR(7) NOT NULL,	-- 1-2 ordered 'alphabetically'
-	flight_id_1 BIGINT DEFAULT NULL, 	-- REFEFENCES logbook_entries.id,
-	flight_id_2 BIGINT DEFAULT NULL	-- REFEFENCES logbook_entries.id,
+	ts BIGINT,						-- used to post-lookup the other flight id
+	addr VARCHAR(7) NOT NULL,			-- e.g. O123456, I123456 or F123456
+	flight_id BIGINT NOT NULL, 			-- REFEFENCES logbook_entries.id,
+	alt INT NOT NULL,
+	dist INT NOT NULL,					-- distance in meters
+	other_addr VARCHAR(7) NOT NULL,		-- e.g. O123456, I123456 or F123456
+	other_flight_id BIGINT DEFAULT NULL,	-- REFEFENCES logbook_entries.id,
+	other_lat DECIMAL(8,5),
+	other_lon DECIMAL(8,5),
+	other_alt INT DEFAULT NULL
 );
+
+CREATE INDEX encounters_flight_id ON encounters(flight_id);
+--SHOW INDEXES FROM encounters;
+
 
 --
 
@@ -370,3 +379,14 @@ select u.id, u.email, u.lang, d.aircraft_registration, d.aircraft_cn from watche
 	left join ddb as d on d.device_id = w.addr and d.device_type=w.addr_type
 	where addr_type = 'O' and addr = '062024';
 
+--
+
+select * from encounters;
+
+SELECT * from encounters WHERE ts= AND dev_id_1='' AND dev_id_2='';
+
+SELECT * FROM logbook_entries where address_type = 'F' AND address = 'C821D8' AND takeoff_ts >= 0 and landing_ts <= 1704673697;
+
+
+
+SELECT * FROM logbook_entries where address_type = 'F' AND address = 'C821D8' AND takeoff_ts <= 1704673638 and landing_ts >= 1704673638;
