@@ -24,7 +24,7 @@ from dao.logbookDao import getFlight
 from utils import splitAddress
 
 NUM_DECIMALS = 1
-BATCH_SIZE = 10
+BATCH_SIZE = 40
 
 
 class Position:
