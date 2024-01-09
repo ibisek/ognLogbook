@@ -24,6 +24,7 @@ from dao.logbookDao import getFlight
 from utils import splitAddress
 
 NUM_DECIMALS = 1
+BATCH_SIZE = 10
 
 
 class Position:
@@ -185,7 +186,6 @@ class EncountersLookup:
         startTs = datetime.now().timestamp()
         encountersCounter = 0
 
-        BATCH_SIZE = 100
         encounterQItems = getEncounterQueueItems(limit=BATCH_SIZE)
 
         for batchCounter, encQItem in enumerate(encounterQItems):
@@ -211,7 +211,7 @@ class EncountersLookup:
                     for _, otherPositions in otherPositionsInSectorByAddr.items():
                         dist, myPos, otherPos = EncountersLookup._findNearest(sector.positions, otherPositions)
                         if dist:    # conditions for an encounter met
-                            print(f"[INFO] {myPos.addr} seen {otherPos.addr} {dist:.1f} m and {abs(myPos.ts - otherPos.ts)}s apart")
+                            # print(f"[INFO] {myPos.addr} seen {otherPos.addr} {dist:.1f} m and {abs(myPos.ts - otherPos.ts)}s apart")
                             ts = myPos.ts if myPos.ts < otherPos.ts else otherPos.ts    # the earlier one
 
                             # Parse addr + addrTypes:
