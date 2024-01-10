@@ -3,7 +3,7 @@ General periodic tasks are defined and executed from here.
 """
 
 from periodicTimer import PeriodicTimer
-from cron.encountersLookup import EncountersLookup
+# from cron.encountersLookup import EncountersLookup
 from cron.eventWatcher.eventWatcher import EventWatcher
 from cron.flownDistanceCalculator import FlownDistanceCalculator
 from cron.realTakeoff import RealTakeoffLookup
@@ -41,9 +41,9 @@ class CronJobs(object):
         # self.ddbTimer = PeriodicTimer(DDB.CRON_INTERVAL, DDB.getInstance().cron)
         # self.ddbTimer.start()
 
-        encountersLookup = EncountersLookup()
-        self.encountersLookupTimer = PeriodicTimer(EncountersLookup.RUN_INTERVAL, encountersLookup.doLookup)
-        self.encountersLookupTimer.start()
+        # encountersLookup = EncountersLookup()
+        # self.encountersLookupTimer = PeriodicTimer(EncountersLookup.RUN_INTERVAL, encountersLookup.doLookup)
+        # self.encountersLookupTimer.start()
 
     def stop(self):
         self.towLookupTimer.stop()
@@ -61,6 +61,6 @@ class CronJobs(object):
 
         # self.ddbTimer.stop()
 
-        self.encountersLookupTimer.stop()
+        # self.encountersLookupTimer.stop()
 
         print("[INFO] Cron terminated.")
