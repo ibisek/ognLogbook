@@ -12,6 +12,7 @@ Needs to be executed in separate process due to performance reasons.
 from math import degrees, radians, floor, ceil, sqrt, pow
 from datetime import datetime, timezone
 import sys
+from time import sleep
 
 from influxdb.resultset import ResultSet
 
@@ -58,10 +59,14 @@ class Position:
 
 class Sector:
     def __init__(self, lat: int, lon: int):
-        self.lat_min = floor(lat * 10 * NUM_DECIMALS) / 10 * NUM_DECIMALS
-        self.lat_max = ceil(lat * 10 * NUM_DECIMALS) / 10 * NUM_DECIMALS
-        self.lon_min = floor(lon * 10 * NUM_DECIMALS) / 10 * NUM_DECIMALS
-        self.lon_max = ceil(lon * 10 * NUM_DECIMALS) / 10 * NUM_DECIMALS
+        # self.lat_min = floor(lat * 10 * NUM_DECIMALS) / 10 * NUM_DECIMALS
+        # self.lat_max = ceil(lat * 10 * NUM_DECIMALS) / 10 * NUM_DECIMALS
+        # self.lon_min = floor(lon * 10 * NUM_DECIMALS) / 10 * NUM_DECIMALS
+        # self.lon_max = ceil(lon * 10 * NUM_DECIMALS) / 10 * NUM_DECIMALS
+        self.lat_min = EncountersLookup.roundNearestDown(lat, 0.05)
+        self.lat_max = self.lat_min + 0.05
+        self.lon_min = EncountersLookup.roundNearestDown(lon, 0.05)
+        self.lon_max = self.lon_min + 0.05
 
         self.positions = []
         self.startTs = sys.maxsize
@@ -96,6 +101,16 @@ class EncountersLookup:
 
     def __del__(self):
         self.influxDb.client.close()
+
+    @staticmethod
+    def roundNearest(value, multiple):
+        return round(value / multiple) * multiple
+
+    def roundNearestDown(value, multiple):
+        return floor(value / multiple) * multiple
+
+    def roundNearestUp(value, multiple):
+        return ceil(value / multiple) * multiple
 
     @staticmethod
     def _rowIntoPosition(row: dict) -> Position:
@@ -242,6 +257,8 @@ class EncountersLookup:
         runTime = datetime.now().timestamp() - startTs
         print(f"[INFO] Analyzed {batchCounter + 1} flights in {round(runTime)}s while discovered {encountersCounter} encounters.")
 
+        return batchCounter + 1
+
     def doPostLookup(self):
         # TODO dohledat other_flight_ids tam, kde nejsou
         # TODO asi dohledavat jen pro posledni 2 dny..
@@ -250,6 +267,10 @@ class EncountersLookup:
 
 if __name__ == '__main__':
     task = EncountersLookup()
-    task.doLookup()
+    while True:
+        numProcessed = task.doLookup()
+        if numProcessed < BATCH_SIZE:
+            sleep(10)
+
     print('KOHEU.')
 
