@@ -16,7 +16,7 @@ import getopt
 from platform import node
 import pytz
 from flask_limiter import Limiter
-#from flask_limiter.util import get_remote_address
+# from flask_limiter.util import get_remote_address
 from utils import getRemoteAddr
 
 from configuration import DEBUG, DATA_AVAILABILITY_DAYS, MAX_DAYS_IN_RANGE, INFLUX_DB_HOST, INFLUX_DB_NAME, INFLUX_DB_NAME_PERMANENT_STORAGE
@@ -29,7 +29,8 @@ from dao.stats import getNumFlightsToday, getTotNumFlights, getLongestFlightToda
 from db.InfluxDbThread import InfluxDbThread
 from igc import flightToIGC
 
-from utils import getDaysLinks, formatDuration, formatTsToHHMM, eligibleForMapView, saninitise, parseDate, limitDateRange
+from utils import getDaysLinks, formatTsToHHMM, eligibleForMapView, saninitise, parseDate, limitDateRange
+from utilsTime import formatDuration
 from translations import gettext
 
 app = flask.Flask(__name__)
