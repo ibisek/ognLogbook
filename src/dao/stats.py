@@ -3,7 +3,8 @@ from datetime import datetime
 
 from configuration import dbConnectionInfo
 from db.DbSource import DbSource
-from utils import formatDuration, getDayTimestamps
+from utilsTime import formatDuration
+from utils import getDayTimestamps
 
 
 def getTotNumFlights():
