@@ -22,6 +22,7 @@ from utils import getRemoteAddr
 from configuration import DEBUG, DATA_AVAILABILITY_DAYS, MAX_DAYS_IN_RANGE, INFLUX_DB_HOST, INFLUX_DB_NAME, INFLUX_DB_NAME_PERMANENT_STORAGE
 from airfieldManager import AirfieldManager, AirfieldRecord
 from dataStructures import LogbookItem, addressPrefixes
+from dao.encounters import Encounter, listEncounters
 from dao.logbookDao import listDepartures, listArrivals, listFlights, getSums, getFlight, getFlightIdForTakeoffId, getFlightInfoForTakeoff
 from dao.logs import logIgcDownload
 from dao.permanentStorage import PermanentStorageFactory
@@ -423,6 +424,21 @@ def findFlights():
     resp.sort(key=lambda f: f['to_ts'])
 
     return jsonify(resp)
+
+
+@app.route('/api/enc/<flightId>', methods=['GET'])
+@limiter.limit("20/minute")
+def listEncountersFor(flightId: int):
+    flightId = saninitise(flightId)
+
+    if not flightId:
+        return flask.render_template('error40x.html', code=404, message="Neumíme. Běž pryč! :P"), 404
+
+    encounters: list[Encounter] = listEncounters(flightId=flightId)
+
+    listOfDicts = [enc.serialize() for enc in encounters]
+
+    return jsonify(listOfDicts)
 
 
 @app.route('/api/igc/<idType>/<flightId>', methods=['GET'])
