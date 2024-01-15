@@ -1,4 +1,4 @@
-from datetime import datetime
+import decimal
 
 from configuration import dbConnectionInfo
 from db.DbSource import DbSource
@@ -30,6 +30,17 @@ class Encounter:
 
         self.dirty = False
 
+    def serialize(self):
+        d = self.__dict__
+        del d['id']
+        del d['dirty']
+
+        for k, v in d.items():
+            if type(v) == decimal.Decimal:
+                d[k] = float(v)
+
+        return d
+
 
 def getEncounterQueueItems(limit: int = 1) -> []:
     strSql = f"SELECT * FROM encounters_q ORDER BY id LIMIT {limit};"
@@ -54,6 +65,34 @@ def delEncountersQueueItem(item: EncounterQueueItem):
 
     with DbSource(dbConnectionInfo).getConnection().cursor() as cur:
         cur.execute(strSql)
+
+
+def listEncounters(flightId: int) -> []:
+
+    strSql = f"SELECT id, ts, addr, alt, dist, other_addr, other_flight_id, other_lat, other_lon, other_alt " \
+             f"FROM encounters WHERE flight_id={flightId};"
+
+    encounters = []
+
+    with DbSource(dbConnectionInfo).getConnection().cursor() as cur:
+        cur.execute(strSql)
+        rows = cur.fetchall()
+        for row in rows:
+            id = row[0]
+            ts = row[1]
+            addr = row[2]
+            alt = row[3]
+            dist = row[4]
+            other_addr = row[5]
+            other_flight_id = row[6]
+            other_lat = row[7]
+            other_lon = row[8]
+            other_alt = row[9]
+
+            enc = Encounter(id=id, ts=ts, addr=addr, alt=alt, flight_id=flightId, dist=dist, other_addr=other_addr, other_flight_id=other_flight_id, other_lat=other_lat, other_lon=other_lon, other_alt=other_alt)
+            encounters.append(enc)
+
+    return encounters
 
 
 # def findEncounter(ts: int, addr1: str, addr2: str):
@@ -100,5 +139,5 @@ def save(enc: Encounter):
 
 
 if __name__ == '__main__':
-    encounterQItem = getEncounterQueueItem()
+    encounterQItem = getEncounterQueueItems()
     print('flightId:', encounterQItem)
