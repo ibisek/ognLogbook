@@ -215,8 +215,7 @@ function listEncounters(flightId) {
                     var altDiff = enc.alt - enc.other_alt;
                     var text = (altDiff > 0 ? "below" : "above");
 
-                    var butId = `encBut${i}`;
-                    var button = (enc.other_flight_id != null ? `<br><br><button onclick='addFoundFlightToMap(${enc.other_flight_id}); document.getElementById("${butId}").style.display="none";'>add flight to map</button>` : '');
+                    var button = (enc.other_flight_id != null ? `<br><br><button onclick='addFoundFlightToMap(${enc.other_flight_id})'>add flight to map</button>` : '');
 
                     encMarker.bindPopup(`${registration}${cn}${aircraftType}<br>${enc.other_alt.toFixed(0)}m AMSL<br>${enc.dist}m apart & ${Math.abs(altDiff.toFixed(0))}m ${text}${button}`);
 
