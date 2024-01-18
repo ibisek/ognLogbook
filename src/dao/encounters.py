@@ -95,6 +95,46 @@ def listEncounters(flightId: int) -> []:
     return encounters
 
 
+def listEncountersWithRegistration(flightId: int) -> []:
+
+    strSql = f"SELECT e.id, e.ts, e.addr, e.alt, e.dist, e.other_addr, e.other_flight_id, e.other_lat, e.other_lon, " \
+             f"e.other_alt, d.aircraft_registration, d.aircraft_cn, d.aircraft_type " \
+             f"FROM encounters AS e " \
+             f"LEFT JOIN ddb AS d ON SUBSTR(e.addr, 1, 1)=d.device_type AND SUBSTR(e.addr, 2)=d.device_id " \
+             f"WHERE e.flight_id={flightId};"
+
+    encounters = []
+
+    with DbSource(dbConnectionInfo).getConnection().cursor() as cur:
+        cur.execute(strSql)
+        rows = cur.fetchall()
+        for row in rows:
+            id = None   # row[0]
+            ts = row[1]
+            addr = row[2]
+            alt = row[3]
+            dist = row[4]
+            other_addr = row[5]
+            other_flight_id = row[6]
+            other_lat = row[7]
+            other_lon = row[8]
+            other_alt = row[9]
+            registration = row[10]
+            cn = row[11]
+            aircraft_type = row[12]
+
+            enc = Encounter(id=id, ts=ts, addr=addr, alt=alt, flight_id=flightId, dist=dist, other_addr=other_addr, other_flight_id=other_flight_id, other_lat=other_lat, other_lon=other_lon, other_alt=other_alt)
+            enc.registration = registration
+            enc.cn = cn
+            enc.aircraft_type = aircraft_type
+
+            encounters.append(enc)
+
+    return encounters
+
+
+
+
 # def findEncounter(ts: int, addr1: str, addr2: str):
 #     addrs = sorted([addr for addr in [addr1, addr2]])
 #

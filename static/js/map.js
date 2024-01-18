@@ -44,7 +44,7 @@ function addFlightToMap(flightSegments, skipSegments, lineColor='red') {
     landingMarker.bindPopup("<b>Landing</b>");
 }
 
-function onPageLoad() {
+function onPageLoad(flightId) {
     map = L.map('map'); //.setView([51.505, -0.09], 13);
 
     L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -55,6 +55,7 @@ function onPageLoad() {
 	L.control.scale().addTo(map);
 
     addFlightToMap(flightSegments, skipSegments);
+    listEncounters(flightId);
 }
 
 function addButtonClicked() {
@@ -184,3 +185,58 @@ function addFoundFlightToMap(flightId) {
     req.send(null);
 
 }
+
+var encountersMarkers = [];
+
+function listEncounters(flightId) {
+    if (encountersMarkers.length > 0) return; // already loaded
+
+    var query = `/api/enc/${flightId}`;
+
+    const req = new XMLHttpRequest();
+    req.open("GET", query, true);
+
+    req.onload = (e) => {
+        var resp = e.currentTarget;
+        if (resp.readyState === 4) {
+            if (resp.status === 200) {
+                var encounters = JSON.parse(resp.responseText);
+                var encLen = encounters.length;
+                if(encLen == 0) return;
+
+                for (var i = 0; i < encLen; i++) {
+                    var enc = encounters[i];
+
+                    var encMarker = L.marker([enc.other_lat, enc.other_lon]).addTo(map);
+                    var registration = (enc.registration != null ? `<b>${enc.registration}</b>`: '?');
+                    var cn = (enc.registration != null ? ` (${enc.cn})` : '');
+                    var aircraftType = (enc.aircraft_type != null ? `<br>${enc.aircraft_type}` : '');
+
+                    var altDiff = enc.alt - enc.other_alt;
+                    var text = (altDiff > 0 ? "below" : "above");
+
+                    var butId = `encBut${i}`;
+                    var button = (enc.other_flight_id != null ? `<br><br><button onclick='addFoundFlightToMap(${enc.other_flight_id}); document.getElementById("${butId}").style.display="none";'>add flight to map</button>` : '');
+
+                    encMarker.bindPopup(`${registration}${cn}${aircraftType}<br>${enc.other_alt.toFixed(0)}m AMSL<br>${enc.dist}m apart & ${Math.abs(altDiff.toFixed(0))}m ${text}${button}`);
+
+                    encountersMarkers.push(encMarker);
+                }
+
+            } else if (resp.status === 429) {
+                alert('Reached request rate limit. Try again in a minute.');
+            }
+
+        } else {
+            alert('No data..?');
+        }
+    };
+
+    req.onerror = (e) => {
+      console.error(req.statusText);
+      alert('Nejaky problem v listu encounters.');
+    };
+    req.send(null);
+
+}
+
