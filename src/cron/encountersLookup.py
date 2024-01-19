@@ -216,6 +216,7 @@ class EncountersLookup:
                 delEncountersQueueItem(encQItem)
                 continue
 
+            alreadyEncounteredAirplanes = {}    # device_id -> True; only first contact will be stored
             mySectors: list[Sector] = self._splitIntoSectors(rs)
             for sector in mySectors:
                 # print(f"[INFO] SECTOR dt: {sector.endTs - sector.startTs} numPositions: {len(sector.positions)}")
@@ -224,11 +225,16 @@ class EncountersLookup:
                 otherPositions = self._findOthers(ownAddr=ownAddr, sector=sector)
                 if len(otherPositions) > 0:
                     otherPositionsInSectorByAddr: dict = EncountersLookup._splitByAddr(otherPositions)
+                    for addr in alreadyEncounteredAirplanes.keys():
+                        otherPositionsInSectorByAddr.pop(addr, None)  # remove those with an encounter already recorded
 
                     # Find the nearest one for each other airplane:
-                    for _, otherPositions in otherPositionsInSectorByAddr.items():
+                    for otherAddr, otherPositions in otherPositionsInSectorByAddr.items():
                         dist, myPos, otherPos = EncountersLookup._findNearest(sector.positions, otherPositions)
                         if dist:    # conditions for an encounter met
+                            if otherAddr in alreadyEncounteredAirplanes:
+                                continue    # do not analyse positions for planes we already encountered
+
                             # print(f"[INFO] {myPos.addr} seen {otherPos.addr} {dist:.1f} m and {abs(myPos.ts - otherPos.ts)}s apart")
                             ts = myPos.ts if myPos.ts < otherPos.ts else otherPos.ts    # the earlier one
 
@@ -237,9 +243,9 @@ class EncountersLookup:
                             otherAddrShortType, _, otherAddr = splitAddress(otherPos.addr)
 
                             # Lookup current (own) flightId:
-                            flightId = getFlightIdForDevIdAndTs(addr=myAddr, addrType=myAddrShortType, ts=ts)
+                            flightId = getFlightIdForDevIdAndTs(addr=myAddr, addrType=myAddrShortType, ts=myPos.ts)
                             if not flightId:
-                                continue
+                                continue    # XXX jak je mozne, ze nenajde sam sebe, kdyz z neho vzniknul?
 
                             encounter = Encounter(ts=ts, addr=f"{myAddrShortType}{myAddr}", alt=myPos.alt, flight_id=flightId,
                                                   dist=round(dist),
@@ -250,6 +256,7 @@ class EncountersLookup:
 
                             save(encounter)
                             encountersCounter += 1
+                            alreadyEncounteredAirplanes[otherAddr] = True
 
             delEncountersQueueItem(encQItem)
 
@@ -271,6 +278,8 @@ if __name__ == '__main__':
         numProcessed = task.doLookup()
         if numProcessed < BATCH_SIZE:
             sleep(10)
+
+    # task.doPostLookup()
 
     print('KOHEU.')
 
