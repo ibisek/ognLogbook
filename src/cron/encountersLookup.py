@@ -231,17 +231,17 @@ class EncountersLookup:
 
                     # Find the nearest one for each other airplane:
                     for otherAddr, otherPositions in otherPositionsInSectorByAddr.items():
+                        if otherAddr in alreadyEncounteredAirplanes:
+                            continue  # do not analyse positions for planes we already encountered
+
                         dist, myPos, otherPos = EncountersLookup._findNearest(sector.positions, otherPositions)
                         if dist:    # conditions for an encounter met
-                            if otherAddr in alreadyEncounteredAirplanes:
-                                continue    # do not analyse positions for planes we already encountered
-
-                            # print(f"[INFO] {myPos.addr} seen {otherPos.addr} {dist:.1f} m and {abs(myPos.ts - otherPos.ts)}s apart")
+                            print(f"[INFO] {myPos.addr} seen {otherPos.addr} {dist:.1f} m and {abs(myPos.ts - otherPos.ts)}s apart")
                             ts = myPos.ts if myPos.ts < otherPos.ts else otherPos.ts    # the earlier one
 
                             # Parse addr + addrTypes:
                             myAddrShortType, _, myAddr = splitAddress(myPos.addr)
-                            otherAddrShortType, _, otherAddr = splitAddress(otherPos.addr)
+                            otherAddrShortType, otherAddrLongType, otherAddr = splitAddress(otherPos.addr)
 
                             # Lookup current (own) flightId:
                             flightId = getFlightIdForDevIdAndTs(addr=myAddr, addrType=myAddrShortType, ts=myPos.ts)
@@ -257,14 +257,14 @@ class EncountersLookup:
 
                             save(encounter)
                             encountersCounter += 1
-                            alreadyEncounteredAirplanes[otherAddr] = True
+                            alreadyEncounteredAirplanes[otherAddrLongType+otherAddr] = True
 
             delEncountersQueueItem(encQItem)
 
         self.running = False
         if batchCounter > 0:
             runTime = datetime.now().timestamp() - startTs
-            print(f"[INFO] Analyzed {batchCounter + 1} flights in {round(runTime)}s while discovered {encountersCounter} encounters.")
+            print(f"[INFO] Analyzed {batchCounter + 1} flights in {round(runTime)}s while discovered {encountersCounter} encounter(s).")
 
         return batchCounter + 1
 
