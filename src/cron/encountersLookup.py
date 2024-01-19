@@ -206,6 +206,7 @@ class EncountersLookup:
 
         encounterQItems = getEncounterQueueItems(limit=BATCH_SIZE)
 
+        batchCounter = 0
         for batchCounter, encQItem in enumerate(encounterQItems):
             flight = getFlight(flightId=encQItem.flightId)
 
