@@ -236,7 +236,7 @@ class EncountersLookup:
 
                         dist, myPos, otherPos = EncountersLookup._findNearest(sector.positions, otherPositions)
                         if dist:    # conditions for an encounter met
-                            print(f"[INFO] {myPos.addr} seen {otherPos.addr} {dist:.1f} m and {abs(myPos.ts - otherPos.ts)}s apart")
+                            # print(f"[INFO] {myPos.addr} seen {otherPos.addr} {dist:.1f} m and {abs(myPos.ts - otherPos.ts)}s apart")
                             ts = myPos.ts if myPos.ts < otherPos.ts else otherPos.ts    # the earlier one
 
                             # Parse addr + addrTypes:
@@ -280,6 +280,8 @@ if __name__ == '__main__':
         numProcessed = task.doLookup()
         if numProcessed < BATCH_SIZE:
             sleep(10)
+
+        task.doPostLookup()
 
     # task.doPostLookup()
 
