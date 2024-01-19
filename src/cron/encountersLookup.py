@@ -28,7 +28,7 @@ from dao.logbookDao import getFlight
 from utils import splitAddress
 
 NUM_DECIMALS = 1
-BATCH_SIZE = 100
+BATCH_SIZE = 10
 
 
 class Position:
@@ -59,14 +59,14 @@ class Position:
 
 class Sector:
     def __init__(self, lat: int, lon: int):
-        # self.lat_min = floor(lat * 10 * NUM_DECIMALS) / 10 * NUM_DECIMALS
-        # self.lat_max = ceil(lat * 10 * NUM_DECIMALS) / 10 * NUM_DECIMALS
-        # self.lon_min = floor(lon * 10 * NUM_DECIMALS) / 10 * NUM_DECIMALS
-        # self.lon_max = ceil(lon * 10 * NUM_DECIMALS) / 10 * NUM_DECIMALS
-        self.lat_min = EncountersLookup.roundNearestDown(lat, 0.05)
-        self.lat_max = self.lat_min + 0.05
-        self.lon_min = EncountersLookup.roundNearestDown(lon, 0.05)
-        self.lon_max = self.lon_min + 0.05
+        self.lat_min = floor(lat * 10 * NUM_DECIMALS) / 10 * NUM_DECIMALS
+        self.lat_max = ceil(lat * 10 * NUM_DECIMALS) / 10 * NUM_DECIMALS
+        self.lon_min = floor(lon * 10 * NUM_DECIMALS) / 10 * NUM_DECIMALS
+        self.lon_max = ceil(lon * 10 * NUM_DECIMALS) / 10 * NUM_DECIMALS
+        # self.lat_min = EncountersLookup.roundNearestDown(lat, 0.05)
+        # self.lat_max = self.lat_min + 0.05
+        # self.lon_min = EncountersLookup.roundNearestDown(lon, 0.05)
+        # self.lon_max = self.lon_min + 0.05
 
         self.positions = []
         self.startTs = sys.maxsize
@@ -261,8 +261,9 @@ class EncountersLookup:
             delEncountersQueueItem(encQItem)
 
         self.running = False
-        runTime = datetime.now().timestamp() - startTs
-        print(f"[INFO] Analyzed {batchCounter + 1} flights in {round(runTime)}s while discovered {encountersCounter} encounters.")
+        if batchCounter > 0:
+            runTime = datetime.now().timestamp() - startTs
+            print(f"[INFO] Analyzed {batchCounter + 1} flights in {round(runTime)}s while discovered {encountersCounter} encounters.")
 
         return batchCounter + 1
 
