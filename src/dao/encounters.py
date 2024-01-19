@@ -178,6 +178,11 @@ def save(enc: Encounter):
     enc.dirty = False
 
 
+def listEncountersWithoutOtherFlightId(startTs: int = 0):
+    strSQL = f"SELECT id,  ts, other_addr FROM encounters WHERE other_flight_id IS null AND ts > {startTs};"
+    # TODO mozna by slo udelat jen updatem v DB?
+
+
 if __name__ == '__main__':
     encounterQItem = getEncounterQueueItems()
     print('flightId:', encounterQItem)
