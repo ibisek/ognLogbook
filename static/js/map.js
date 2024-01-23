@@ -4,6 +4,33 @@ var searchResults = document.getElementById("searchResults");
 var colors = ['Green', 'MidnightBlue', 'Sienna', 'Gray', 'Plum', 'Turquoise', 'Black', 'Aqua', 'Chartreuse', 'BlueViolet', 'CornflowerBlue', 'DarkMagenta' , 'DeepPink'];
 var colorIndex = 0;
 
+var greenIcon = new L.Icon({
+  iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-green.png',
+  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+  popupAnchor: [1, -34],
+  shadowSize: [41, 41]
+});
+
+var redIcon = new L.Icon({
+  iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-red.png',
+  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+  popupAnchor: [1, -34],
+  shadowSize: [41, 41]
+});
+
+var blueIcon = new L.Icon({
+  iconUrl: '/static/img/map/blue-marker.png',
+  shadowUrl: '',
+  iconSize: [12, 12],
+  iconAnchor: [6, 6],
+  popupAnchor: [0, -6],
+  shadowSize: [12, 12]
+});
+
 function addFlightToMap(flightSegments, skipSegments, lineColor='red') {
     var allPoints = new Array();
     for (var i = 0; i < flightSegments.length; i++) {
@@ -17,24 +44,6 @@ function addFlightToMap(flightSegments, skipSegments, lineColor='red') {
     }
     var polyline = L.polyline(allPoints, {color: 'green', weight: 2});
     map.fitBounds(polyline.getBounds());
-
-    var greenIcon = new L.Icon({
-      iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-green.png',
-      shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
-      iconSize: [25, 41],
-      iconAnchor: [12, 41],
-      popupAnchor: [1, -34],
-      shadowSize: [41, 41]
-    });
-
-    var redIcon = new L.Icon({
-      iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-red.png',
-      shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
-      iconSize: [25, 41],
-      iconAnchor: [12, 41],
-      popupAnchor: [1, -34],
-      shadowSize: [41, 41]
-    });
 
     var takeoffMarker = L.marker(flightSegments[0][0], {icon: greenIcon}).addTo(map);
     takeoffMarker.bindPopup("<b>Take-off<b>");
@@ -207,7 +216,7 @@ function listEncounters(flightId) {
                 for (var i = 0; i < encLen; i++) {
                     var enc = encounters[i];
 
-                    var encMarker = L.marker([enc.other_lat, enc.other_lon]).addTo(map);
+                    var encMarker = L.marker([enc.other_lat, enc.other_lon], {icon: blueIcon}).addTo(map);
                     var registration = (enc.registration != null ? `<b>${enc.registration}</b>`: '?');
                     var cn = (enc.registration != null ? ` (${enc.cn})` : '');
                     var aircraftType = (enc.aircraft_type != null ? `<br>${enc.aircraft_type}` : '');
