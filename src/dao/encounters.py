@@ -100,7 +100,7 @@ def listEncountersWithRegistration(flightId: int) -> []:
     strSql = f"SELECT e.id, e.ts, e.addr, e.alt, e.dist, e.other_addr, e.other_flight_id, e.other_lat, e.other_lon, " \
              f"e.other_alt, d.aircraft_registration, d.aircraft_cn, d.aircraft_type " \
              f"FROM encounters AS e " \
-             f"LEFT JOIN ddb AS d ON SUBSTR(e.addr, 1, 1)=d.device_type AND SUBSTR(e.addr, 2)=d.device_id " \
+             f"LEFT JOIN ddb AS d ON SUBSTR(e.other_addr, 1, 1)=d.device_type AND SUBSTR(e.other_addr, 2)=d.device_id " \
              f"WHERE e.flight_id={flightId};"
 
     encounters = []
