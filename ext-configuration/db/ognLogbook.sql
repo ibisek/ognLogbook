@@ -257,6 +257,17 @@ CREATE TABLE encounters_q (
 );
 
 --DROP TRIGGER IF EXISTS logbook_entries_after_insert;
+-- OFF-SEASON version:
+DELIMITER //
+CREATE TRIGGER IF NOT EXISTS logbook_entries_after_insert
+AFTER INSERT ON logbook_entries FOR EACH ROW
+BEGIN
+IF (new.flight_time > 600 THEN
+INSERT INTO encounters_q (flight_id) VALUES (new.id);
+END IF;
+END;//
+DELIMITER ;
+-- SEASON version:
 DELIMITER //
 CREATE TRIGGER IF NOT EXISTS logbook_entries_after_insert
 AFTER INSERT ON logbook_entries FOR EACH ROW
