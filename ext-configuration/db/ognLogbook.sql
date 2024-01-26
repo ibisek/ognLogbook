@@ -80,6 +80,8 @@ CREATE INDEX logbook_entries_landing_ts ON logbook_entries(landing_ts);
 CREATE INDEX logbook_entries_takeoff_icao ON logbook_entries(takeoff_icao);
 CREATE INDEX logbook_entries_aircraft_type ON logbook_entries(aircraft_type);
 CREATE INDEX logbook_entries_tow_id ON logbook_entries(tow_id);
+CREATE INDEX logbook_entries_7 ON logbook_entries(address_type, address, takeoff_ts, landing_ts);
+
 --SHOW INDEXES FROM logbook_entries;
 
 -- lookup tow plane for gliders and gliders for tug planes:
@@ -295,6 +297,7 @@ CREATE TABLE encounters (
 );
 
 CREATE INDEX encounters_flight_id ON encounters(flight_id);
+CREATE INDEX encounters_ts_other_flight_id ON encounters(ts, other_flight_id);
 --SHOW INDEXES FROM encounters;
 
 -- This procedure attempts to find flight_id of the encountered airplane
@@ -328,7 +331,7 @@ LEAVE read_loop;
 END IF;
 
 SELECT id INTO _flight_id FROM logbook_entries
-WHERE address_type=_other_addr_type AND takeoff_ts<=_ts AND landing_ts>=_ts LIMIT 1;
+WHERE address_type=_other_addr_type AND address=_other_addr AND takeoff_ts<=_ts AND landing_ts>=_ts LIMIT 1;
 
 IF _flight_id > 0 THEN
 UPDATE encounters SET other_flight_id=_flight_id WHERE id=_encounter_id;
