@@ -10,9 +10,10 @@ Needs to be executed in separate process due to performance reasons.
 """
 
 from math import degrees, radians, floor, ceil, sqrt, pow
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 import sys
 from time import sleep
+from random import randint
 
 from influxdb.resultset import ResultSet
 
@@ -22,7 +23,7 @@ from dao.logbookDao import getFlightIdForDevIdAndTs
 import dataStructures
 from db.InfluxDbThread import InfluxDbThread
 
-from dao.encounters import getEncounterQueueItems, delEncountersQueueItem, Encounter, save
+from dao.encounters import getEncounterQueueItems, delEncountersQueueItem, Encounter, save, callEncountersPostLookup
 from dao.logbookDao import getFlight
 
 from utils import splitAddress
@@ -268,10 +269,10 @@ class EncountersLookup:
 
         return batchCounter + 1
 
-    def doPostLookup(self):
-        # TODO dohledat other_flight_ids tam, kde nejsou
-        # TODO asi dohledavat jen pro posledni 2 dny..
-        pass
+    @staticmethod
+    def doPostLookup():
+        ts = int((datetime.utcnow() - timedelta(hours=6)).timestamp())
+        callEncountersPostLookup(startTs=ts)
 
 
 if __name__ == '__main__':
@@ -281,9 +282,8 @@ if __name__ == '__main__':
         if numProcessed < BATCH_SIZE:
             sleep(10)
 
-        task.doPostLookup()
-
-    # task.doPostLookup()
+        if randint(0, 10) > 8:
+            task.doPostLookup()
 
     print('KOHEU.')
 
