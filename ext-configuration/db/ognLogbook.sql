@@ -262,7 +262,7 @@ DELIMITER //
 CREATE TRIGGER IF NOT EXISTS logbook_entries_after_insert
 AFTER INSERT ON logbook_entries FOR EACH ROW
 BEGIN
-IF (new.flight_time > 600 THEN
+IF new.flight_time > 600 THEN
 INSERT INTO encounters_q (flight_id) VALUES (new.id);
 END IF;
 END;//
@@ -272,7 +272,7 @@ DELIMITER //
 CREATE TRIGGER IF NOT EXISTS logbook_entries_after_insert
 AFTER INSERT ON logbook_entries FOR EACH ROW
 BEGIN
-IF (new.flight_time > 600 AND new.address_type NOT IN ('I', 'S')) THEN
+IF new.flight_time > 600 AND new.address_type NOT IN ('I', 'S') THEN
 INSERT INTO encounters_q (flight_id) VALUES (new.id);
 END IF;
 END;//
