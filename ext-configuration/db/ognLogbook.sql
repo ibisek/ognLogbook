@@ -301,9 +301,9 @@ CREATE INDEX encounters_flight_id ON encounters(flight_id);
 -- after the encounter has been created while the other flight_id was not
 -- known yet (the other airplane was still airborne).
 -- SET @n:=111; CALL encounters_post_lookup(1706020554, @n); SELECT @n;
-DROP PROCEDURE IF EXISTS encounters_post_lookup;
+--DROP PROCEDURE IF EXISTS encounters_post_lookup;
 DELIMITER //
-CREATE PROCEDURE encounters_post_lookup(IN since_ts BIGINT, OUT num_affected INT)
+CREATE PROCEDURE encounters_post_lookup(IN start_ts BIGINT)
 BEGIN
 
 DECLARE _encounter_id BIGINT;
@@ -316,12 +316,9 @@ DECLARE _flight_id BIGINT;
 DECLARE cur CURSOR FOR
 	SELECT id, ts, SUBSTR(other_addr, 1, 1), SUBSTR(other_addr, 2)
 	FROM encounters
-	WHERE other_flight_id IS null AND ts >= since_ts
-	LIMIT 10;
+	WHERE other_flight_id IS null AND ts >= start_ts;
 
 DECLARE CONTINUE HANDLER FOR NOT FOUND SET _done = TRUE;
-
-SET num_affected = 0;
 
 OPEN cur;
 read_loop: LOOP
@@ -335,7 +332,6 @@ WHERE address_type=_other_addr_type AND takeoff_ts<=_ts AND landing_ts>=_ts LIMI
 
 IF _flight_id > 0 THEN
 UPDATE encounters SET other_flight_id=_flight_id WHERE id=_encounter_id;
-SET num_affected = num_affected + 1;
 END IF;
 
 END LOOP;
