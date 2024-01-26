@@ -133,8 +133,6 @@ def listEncountersWithRegistration(flightId: int) -> []:
     return encounters
 
 
-
-
 # def findEncounter(ts: int, addr1: str, addr2: str):
 #     addrs = sorted([addr for addr in [addr1, addr2]])
 #
@@ -178,9 +176,14 @@ def save(enc: Encounter):
     enc.dirty = False
 
 
-def listEncountersWithoutOtherFlightId(startTs: int = 0):
-    strSQL = f"SELECT id,  ts, other_addr FROM encounters WHERE other_flight_id IS null AND ts > {startTs};"
-    # TODO mozna by slo udelat jen updatem v DB?
+def callEncountersPostLookup(startTs: int):
+    """
+    The stored procedure attempts to find flight_id of the encountered airplane after the encounter has been created
+    while the other flight_id was not known yet (the other airplane was still airborne).
+    """
+    strSql = f"CALL encounters_post_lookup({startTs});"
+    with DbSource(dbConnectionInfo).getConnection().cursor() as cur:
+        cur.execute(strSql)
 
 
 if __name__ == '__main__':
