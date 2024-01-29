@@ -255,7 +255,9 @@ CREATE TABLE log_igc_download (
 --DROP TABLE IF EXISTS encounters_q;
 CREATE TABLE encounters_q (
 	id BIGINT PRIMARY KEY auto_increment,
-	flight_id BIGINT NOT NULL	-- REFEFENCES logbook_entries.id,
+	ts BIGINT NOT NULL,         -- landing_ts
+	flight_id BIGINT NOT NULL,	-- REFEFENCES logbook_entries.id,
+	lck BIGINT DEFAULT NULL    -- lock for multiple-workers' job pickup
 );
 
 --DROP TRIGGER IF EXISTS logbook_entries_after_insert;
@@ -265,7 +267,7 @@ CREATE TRIGGER IF NOT EXISTS logbook_entries_after_insert
 AFTER INSERT ON logbook_entries FOR EACH ROW
 BEGIN
 IF new.flight_time > 600 THEN
-INSERT INTO encounters_q (flight_id) VALUES (new.id);
+INSERT INTO encounters_q (ts, flight_id) VALUES (new.landing_ts, new.id);
 END IF;
 END;//
 DELIMITER ;
@@ -275,7 +277,7 @@ CREATE TRIGGER IF NOT EXISTS logbook_entries_after_insert
 AFTER INSERT ON logbook_entries FOR EACH ROW
 BEGIN
 IF new.flight_time > 600 AND new.address_type NOT IN ('I', 'S') THEN
-INSERT INTO encounters_q (flight_id) VALUES (new.id);
+INSERT INTO encounters_q (ts, flight_id) VALUES (new.landing_ts, new.id);
 END IF;
 END;//
 DELIMITER ;
