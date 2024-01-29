@@ -7,6 +7,8 @@ from collections import namedtuple
 
 EncounterQueueItem = namedtuple('EncounterQueueItem', ['id', 'flightId'])
 
+LANDING_GRACE_TIME = 600    # [s] process encounters X minutes after landing (give influx some time to flush flight data)
+
 
 class Encounter:
     def __init__(self, ts: int, addr: str, alt: int, flight_id: int,
@@ -42,8 +44,8 @@ class Encounter:
         return d
 
 
-def getEncounterQueueItems(limit: int = 1) -> []:
-    strSql = f"SELECT * FROM encounters_q ORDER BY id LIMIT {limit};"
+def getEncounterQueueItems(limit: int = 10) -> []:
+    strSql = f"SELECT * FROM encounters_q WHERE ts < UNIX_TIMESTAMP() - {LANDING_GRACE_TIME} ORDER BY id LIMIT {limit};"
 
     qItems = []
     with DbSource(dbConnectionInfo).getConnection().cursor() as cur:
