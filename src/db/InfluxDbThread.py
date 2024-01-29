@@ -61,7 +61,7 @@ class InfluxDbThread(threading.Thread):
                     # print(f"[INFO] influxDbThread sql: {query}")
                     queries.append(query)
 
-                if len(queries) >= 5000:
+                if len(queries) >= 1000:
                     break   # influx writes are optimised to 5000 queries/batch
 
             if len(queries) > 0:
