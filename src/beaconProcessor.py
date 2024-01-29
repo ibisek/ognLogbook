@@ -68,8 +68,8 @@ class RawWorker(Thread):
             self.influxDb.start()
             self.ownInfluxDb = True
 
-        self.influxDb_ps = InfluxDbThread(dbName=INFLUX_DB_NAME_PERMANENT_STORAGE, host=INFLUX_DB_HOST)
-        self.influxDb_ps.start()
+        # self.influxDb_ps = InfluxDbThread(dbName=INFLUX_DB_NAME_PERMANENT_STORAGE, host=INFLUX_DB_HOST)
+        # self.influxDb_ps.start()
 
         self.numProcessed = mp.Value('i', 0) if USE_MULTIPROCESSING_INSTEAD_OF_THREADS else 0
         self.airfieldManager = AirfieldManager()
@@ -95,11 +95,11 @@ class RawWorker(Thread):
         except AttributeError:
             pass
 
-        try:
-            if self.influxDb_ps:
-                self.influxDb_ps.stop()
-        except AttributeError:
-            pass
+        # try:
+        #     if self.influxDb_ps:
+        #         self.influxDb_ps.stop()
+        # except AttributeError:
+        #     pass
 
     def stop(self):
         self.doRun = False
@@ -286,10 +286,11 @@ class RawWorker(Thread):
             aglStr = 0 if agl is None else f"{agl:.0f}"
             q = f"pos,addr={ADDRESS_TYPE_PREFIX[addressType]}{address} lat={lat:.6f},lon={lon:.6f},alt={altitude:.0f},gs={groundSpeed:.2f},vs={verticalSpeed:.2f},tr={turnRate:.2f},agl={aglStr},ss={signalStrength} {ts}000000000"
 
-            if self.permanentStorage.eligible4ps(address):  # shall be saved into permanent storage?
-                self.influxDb_ps.addStatement(q)
-            else:
-                self.influxDb.addStatement(q)
+            self.influxDb.addStatement(q)
+            # if self.permanentStorage.eligible4ps(address):  # shall be saved into permanent storage?
+            #     self.influxDb_ps.addStatement(q)
+            # else:
+            #     self.influxDb.addStatement(q)
 
         if beaconBehindTimeHorizon:
             return  # do not further consider out-of-order beacons
