@@ -45,7 +45,7 @@ class Encounter:
 
 
 def getEncounterQueueItems(limit: int = 10) -> []:
-    strSql = f"SELECT * FROM encounters_q WHERE ts < UNIX_TIMESTAMP() - {LANDING_GRACE_TIME} ORDER BY id LIMIT {limit};"
+    strSql = f"SELECT id, flight_id FROM encounters_q WHERE ts < UNIX_TIMESTAMP() - {LANDING_GRACE_TIME} ORDER BY id LIMIT {limit};"
 
     qItems = []
     with DbSource(dbConnectionInfo).getConnection().cursor() as cur:
