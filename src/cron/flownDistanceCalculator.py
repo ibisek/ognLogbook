@@ -36,9 +36,9 @@ class FlownDistanceCalculator:
         maxAlt = 0
 
         influxInstance = self.influxDb
-        permanentStorage = self.permanentStorages.setdefault(addressType, PermanentStorageFactory.storageFor(addressType))
-        if permanentStorage.eligible4ps(address):
-            influxInstance = self.influxDbPs
+        # permanentStorage = self.permanentStorages.setdefault(addressType, PermanentStorageFactory.storageFor(addressType))
+        # if permanentStorage.eligible4ps(address):
+        #     influxInstance = self.influxDbPs
 
         addrWithPrefix = f"{addressPrefixes[addressType]}{address}"
 
