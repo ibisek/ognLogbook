@@ -171,8 +171,8 @@ class EncountersLookup:
 
     @staticmethod
     def _findNearest(myPositions: list, otherPositions: list) -> int:  # list[Position]
-        LIMIT_DIST = 800    # [m]
-        LIMIT_TIME = 10     # [s]
+        LIMIT_DIST = 500    # [m]
+        LIMIT_TIME = 40     # [s]
         """
         Nearest fix in distance and time.
         :param myPositions: 
