@@ -300,9 +300,9 @@ def _getFlightData(flight: LogbookItem):
         return flask.render_template('error40x.html', code=410, message="The requested data is no longer available."), 410  # 410 = Gone ;)
 
     influxDbName = INFLUX_DB_NAME
-    permanentStorage = PermanentStorageFactory.storageFor(flight.address_type)
-    if permanentStorage.eligible4ps(flight.address):
-        influxDbName = INFLUX_DB_NAME_PERMANENT_STORAGE
+    # permanentStorage = PermanentStorageFactory.storageFor(flight.address_type)
+    # if permanentStorage.eligible4ps(flight.address):
+    #     influxDbName = INFLUX_DB_NAME_PERMANENT_STORAGE
 
     influxDb = InfluxDbThread(dbName=influxDbName, host=INFLUX_DB_HOST, startThread=False)
     flightRecord = []
