@@ -43,7 +43,7 @@ def formatMailNotification(event, watcher):
 
         if event.flightTime > 0:
             body += f"\n{flightTimeStr}: {formatDuration(event.flightTime)}\n"
-            print(f"[TEMP] XXX ft: {event.flightTime}; formatted: {formatDuration(event.flightTime)}")
+            # print(f"[TEMP] XXX ft: {event.flightTime}; formatted: {formatDuration(event.flightTime)}")
 
         if event.icaoLocation:
             body += f"\n{flightRecordStr} https://logbook.ibisek.com/loc/{event.icaoLocation}/{dStr}\n"
