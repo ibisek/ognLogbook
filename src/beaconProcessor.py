@@ -161,39 +161,34 @@ class RawWorker(Thread):
 
         return None
 
-    def _retainAircraftRegistration(self, raw_message, address):
+    def _retainAircraftRegistration(self, address, registration, aircraft_type=None):
         """
-        OGNEMO beacons contain aircraft registration which may not be in the DDB. For that matter
-        this is to extract the registration
-        :param raw_message:
+        OGADSB & OGNEMO beacons contain aircraft registration which may not be in the DDB.
+        For that matter this is to persist/update the registration.
         :param address:
+        :param registration
+        :param aircraft_type
         :return:
         """
-
         ddb = DDB.getInstance()
         ddbRec = ddb.get('I', address)
         if ddbRec:
             if not ddbRec.aircraft_registration:
-                registration = raw_message[:raw_message.index('>')]     # duplicate code #1
-                if not registration:
-                    return
-
                 ddbRec.aircraft_registration = registration
+                if not ddbRec.aircraft_type and aircraft_type:
+                    ddbRec.aircraft_type = aircraft_type
                 ddbRec.dirty = True
         else:
-            registration = raw_message[:raw_message.index('>')]     # duplicate code #2 to avoid parsing the string for performance reasons
-            if not registration:
-                return
-
             ddbRec = DDBRecord()
             ddbRec.device_type = 'I'
             ddbRec.device_id = address
             ddbRec.aircraft_registration = registration
+            ddbRec.aircraft_type = aircraft_type
             ddb.insert(ddbRec)
 
         if ddbRec.dirty:
             # Workaround: in multiprocessing environment the DDB instance is unique per process and thus cannot be synced from cronJobs!
-            # Furthermore, new on-the-fly DDB records are based on the OGNEMO beacons and inserted only in the ICAO process.
+            # Furthermore, new on-the-fly DDB records are based on the OGNEMO/OGADSB beacons and inserted only in the ICAO process.
             ddb.cron()
 
     def _processMessage(self, raw_message: str):
@@ -372,8 +367,35 @@ class RawWorker(Thread):
                                      ts=ts, event=event, address=address, addressType=addressType,
                                      lat=lat, lon=lon, icaoLocation=icaoLocation, flightTime=flightTime)
 
-            if self.beaconType == 'I' and "OGNEMO" in raw_message[:16]:     # ICAO worker processes OGNEMO beacons that carry registration
-                self._retainAircraftRegistration(address=address, raw_message=raw_message)
+            if self.beaconType == 'I':  # ICAO worker processes OGNEMO & OGADSB beacons that carry registration
+                if "OGNEMO" in raw_message[:16]:
+                    registration = raw_message[:raw_message.index('>')]
+                    self._retainAircraftRegistration(address=address, registration=registration)
+
+                elif 'OGADSB' in raw_message[:16]:
+                    registration = None
+                    aircraftModel = None
+                    if 'A1:' in raw_message:
+                        try:
+                            registration = raw_message[raw_message.index('A1:'):].split(' ')[0][3:]
+                        except ValueError:
+                            pass
+                    else:
+                        if ' reg' in raw_message:
+                            try:
+                                registration = raw_message[raw_message.index(' reg')+1:].split(' ')[0][3:]
+                            except ValueError:
+                                pass
+                        if ' model' in raw_message:
+                            try:
+                                aircraftModel = raw_message[raw_message.index(' model')+1:].split(' ')[0][5:]
+                                if aircraftModel == 'UNKW':
+                                    aircraftModel = None
+                            except ValueError:
+                                pass
+
+                    if registration:
+                        self._retainAircraftRegistration(address=address, registration=registration, aircraft_type=aircraftModel)
 
             self.timeHorizonCache.tick()  # cleanup the cache (cannot be called from PeriodicTimer due to subprocess/threading troubles :|)
             # ^^ this is here as THC cleanup is not necessarily that frequent
