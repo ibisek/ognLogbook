@@ -51,9 +51,15 @@ limiter = Limiter(app=app, key_func=getRemoteAddr)
 @app.route('/set_timezone', methods=['POST'])
 def set_timezone():
     """Receive timezone from the browser and store it in the session object."""
-    timezone = request.data.decode('utf-8')
-    session['browser_timezone'] = timezone
-    session.modified = True
+    timezone = saninitise(request.data.decode('utf-8'))
+
+    try:   # handle with care: test if this is a valid timezone
+        _ = pytz.timezone(timezone)
+        session['browser_timezone'] = timezone
+        session.modified = True
+    except pytz.exceptions.UnknownTimeZoneError:
+        pass
+
     return ''
 
 
@@ -107,7 +113,7 @@ def index():
     highestTrafficLocation, highestTrafficCount = getHighestTrafficToday()
 
     return flask.render_template('index.html', debugMode=DEBUG, date=datetime.now(),
-                                 dayRecords=[dayRecord],
+                                 display_tz=display_tz, dayRecords=[dayRecord],
                                  numFlightsToday=numFlightsToday, totNumFlights=totNumFlights,
                                  longestFlightTime=longestFlightTime, longestFlightId=longestFlightId,
                                  highestTrafficLocation=highestTrafficLocation,

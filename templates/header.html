@@ -96,7 +96,7 @@
                     <span class="tooltiptext">{{ gettext('stat.line4.hint') }}</span>
                 </div>
                 <div class="tooltip">
-                    [ <a href="/login">{{ gettext('login') }}</a> ]
+                    [ <a onclick="switchTimezone(); return false;"><span id='timezone'>{{display_tz}}</span></a> ] [ <a href="/login">{{ gettext('login') }}</a> ]
                 </div>
             </div>
             {% endif %}

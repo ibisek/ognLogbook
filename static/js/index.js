@@ -45,3 +45,21 @@ function onSearchBtnClick() {
 
     parent.location='/search/' + text;
 }
+
+function getCookie(name) {
+  const value = `; ${document.cookie}`;
+  const parts = value.split(`; ${name}=`);
+  if (parts.length === 2) return parts.pop().split(';').shift();
+}
+
+function switchTimezone() {
+    const browserTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    const cookieTimezone = getCookie('browser_timezone');
+
+    var newTimezone = browserTimezone;
+    if (browserTimezone == cookieTimezone) newTimezone = 'UTC';
+
+    document.cookie = `browser_timezone=${newTimezone};path=/`;
+    fetch("/set_timezone", {method: 'POST', body: newTimezone})
+        .then(function() { location.reload(); });
+}
