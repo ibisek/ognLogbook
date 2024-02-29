@@ -11,23 +11,30 @@ function onLoad() {
     });
 
     var dateInView = getDateInView();
-    const myDatePicker = MCDatepicker.create({
-        el: '#datepicker',
-        dateFormat: 'DD.MM.YYYY',
-        bodyType: 'modal',
-        showCalendarDisplay: true,
-        firstWeekday: 1,
-        selectedDate: dateInView,
-        maxDate: new Date(),
-    });
-    myDatePicker.onSelect((date, formatedDate) => changeDate(date));
+    if (dateInView != null) {
+        const myDatePicker = MCDatepicker.create({
+            el: '#datepicker',
+            dateFormat: 'DD.MM.YYYY',
+            bodyType: 'modal',
+            showCalendarDisplay: true,
+            firstWeekday: 1,
+            selectedDate: dateInView,
+            maxDate: new Date(),
+        });
+        myDatePicker.onSelect((date, formatedDate) => changeDate(date));
+    }
 }
 
 function getDateInView() {
-    var dateStr = document.getElementById('datepicker').value;
-    var items = dateStr.split('.');
-    console.log(items);
-    return new Date(items[2], items[1], items[0]);
+    const datePicker = document.getElementById('datepicker');
+    if (datePicker != null) {
+        var dateStr = datePicker.value;
+        var items = dateStr.split('.');
+        console.log(items);
+        return new Date(items[2], items[1], items[0]);
+    }
+
+    return null;
 }
 
 function changeDate(date) {
