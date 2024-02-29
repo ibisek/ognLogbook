@@ -161,7 +161,7 @@ class RawWorker(Thread):
 
         return None
 
-    def _retainAircraftRegistration(self, address, registration, aircraft_type=None):
+    def _storeAircraftRegistration(self, address, registration, aircraft_type=None):
         """
         OGADSB & OGNEMO beacons contain aircraft registration which may not be in the DDB.
         For that matter this is to persist/update the registration.
@@ -190,6 +190,43 @@ class RawWorker(Thread):
             # Workaround: in multiprocessing environment the DDB instance is unique per process and thus cannot be synced from cronJobs!
             # Furthermore, new on-the-fly DDB records are based on the OGNEMO/OGADSB beacons and inserted only in the ICAO process.
             ddb.cron()
+
+    def _retainAircraftRegistration(self, address, raw_message):
+        """
+        For ICAO beacons only.
+        The OGNEMO & OGADSB beacons carry registration that can be stored/updated in DDB.
+        :param address: an ICAO (I) address
+        :param raw_message:
+        :return:
+        """
+        if "OGNEMO" in raw_message[:16]:
+            registration = raw_message[:raw_message.index('>')]
+            self._storeAircraftRegistration(address=address, registration=registration)
+
+        elif 'OGADSB' in raw_message[:16]:
+            registration = None
+            aircraftModel = None
+            if 'A1:' in raw_message:
+                try:
+                    registration = raw_message[raw_message.index('A1:'):].split(' ')[0][3:]
+                except ValueError:
+                    pass
+            else:
+                if ' reg' in raw_message:
+                    try:
+                        registration = raw_message[raw_message.index(' reg') + 1:].split(' ')[0][3:]
+                    except ValueError:
+                        pass
+                if ' model' in raw_message:
+                    try:
+                        aircraftModel = raw_message[raw_message.index(' model') + 1:].split(' ')[0][5:]
+                        if aircraftModel == 'UNKW':
+                            aircraftModel = None
+                    except ValueError:
+                        pass
+
+            if registration:
+                self._storeAircraftRegistration(address=address, registration=registration, aircraft_type=aircraftModel)
 
     def _processMessage(self, raw_message: str):
         beacon = None
@@ -368,34 +405,7 @@ class RawWorker(Thread):
                                      lat=lat, lon=lon, icaoLocation=icaoLocation, flightTime=flightTime)
 
             if self.beaconType == 'I':  # ICAO worker processes OGNEMO & OGADSB beacons that carry registration
-                if "OGNEMO" in raw_message[:16]:
-                    registration = raw_message[:raw_message.index('>')]
-                    self._retainAircraftRegistration(address=address, registration=registration)
-
-                elif 'OGADSB' in raw_message[:16]:
-                    registration = None
-                    aircraftModel = None
-                    if 'A1:' in raw_message:
-                        try:
-                            registration = raw_message[raw_message.index('A1:'):].split(' ')[0][3:]
-                        except ValueError:
-                            pass
-                    else:
-                        if ' reg' in raw_message:
-                            try:
-                                registration = raw_message[raw_message.index(' reg')+1:].split(' ')[0][3:]
-                            except ValueError:
-                                pass
-                        if ' model' in raw_message:
-                            try:
-                                aircraftModel = raw_message[raw_message.index(' model')+1:].split(' ')[0][5:]
-                                if aircraftModel == 'UNKW':
-                                    aircraftModel = None
-                            except ValueError:
-                                pass
-
-                    if registration:
-                        self._retainAircraftRegistration(address=address, registration=registration, aircraft_type=aircraftModel)
+                self._retainAircraftRegistration(address=address, raw_message=raw_message)
 
             self.timeHorizonCache.tick()  # cleanup the cache (cannot be called from PeriodicTimer due to subprocess/threading troubles :|)
             # ^^ this is here as THC cleanup is not necessarily that frequent
