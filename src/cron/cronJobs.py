@@ -57,7 +57,7 @@ class CronJobs(object):
 
         self.eventWatcherTimer.stop()
 
-        self.permanentStorageTimer()
+        self.permanentStorageTimer.stop()
 
         # self.ddbTimer.stop()
 
