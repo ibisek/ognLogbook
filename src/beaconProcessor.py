@@ -211,19 +211,32 @@ class RawWorker(Thread):
                     registration = raw_message[raw_message.index('A1:'):].split(' ')[0][3:]
                 except ValueError:
                     pass
-            else:
-                if ' reg' in raw_message:
-                    try:
-                        registration = raw_message[raw_message.index(' reg') + 1:].split(' ')[0][3:]
-                    except ValueError:
-                        pass
-                if ' model' in raw_message:
-                    try:
-                        aircraftModel = raw_message[raw_message.index(' model') + 1:].split(' ')[0][5:]
-                        if aircraftModel == 'UNKW':
-                            aircraftModel = None
-                    except ValueError:
-                        pass
+
+            elif 'A3:' in raw_message:
+                try:
+                    registration = raw_message[raw_message.index('A3:'):].split(' ')[0][3:]
+                except ValueError:
+                    pass
+
+            elif 'A7:' in raw_message:
+                try:
+                    registration = raw_message[raw_message.index('A7:'):].split(' ')[0][3:]
+                except ValueError:
+                    pass
+
+            elif ' reg' in raw_message:
+                try:
+                    registration = raw_message[raw_message.index(' reg') + 1:].split(' ')[0][3:]
+                except ValueError:
+                    pass
+
+            if ' model' in raw_message:
+                try:
+                    aircraftModel = raw_message[raw_message.index(' model') + 1:].split(' ')[0][5:]
+                    if aircraftModel == 'UNKW':
+                        aircraftModel = None
+                except ValueError:
+                    pass
 
             if registration:
                 self._storeAircraftRegistration(address=address, registration=registration, aircraft_type=aircraftModel)
