@@ -6,9 +6,9 @@
 from flask import request
 
 i10n = dict()
-i10n['main.departures'] = ['Departures', 'Odlety', 'Abflüge']
-i10n['main.arrivals'] = ['Arrivals', 'Přílety', 'Ankünfte']
-i10n['main.flights'] = ['Flights', 'Lety', 'Überflüge']
+i10n['main.departures'] = ['Departures', 'Odlety', 'Starts']
+i10n['main.arrivals'] = ['Arrivals', 'Přílety', 'Landungen']
+i10n['main.flights'] = ['Flights', 'Lety', 'Flüge']
 i10n['main.map'] = ['(map)', '(mapa)', '(Karte)']
 i10n['tab.date'] = ['Date', 'Datum', 'Datum']
 i10n['tab.time'] = ['Time', 'Čas', 'Zeit']
@@ -16,7 +16,7 @@ i10n['tab.loc'] = ['Loc', 'Místo', 'Ort']
 i10n['tab.reg'] = ['Reg', 'Registrace', 'Kennz.']
 i10n['tab.cn'] = ['CN', 'SZ', 'WK']
 i10n['tab.acftType'] = ['Type', 'Typ', 'Flugzeugtyp']
-i10n['tab.to'] = ['Take-off', 'Odlet', 'Abflug']
+i10n['tab.to'] = ['Take-off', 'Odlet', 'Start']
 i10n['tab.land'] = ['Landing', 'Přílet', 'Landung']
 i10n['tab.ft'] = ['Flight time', 'Doba letu', 'Flugzeit']
 i10n['tab.hidden'] = ['(hidden)', '(skrytá)', '(versteckt)']
