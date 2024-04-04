@@ -152,6 +152,8 @@ Let s nufikem dynamikem:
     end_ts
     active true/false   <- set by cron once an hour?
 
+-- airplane categories (used in _retainAircraftRegistration()) --
+https://www.adsbexchange.com/emitter-category-ads-b-do-260b-2-2-3-2-5-2/
 
 -- TODO --
 
@@ -171,3 +173,12 @@ Done:
 * all time info to local TZ (using https://github.com/evansiroky/timezone-boundary-builder)
 * add MAX_ALT to .csv file (during flight distance calculation)
 * flight track map inversion (fetch data via api)
+
+-- 3rd PARTY AUTHENTICATION:
+    https://realpython.com/flask-google-login/
+
+    https://dev.to/simplelogin/create-a-flask-application-with-sso-login-f9m
+    https://www.digitalocean.com/community/tutorials/how-to-add-authentication-to-your-app-with-flask-login
+    https://www.toptal.com/flask/flask-login-tutorial-sso
+
+
