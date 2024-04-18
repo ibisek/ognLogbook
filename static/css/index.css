@@ -181,10 +181,9 @@ a:hover {
     color: #999;
 }
 
-.banner {
-    margin-left: 2em;
-    position: absolute;
-    top: 26px;
+.banner img {
+    position: relative;
+    top: -5px;
 }
 
 .stats {
