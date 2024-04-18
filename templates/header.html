@@ -69,12 +69,14 @@
                     </div>
                 </span>
 
-                {#
+                {% set rnd = range(0, 2) | random %}
+                {% if rnd == 0 %}
                 <span class="menuitem"><a href="{{ gettext('werbung.krt2bt.link') }}" target="_blank">KRT2 Bluetooth</a></span>
                 <span class="menuitem"><a href="https://ogn.ibisek.com/index.php/en/ogn-cube-three-2/" target="_blank">OGN Cube</a></span>
                 <span class="menuitem"><a href="https://play.google.com/store/apps/details?id=com.lomolo.vfr_manual" target="_blank">{{ gettext('werbung.vfrmanual') }}</a></span>
-                #}
+                {% else %}
                 <span class="banner"><a href="{{ gettext('werbung.krt2bt.link') }}" target="_blank"><img src="/static/img/banner-krt2bt.png"></a></span>
+                {% endif %}
 
             </div>  {# menu #}
 
