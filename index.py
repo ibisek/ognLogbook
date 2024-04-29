@@ -22,7 +22,7 @@ from utils import getRemoteAddr
 from configuration import DEBUG, DATA_AVAILABILITY_DAYS, MAX_DAYS_IN_RANGE, INFLUX_DB_HOST, INFLUX_DB_NAME, INFLUX_DB_NAME_PERMANENT_STORAGE
 from airfieldManager import AirfieldManager, AirfieldRecord
 from dataStructures import LogbookItem, addressPrefixes
-from dao.encounters import Encounter, listEncountersWithRegistration
+from dao.encountersDao import Encounter, listEncountersWithRegistration
 from dao.logbookDao import listDepartures, listArrivals, listFlights, getSums, getFlight, getFlightIdForTakeoffId, getFlightInfoForTakeoff
 from dao.logs import logIgcDownload
 from dao.permanentStorage import PermanentStorageFactory
