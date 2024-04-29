@@ -23,7 +23,7 @@ from dao.logbookDao import getFlightIdForDevIdAndTs
 import dataStructures
 from db.InfluxDbThread import InfluxDbThread
 
-from dao.encounters import getEncounterQueueItems, delEncountersQueueItem, Encounter, save, callEncountersPostLookup
+from dao.encountersDao import getEncounterQueueItems, delEncountersQueueItem, Encounter, save, callEncountersPostLookup
 from dao.logbookDao import getFlight
 
 from utils import splitAddress
@@ -60,10 +60,11 @@ class Position:
 
 class Sector:
     def __init__(self, lat: int, lon: int):
-        self.lat_min = floor(lat * 10 * NUM_DECIMALS) / 10 * NUM_DECIMALS
-        self.lat_max = ceil(lat * 10 * NUM_DECIMALS) / 10 * NUM_DECIMALS
-        self.lon_min = floor(lon * 10 * NUM_DECIMALS) / 10 * NUM_DECIMALS
-        self.lon_max = ceil(lon * 10 * NUM_DECIMALS) / 10 * NUM_DECIMALS
+        mult = pow(10, NUM_DECIMALS)
+        self.lat_min = floor(lat * mult) / mult
+        self.lon_min = floor(lon * mult) / mult
+        self.lat_max = ceil(lat * mult) / mult
+        self.lon_max = ceil(lon * mult) / mult
         # self.lat_min = EncountersLookup.roundNearestDown(lat, 0.05)
         # self.lat_max = self.lat_min + 0.05
         # self.lon_min = EncountersLookup.roundNearestDown(lon, 0.05)
