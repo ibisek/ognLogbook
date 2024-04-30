@@ -1,3 +1,6 @@
+from datetime import datetime
+from math import floor
+
 from influxdb.resultset import ResultSet
 
 from configuration import INFLUX_DB_HOST, INFLUX_DB_NAME
@@ -15,6 +18,8 @@ class Cache:
         self.tsEnd = None
 
         self.influxDb = InfluxDbThread(dbName=INFLUX_DB_NAME, host=INFLUX_DB_HOST)
+
+        self.lastCacheCleanupTs = 0
 
     def __del__(self):
         self.influxDb.client.close()
@@ -59,7 +64,16 @@ class Cache:
 
                 self.tsEnd = toTs
 
-        # TODO jednou za cas odmazat data starsi nez X hodin
+        # drop all positions older than 24h:
+        nowUtcTs = floor(datetime.utcnow().timestamp())
+        if (nowUtcTs - self.lastCacheCleanupTs) > 3600:
+            self.lastCacheCleanupTs = nowUtcTs
+            thrTs = nowUtcTs - 24 * 60 * 60
+            for ts in self.data.keys():
+                if ts < thrTs:
+                    self.data.pop(ts, None)
+                else:
+                    break
 
     def list(self, ts: int, sectorAddr: str, omitDeviceAddr: str) -> [Position]:
         positions = self.data.get(ts, {}).get(sectorAddr, [])
