@@ -2,16 +2,11 @@
 A cron service to lookup encounters for each finished flight.
 2nd version not using influxdb extensively by caching data in memory.
 
-LAT+LON:
-    2 decimals -> square 0.7 x 0.7 km
-    1 decimal -> square 11 x 11 km
-    (at latitude ~ N49)
-
 Needs to be executed in separate process due to performance reasons.
 """
 
-from math import degrees, radians, floor, ceil, sqrt, pow
-from datetime import datetime, timezone, timedelta
+from math import sqrt, pow
+from datetime import datetime, timedelta
 import sys
 from time import sleep
 from random import randint
