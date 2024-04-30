@@ -4,7 +4,11 @@ from math import floor, ceil
 
 from position import Position
 
-NUM_DECIMALS = 2
+# LAT+LON:
+#     2 decimals -> square 0.7 x 0.7 km
+#     1 decimal -> square 11 x 11 km
+#     (at latitude ~ N49)
+NUM_DECIMALS = 1
 mult = pow(10, NUM_DECIMALS)
 
 
