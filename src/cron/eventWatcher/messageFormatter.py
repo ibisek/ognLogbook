@@ -16,7 +16,8 @@ def formatMailNotification(event, watcher):
     mapStr = gettext('notif.mail.map', lang)
     footerStr = gettext('notif.mail.footer', lang)
 
-    mapUrlTemplate = "https://en.mapy.cz/zakladni?x={lon:.5f}&y={lat:.5f}&z=16&base=ophoto&source=coor&id={lon:.5f}%2C{lat:.5f}"
+    # mapUrlTemplate = "https://en.mapy.cz/zakladni?x={lon:.5f}&y={lat:.5f}&z=16&base=ophoto&source=coor&id={lon:.5f}%2C{lat:.5f}"
+    mapUrlTemplate = "https://www.google.com/maps/@?api=1&map_action=map&basemap=satellite&&zoom=16&center={lon:.5f},{lat:.5f}"
 
     location = event.icaoLocation
     if not event.icaoLocation or event.icaoLocation == 'null':
