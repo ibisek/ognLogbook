@@ -68,7 +68,7 @@ class Cache:
         nowUtcTs = floor(datetime.utcnow().timestamp())
         if (nowUtcTs - self.lastCacheCleanupTs) > 3600:
             self.lastCacheCleanupTs = nowUtcTs
-            thrTs = nowUtcTs - 24 * 60 * 60
+            thrTs = nowUtcTs - 16 * 60 * 60
             keys = [k for k in self.data.keys()]    # to avoid concurrent data access in the dict
             for ts in keys:
                 if ts < thrTs:
