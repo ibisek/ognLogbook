@@ -5,7 +5,7 @@ from influxdb.resultset import ResultSet
 
 from math import ceil, floor
 from position import Position
-from sector import Sector
+from sector import Sector, NUM_DECIMALS
 
 
 def roundNearest(value, multiple):
@@ -28,18 +28,23 @@ def rowIntoPosition(row: dict) -> Position:
 
 
 def splitIntoSectors(rs: ResultSet) -> []:
-    sectors = []  # list of sectors/tiles containing current flight positions
+    sectors = {}    # 'latlon' -> sector/tile containing current flight positions
 
     currentSector = None
     for row in rs.get_points():
         pos = rowIntoPosition(row)
-        # roundedLat = round(pos.lat, NUM_DECIMALS)
-        # roundedLon = round(pos.lon, NUM_DECIMALS)
-
         if not currentSector or not currentSector.fits(pos.lat, pos.lon):
-            currentSector = Sector(lat=pos.lat, lon=pos.lon)
-            sectors.append(currentSector)
+            roundedLat = round(pos.lat, NUM_DECIMALS)
+            roundedLon = round(pos.lon, NUM_DECIMALS)
+
+            # find a sector if already created/existing..
+            key = f'{roundedLat}{roundedLon}'
+            currentSector = sectors.get(key, None)
+
+            if not currentSector:   # ..or create a new one
+                currentSector = Sector(lat=pos.lat, lon=pos.lon)
+                sectors[key] = currentSector
 
         currentSector.append(pos)
 
-    return sectors
+    return list(sectors.values())
