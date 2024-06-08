@@ -111,7 +111,7 @@ def eligibleForMapView(ts):
         return ts >= (datetime.utcnow().timestamp() - DATA_AVAILABILITY_DAYS * 24*60*60)
 
 
-def saninitise(s):
+def sanitise(s):
     if s:
         return s.replace('\\', '').replace(';', '').replace('\'', '').replace('--', '').replace('"', '').strip()
 
@@ -127,7 +127,7 @@ def parseDate(date: str, default=None, endOfTheDay: bool = False):
     :return: parsed date or current date in case of wrong format or default
     """
     if date:
-        date = saninitise(date)
+        date = sanitise(date)
         try:
             date = datetime.strptime(date, '%Y-%m-%d')
         except ValueError:

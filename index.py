@@ -30,7 +30,7 @@ from dao.stats import getNumFlightsToday, getTotNumFlights, getLongestFlightToda
 from db.InfluxDbThread import InfluxDbThread
 from igc import flightToIGC
 
-from utils import getDaysLinks, formatTsToHHMM, eligibleForMapView, saninitise, parseDate, limitDateRange
+from utils import getDaysLinks, formatTsToHHMM, eligibleForMapView, sanitise, parseDate, limitDateRange
 from utilsTime import formatDuration
 from translations import gettext
 
@@ -51,7 +51,7 @@ limiter = Limiter(app=app, key_func=getRemoteAddr)
 @app.route('/set_timezone', methods=['POST'])
 def set_timezone():
     """Receive timezone from the browser and store it in the session object."""
-    timezone = saninitise(request.data.decode('utf-8'))
+    timezone = sanitise(request.data.decode('utf-8'))
 
     try:   # handle with care: test if this is a valid timezone
         _ = pytz.timezone(timezone)
@@ -125,7 +125,7 @@ def index():
 @app.route('/loc/<icaoCode>/<date>', methods=['GET'])
 @app.route('/loc/<icaoCode>/<date>/<dateTo>', methods=['GET'])
 def filterByIcaoCode(icaoCode, date=None, dateTo=None):
-    icaoCode = saninitise(icaoCode)
+    icaoCode = sanitise(icaoCode)
     if not icaoCode:
         return flask.redirect('/')
 
@@ -178,7 +178,7 @@ def filterByIcaoCode(icaoCode, date=None, dateTo=None):
 @app.route('/reg/<registration>/<date>', methods=['GET'])
 @app.route('/reg/<registration>/<date>/<dateTo>', methods=['GET'])
 def filterByRegistration(registration, date=None, dateTo=None):
-    registration = saninitise(registration)
+    registration = sanitise(registration)
 
     if not registration:
         return flask.redirect('/')
@@ -225,10 +225,10 @@ def filterByRegistration(registration, date=None, dateTo=None):
 def _prepareData(icaoCode=None, registration=None, forDay=None, limit=None, icaoFilter=[], sortTsDesc=False, orderByCol='takeoff_ts', display_tz=pytz.utc):
 
     if icaoCode:
-        icaoCode = saninitise(icaoCode)
+        icaoCode = sanitise(icaoCode)
 
     if registration:
-        registration = saninitise(registration)
+        registration = sanitise(registration)
 
     departures = listDepartures(icaoCode=icaoCode, registration=registration, forDay=forDay, limit=limit, icaoFilter=icaoFilter, sortTsDesc=sortTsDesc, display_tz=display_tz)
     arrivals = listArrivals(icaoCode=icaoCode, registration=registration, forDay=forDay, limit=limit, icaoFilter=icaoFilter, sortTsDesc=sortTsDesc, display_tz=display_tz)
@@ -240,7 +240,7 @@ def _prepareData(icaoCode=None, registration=None, forDay=None, limit=None, icao
 
 @app.route('/search/<text>', methods=['GET'])
 def search(text=None):
-    text = saninitise(text)
+    text = sanitise(text)
 
     # TODO determine if that is an ICAO code or registration!
 
@@ -264,8 +264,8 @@ def getCsv(type: str, code: str, date=None, dateTo=None):
     if not type or not code:
         return flask.redirect('/')
 
-    type = saninitise(type).upper()
-    code = saninitise(code).upper()
+    type = sanitise(type).upper()
+    code = sanitise(code).upper()
     date = parseDate(date, default=datetime.now())
     dateTo = parseDate(dateTo, default=None, endOfTheDay=True)
 
@@ -359,7 +359,7 @@ def _prepareDataForMap(flightRecord) -> (list, list):
 @limiter.limit("10/minute")
 def getMap(flightId: int):
     try:
-        flightId = int(saninitise(flightId))
+        flightId = int(sanitise(flightId))
         print(f"[INFO] MAP: flightId='{flightId}'")
     except:
         print(f"[INFO] MAP: invalid flightId='{flightId}'")
@@ -390,7 +390,7 @@ def getMap(flightId: int):
 @limiter.limit("20/minute")
 def getFlightData(flightId: int):
     try:
-        flightId = int(saninitise(flightId))
+        flightId = int(sanitise(flightId))
         print(f"[INFO] FD: flightId='{flightId}'")
     except:
         print(f"[INFO] FD: invalid flightId='{flightId}'")
@@ -416,9 +416,9 @@ def getFlightData(flightId: int):
 @limiter.limit("20/minute")
 def findFlights():
     date: datetime = parseDate(request.args.get("date", None), default=datetime.now(), endOfTheDay=True)
-    loc: str = saninitise(request.args.get("loc", None))
-    reg: str = saninitise(request.args.get("reg", None))
-    cn: str = saninitise(request.args.get("cn", None))
+    loc: str = sanitise(request.args.get("loc", None))
+    reg: str = sanitise(request.args.get("reg", None))
+    cn: str = sanitise(request.args.get("cn", None))
 
     # TODO loc muze byt letiste startu nebo pristani
 
@@ -440,7 +440,7 @@ def findFlights():
 @app.route('/api/enc/<flightId>', methods=['GET'])
 @limiter.limit("20/minute")
 def listEncounters(flightId: int):
-    flightId = saninitise(flightId)
+    flightId = sanitise(flightId)
 
     if not flightId:
         return flask.render_template('error40x.html', code=404, message="Neumíme. Běž pryč! :P"), 404
@@ -464,7 +464,7 @@ def getIgc(idType: str, flightId: int):
         return flask.render_template('error40x.html', code=404, message="Nope :P"), 404
 
     try:
-        flightId = int(saninitise(flightId))
+        flightId = int(sanitise(flightId))
         # print(f"[INFO] IGC: flightId='{flightId}'")
     except ValueError:
         print(f"[INFO] IGC: invalid flightId='{flightId}'")
@@ -516,8 +516,8 @@ def robots():
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        email = saninitise(request.form.get('email', None))
-        token = saninitise(request.form.get('token', None))
+        email = sanitise(request.form.get('email', None))
+        token = sanitise(request.form.get('token', None))
         print(f"[LOGIN] email: {email}; token: {token}")
 
     return flask.render_template('login.html')
