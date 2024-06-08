@@ -117,7 +117,8 @@ def index():
                                  numFlightsToday=numFlightsToday, totNumFlights=totNumFlights,
                                  longestFlightTime=longestFlightTime, longestFlightId=longestFlightId,
                                  highestTrafficLocation=highestTrafficLocation,
-                                 highestTrafficCount=highestTrafficCount)
+                                 highestTrafficCount=highestTrafficCount,
+                                 flightsOnly=False)
 
 
 @app.route('/loc/<icaoCode>', methods=['GET'])
@@ -154,6 +155,8 @@ def filterByIcaoCode(icaoCode, date=None, dateTo=None):
         if len(departures) > 0 or len(arrivals) > 0 or len(flights) > 0:
             dayRecords.append(dayRecord)
 
+    showFlightsOnly = True if request.args.get('flightsOnly') is not None else False     # if present is actually ''
+
     # This reloads the entire file every time the page is refreshed (!) However, perhaps still faster then querying and maintaining the DB.
     try:
         _, airfieldsDict = AirfieldManager.loadAirfieldsFromFile()
@@ -164,7 +167,8 @@ def filterByIcaoCode(icaoCode, date=None, dateTo=None):
                                      linkPrevDay=linkPrevDay, linkNextDay=linkNextDay,
                                      dayRecords=dayRecords,
                                      lat=lat, lon=lon,
-                                     showDatePicker=True)
+                                     showDatePicker=True,
+                                     flightsOnly=showFlightsOnly)
 
     except KeyError as e:
         return flask.redirect('/')
@@ -214,7 +218,8 @@ def filterByRegistration(registration, date=None, dateTo=None):
                                  linkPrevDay=linkPrevDay, linkNextDay=linkNextDay,
                                  dayRecords=dayRecords,
                                  showFlightsOnly=True,
-                                 showDatePicker=True)
+                                 showDatePicker=True,
+                                 flightsOnly=False)
 
 
 def _prepareData(icaoCode=None, registration=None, forDay=None, limit=None, icaoFilter=[], sortTsDesc=False, orderByCol='takeoff_ts', display_tz=pytz.utc):

@@ -163,10 +163,11 @@
 			{% endfor %}
 		</div>
 		{% else %}
+		{% if not flightsOnly %}
 		<div class="threeCols">
 			<div><h2>{{ gettext('main.departures') }}</h2></div>
 			<div><h2>{{ gettext('main.arrivals') }}</h2></div>
-			<div><h2>{{ gettext('main.flights') }}</h2></div>
+			<div><h2>{{ gettext('main.flights') }}{% if '/loc/' in request.url %}<a href="?flightsOnly">..</a>{% endif %}</h2></div>
 		</div>
 		<div class="threeCols">
 			{% for dayRecord in dayRecords %}
@@ -181,6 +182,18 @@
 			</div>
 			{% endfor %}
 		</div>
+		{% else %}
+			<div class="oneCol">
+				<div><h2>{{ gettext('main.flights') }}</h2></div>
+			</div>
+			<div class="oneCol">
+			{% for dayRecord in dayRecords %}
+			<div>
+				{{ formatFlights(dayRecord) }}
+			</div>
+			{% endfor %}
+			</div>
+		{% endif %}
 		{% endif %}
 
 
