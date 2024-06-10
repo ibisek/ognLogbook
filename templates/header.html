@@ -5,8 +5,12 @@
             <a class="logo" href="/"><img src="/static/img/logo.png"></a>
 
             {% if flightsOnly %}
-                {% set linkPrevDay = linkPrevDay + '?flightsOnly' %}
-                {% set linkNextDay = linkNextDay + '?flightsOnly' %}
+                {% if linkPrevDay %}
+                    {% set linkPrevDay = linkPrevDay + '?flightsOnly' %}
+                {% endif %}
+                {% if linkNextDay %}
+                    {% set linkNextDay = linkNextDay + '?flightsOnly' %}
+                {% endif %}
             {% endif %}
 
             <div class="menu">
