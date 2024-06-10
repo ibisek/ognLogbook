@@ -4,6 +4,11 @@
         <div class="topbar">
             <a class="logo" href="/"><img src="/static/img/logo.png"></a>
 
+            {% if flightsOnly %}
+                {% set linkPrevDay = linkPrevDay + '?flightsOnly' %}
+                {% set linkNextDay = linkNextDay + '?flightsOnly' %}
+            {% endif %}
+
             <div class="menu">
                 <span class="menuitem">
                     <span>{% if linkPrevDay %} <a href="{{linkPrevDay}}" style="font-size:20px; line-height: 1.5;"><</a> {% set leftArrow = True %}{% endif %}</span>
