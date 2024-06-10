@@ -38,10 +38,11 @@ function getDateInView() {
 }
 
 function changeDate(date) {
+    var showFlightsOnly = window.location.href.includes('flightsOnly') ? '?flightsOnly' : '';
     const zeroPad = (num, places) => String(num).padStart(places, '0');
     var dateStr = date.getFullYear() + '-' + zeroPad(date.getMonth()+1, 2) + '-' + zeroPad(date.getDate(),2);
     var items = window.location.pathname.split('/');
-    var url = '/' + items[1] + '/' + items[2] + '/' + dateStr;
+    var url = '/' + items[1] + '/' + items[2] + '/' + dateStr + showFlightsOnly;
     window.open(url, '_self');
 }
 
