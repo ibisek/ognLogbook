@@ -108,7 +108,7 @@ class EncountersLookup:
 
             # load own flight track data:
             ownAddr = f"{dataStructures.addressPrefixes[flight.address_type]}{flight.address}"
-            q = f"SELECT time, addr, lat, lon, alt FROM pos WHERE addr='{ownAddr}' AND gs > 80 AND time >= {flight.takeoff_ts}000000000 AND time <= {flight.landing_ts}000000000;"
+            q = f"SELECT time, addr, lat, lon, alt FROM pos WHERE addr='{ownAddr}' AND gs > 80 AND time >= {flight.takeoff_ts}000000000 AND time <= {flight.landing_ts}000000000 ORDER BY time;"
             rs = self.influxDb.query(q)
             if not rs:  # no data for this flight
                 delEncountersQueueItem(encQItem)

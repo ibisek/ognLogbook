@@ -45,7 +45,7 @@ class Cache:
 
     def ensureAllDataInCache(self, fromTs: int, toTs: int) -> bool:
         if not self.tsStart or not self.tsEnd:  # initial data fetch
-            q = f"SELECT time, addr, lat, lon, alt FROM pos WHERE gs > 80 AND time >= {fromTs}000000000 AND time <= {toTs}000000000;"
+            q = f"SELECT time, addr, lat, lon, alt FROM pos WHERE gs > 80 AND time >= {fromTs}000000000 AND time <= {toTs}000000000 ORDER BY time;"
             self._populateCache(q)
 
             self.tsStart = fromTs
@@ -53,13 +53,13 @@ class Cache:
 
         else:
             if fromTs < self.tsStart:
-                q = f"SELECT time, addr, lat, lon, alt FROM pos WHERE gs > 80 AND time >= {fromTs}000000000 AND time < {self.tsStart}000000000;"
+                q = f"SELECT time, addr, lat, lon, alt FROM pos WHERE gs > 80 AND time >= {fromTs}000000000 AND time < {self.tsStart}000000000 ORDER BY time;"
                 self._populateCache(q)
 
                 self.tsStart = fromTs
 
             if toTs > self.tsEnd:
-                q = f"SELECT time, addr, lat, lon, alt FROM pos WHERE gs > 80 AND time > {self.tsEnd}000000000 AND time <= {toTs}000000000;"
+                q = f"SELECT time, addr, lat, lon, alt FROM pos WHERE gs > 80 AND time > {self.tsEnd}000000000 AND time <= {toTs}000000000 ORDER BY time;"
                 self._populateCache(q)
 
                 self.tsEnd = toTs
