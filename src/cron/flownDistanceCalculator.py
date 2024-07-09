@@ -24,7 +24,8 @@ class FlownDistanceCalculator:
         self.permanentStorages = dict()
 
     def __del__(self):
-        self.influxDb.client.close()
+        if hasattr(self, 'influxDb'):
+            self.influxDb.client.close()
 
     """
     @param addr: ogn ID with prefix OGN/ICA/FLR
