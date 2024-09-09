@@ -59,7 +59,7 @@ div.sideBarFormItem {
 }
 
 .searchResults {
-  max-height: 100vh;
+  max-height: 50vh;
   overflow: auto;
 }
 
