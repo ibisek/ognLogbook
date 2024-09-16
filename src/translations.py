@@ -21,7 +21,7 @@ i10n['tab.land'] = ['Landing', 'Přílet', 'Landung']
 i10n['tab.ft'] = ['Flight time', 'Doba letu', 'Flugzeit']
 i10n['tab.hidden'] = ['(hidden)', '(skrytá)', '(versteckt)']
 
-i10n['stat.line1'] = ['Registered flights', 'Registrované lety', 'Registrierte Flüge']
+i10n['stat.line1'] = ['Reg. flights', 'Reg. lety', 'Reg. Flüge']
 i10n['stat.line2'] = ['Flights today', 'Letů dnes', 'Flüge heute']
 i10n['stat.line3'] = ['Longest flight', 'Nejdelší let', 'Längster Flug']
 i10n['stat.line4'] = ['Highest traffic', 'Největší provoz', 'Höchster Verkehr']
