@@ -104,6 +104,7 @@ class EncountersLookup:
             batchCounter += 1
             flight = getFlight(flightId=encQItem.flightId)
             if not flight:
+                delEncountersQueueItem(encQItem)
                 continue
 
             self.cache.ensureAllDataInCache(fromTs=flight.takeoff_ts, toTs=flight.landing_ts)
