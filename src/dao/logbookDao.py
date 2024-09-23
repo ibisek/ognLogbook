@@ -393,7 +393,14 @@ def getNumStatsPerDay(forDay: datetime = None):
         c.execute(strSql)
         row = c.fetchall()
         if row:
-            numFlights = float(row[0][0])
-            totalFlightTime = float(row[0][1])  # [s]
+            try:
+                numFlights = float(row[0][0])
+            except (ValueError, TypeError):
+                numFlights = 0
+
+            try:
+                totalFlightTime = float(row[0][1])  # [s]
+            except (ValueError, TypeError):
+                totalFlightTime = 0
 
     return numFlights, totalFlightTime
