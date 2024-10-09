@@ -19,6 +19,12 @@ Info o stavu zpracovani:
 
 --
 
+MARIA DB:
+    redirect the db log files by creating a symlink
+    from /var/log/mysql -> /mnt/data/logs/mysql
+
+--
+
 INFLUX DB:
 
 influxd backup -database ogn_logbook /tmp/00/mysnapshot
@@ -28,6 +34,15 @@ Remote access:
     influxdb.conf:
         bind-address = ":8086"
 
+        #by ibisek:
+        cache-snapshot-memory-size = "25m"
+
+        #by ibisek:
+        cache-snapshot-write-cold-duration = "10m"
+
+        #by ibisek - disable the limit
+        max-values-per-tag = 0
+
     iptables:
         # influxdb port forwarding:
         iptables -t nat -I PREROUTING --src 0/0 --dst 0.0.0.0 -p tcp --dport 8086 -j REDIRECT --to-ports 8086
@@ -35,7 +50,7 @@ Remote access:
 
     show retention policies
     CREATE RETENTION POLICY logbook_retention2 ON ogn_logbook DURATION 1d REPLICATION 1
-    ALTER RETENTION POLICY logbook_retention2 ON ogn_logbook DURATION 1d REPLICATION 1 SHARD DURATION 1d DEFAULT
+    ALTER RETENTION POLICY logbook_retention2 ON ogn_logbook DURATION 14d REPLICATION 1 SHARD DURATION 1d DEFAULT
 
     STM / Short Time Memory (for all encountered traffic):
         CREATE RETENTION POLICY ogn_stm_retention1 ON ogn_logbook_stm DURATION 1d REPLICATION 1 SHARD DURATION 1d DEFAULT
