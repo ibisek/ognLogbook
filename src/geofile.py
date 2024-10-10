@@ -2,10 +2,9 @@
 Reads a geofile TIFF containing terrain altitude information.
 """
 
-import gdal
+from osgeo import gdal
 import struct
 
-import osgeo.gdal
 from osgeo.osr import SpatialReference, CoordinateTransformation
 
 
@@ -26,7 +25,7 @@ class Geofile(object):
         dstRef = SpatialReference(self.dataset.GetProjection())
         self.ct = CoordinateTransformation(srcRef, dstRef)
 
-        gdalVersion = osgeo.gdal.__version__
+        gdalVersion = gdal.__version__
         print(f"[INFO] Using gdal ver. {gdalVersion}")
         self.gdalMajorVer = int(gdalVersion[:gdalVersion.find('.')])
 
