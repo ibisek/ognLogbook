@@ -27,8 +27,13 @@ MARIA DB:
 
 INFLUX DB:
 
-influxd backup -database ogn_logbook /tmp/00/mysnapshot
-influxd restore -db ogn_logbook /tmp/00/mysnapshot
+storage dir:
+    mkdir /mnt/data/influxdb/
+    sudo chown influxdb:influxdb influxdb
+    ln -s /var/lib/influxdb/ /mnt/data/influxdb/
+
+influxd backup -database ogn_logbook /tmp/00/ogn_logbook_snapshot
+influxd restore -db ogn_logbook /tmp/00/ogn_logbook_snapshot
 
 Remote access:
     influxdb.conf:
