@@ -13,7 +13,7 @@ import os
 from typing import List
 
 from dateutil import parser
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta, timezone, UTC
 
 from configuration import INFLUX_DB_NAME, INFLUX_DB_HOST
 from db.InfluxDbThread import InfluxDbThread
@@ -71,7 +71,7 @@ def _parseEnvVars():
 if __name__ == '__main__':
     influxDbName, storageDir, weekNumber = _parseEnvVars()
 
-    dt = datetime.utcnow()
+    dt = datetime.now(UTC)
 
     if weekNumber:  # this is an override to export a specific week
         d = f"{dt.year}-W{weekNumber}"

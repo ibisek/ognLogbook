@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, UTC
 from math import floor
 
 from influxdb.resultset import ResultSet
@@ -65,7 +65,7 @@ class Cache:
                 self.tsEnd = toTs
 
         # drop all positions older than 24h:
-        nowUtcTs = floor(datetime.utcnow().timestamp())
+        nowUtcTs = floor(datetime.now(UTC).timestamp())
         if (nowUtcTs - self.lastCacheCleanupTs) > 3600:
             self.lastCacheCleanupTs = nowUtcTs
             thrTs = nowUtcTs - 12 * 60 * 60
