@@ -32,8 +32,11 @@ storage dir:
     sudo chown influxdb:influxdb influxdb
     ln -s /var/lib/influxdb/ /mnt/data/influxdb/
 
-influxd backup -database ogn_logbook /tmp/00/ogn_logbook_snapshot
-influxd restore -db ogn_logbook /tmp/00/ogn_logbook_snapshot
+influxd backup -portable -database ogn_logbook /media/data/zalohy/influx_ogn_logbook_snapshot
+influxd restore -portable -db ogn_logbook ./influx_ogn_logbook_snapshot
+
+influxd backup -portable -database ogn_logbook_ps /media/data/zalohy/influx_ogn_logbook_ps_snapshot
+influxd restore -portable -db ogn_logbook_ps ./influx_ogn_logbook_ps_snapshot
 
 Remote access:
     influxdb.conf:
