@@ -25,7 +25,7 @@ if __name__ == '__main__':
         row['num_flights'] = numFlights
         row['flight_time'] = totalFlightTime/3600   # [hrs]
         row['hours'] = f"{(totalFlightTime/3600):.1f}"
-        chartDf = chartDf.append(row)
+        chartDf = chartDf._append(row)
 
     fig = px.bar(chartDf, x="date", y="num_flights",
                  color='num_flights',   # needs to be a float value for continuous color scale
