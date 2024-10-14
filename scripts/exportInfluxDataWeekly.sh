@@ -13,7 +13,7 @@ export PYTHONPATH=.:./src:$PYTHONPATH
 #export INFLUX_DB_NAME='ogn_logbook_stm'
 echo "Using INFLUX_DB_NAME: '$INFLUX_DB_NAME'"
 
-export STORAGE_DIR='/media/data/archive'
+export STORAGE_DIR='/mnt/data/zalohy/archiv'
 
 python3 ./src/experimental/influx_exportData_weekly.py
 
