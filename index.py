@@ -9,7 +9,7 @@ import math
 from datetime import datetime, timedelta
 from collections import namedtuple
 
-from distutils.log import Log
+# from distutils.log import Log
 from flask import request, send_from_directory, session, jsonify
 import flask
 import getopt
@@ -26,7 +26,7 @@ from dao.encountersDao import Encounter, listEncountersWithRegistration
 from dao.logbookDao import listDepartures, listArrivals, listFlights, getSums, getFlight, getFlightIdForTakeoffId, getFlightInfoForTakeoff
 from dao.logs import logIgcDownload
 from dao.permanentStorage import PermanentStorageFactory
-from dao.stats import getNumFlightsToday, getTotNumFlights, getLongestFlightToday, getHighestTrafficToday
+from dao.stats import Stats
 from db.InfluxDbThread import InfluxDbThread
 from igc import flightToIGC
 
@@ -107,10 +107,11 @@ def index():
     dayRecord: DayRecord = DayRecord(date=None, numFlights=None, totalFlightTime=None,
                                      departures=departures, arrivals=arrivals, flights=flights)
 
-    totNumFlights = getTotNumFlights()
-    numFlightsToday = getNumFlightsToday()
-    longestFlightId, longestFlightTime = getLongestFlightToday()
-    highestTrafficLocation, highestTrafficCount = getHighestTrafficToday()
+    stats = Stats()
+    totNumFlights = stats.getTotNumFlights()
+    numFlightsToday = stats.getNumFlightsToday()
+    longestFlightId, longestFlightTime = stats.getLongestFlightToday()
+    highestTrafficLocation, highestTrafficCount = stats.getHighestTrafficToday()
 
     return flask.render_template('index.html', debugMode=DEBUG, date=datetime.now(),
                                  display_tz=display_tz, dayRecords=[dayRecord],
