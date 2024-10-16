@@ -33,6 +33,7 @@ from utils import getGroundSpeedThreshold
 from periodicTimer import PeriodicTimer
 from expiringDict import ExpiringDict
 from cron.eventWatcher.eventWatcher import EventWatcher
+from dao.stats import Stats
 
 
 class RawWorker(Thread):
@@ -422,6 +423,9 @@ class RawWorker(Thread):
 
             self.timeHorizonCache.tick()  # cleanup the cache (cannot be called from PeriodicTimer due to subprocess/threading troubles :|)
             # ^^ this is here as THC cleanup is not necessarily that frequent
+
+            if event == 'L':
+                self.redis.incr(Stats.REDIS_KEY)    # increment total number of flights by 1
 
         self.beaconDuplicateCache.tick()    # cleanup the cache (cannot be called from PeriodicTimer due to subprocess/threading troubles :|)
 
