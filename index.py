@@ -110,13 +110,13 @@ def index():
     stats = Stats()
     totNumFlights = stats.getTotNumFlights()
     numFlightsToday = stats.getNumFlightsToday()
-    longestFlightId, longestFlightTime = stats.getLongestFlightToday()
+    # longestFlightId, longestFlightTime = stats.getLongestFlightToday()
     highestTrafficLocation, highestTrafficCount = stats.getHighestTrafficToday()
 
     return flask.render_template('index.html', debugMode=DEBUG, date=datetime.now(),
                                  display_tz=display_tz, dayRecords=[dayRecord],
                                  numFlightsToday=numFlightsToday, totNumFlights=totNumFlights,
-                                 longestFlightTime=longestFlightTime, longestFlightId=longestFlightId,
+                                 # longestFlightTime=longestFlightTime, longestFlightId=longestFlightId,
                                  highestTrafficLocation=highestTrafficLocation,
                                  highestTrafficCount=highestTrafficCount,
                                  flightsOnly=False)
