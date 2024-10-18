@@ -12,9 +12,16 @@ from utils import getDayTimestamps
 class Stats:
 
     REDIS_KEY = 'TOT_NUM_OF_FLIGHTS'
+    RELOAD_INTERVAL = 24 * 3600  # [s]
 
     def __init__(self):
-        self.redis = self.redis = StrictRedis(**redisConfig)
+        self.redis = StrictRedis(**redisConfig)
+
+    @staticmethod
+    def refreshValueInRedis():
+        num = Stats._getTotNumFlightsFromDB()
+        redis = StrictRedis(**redisConfig)
+        redis.set(Stats.REDIS_KEY, num)
 
     @staticmethod
     def _getTotNumFlightsFromDB():

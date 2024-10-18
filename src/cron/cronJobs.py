@@ -11,6 +11,7 @@ from cron.redisReaper import RedisReaper
 from cron.towLookup import TowLookup
 from dao.ddb import DDB
 from dao.permanentStorage import PermanentStorageFactory
+from dao.stats import Stats
 
 
 class CronJobs(object):
@@ -45,6 +46,9 @@ class CronJobs(object):
         # self.encountersLookupTimer = PeriodicTimer(EncountersLookup.RUN_INTERVAL, encountersLookup.doLookup)
         # self.encountersLookupTimer.start()
 
+        self.statsTimer = PeriodicTimer(Stats.RELOAD_INTERVAL, Stats.refreshValueInRedis)
+        self.statsTimer.start()
+
     def stop(self):
         self.towLookupTimer.stop()
 
@@ -62,5 +66,7 @@ class CronJobs(object):
         # self.ddbTimer.stop()
 
         # self.encountersLookupTimer.stop()
+
+        self.statsTimer.stop()
 
         print("[INFO] Cron terminated.")
