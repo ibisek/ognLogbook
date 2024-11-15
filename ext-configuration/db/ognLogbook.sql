@@ -20,6 +20,8 @@ CREATE TABLE logbook_events (
 CREATE INDEX logbook_events_ts ON logbook_events(ts);
 CREATE INDEX logbook_events_address ON logbook_events(address);
 CREATE INDEX logbook_events_location_icao ON logbook_events(location_icao);
+CREATE INDEX logbook_events_addr_addrtype ON logbook_events(address, address_type);
+
 --SHOW INDEXES FROM logbook_events;
 
 
