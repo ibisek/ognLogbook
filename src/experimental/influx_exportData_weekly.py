@@ -131,7 +131,8 @@ if __name__ == '__main__':
 
     print(f"[INFO] Exported {numRecords} lines of data.")
 
-    cmd = f"xz -9e {outFilePath}"
+    # cmd = f"xz -9e {outFilePath}"
+    cmd = f"zpaq a {outFilePath}.zpaq {outFilePath} -m5 -t4"
     os.system(cmd)
 
     print('KOHEU.')
