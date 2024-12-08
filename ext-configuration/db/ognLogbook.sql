@@ -187,13 +187,23 @@ CREATE TABLE ddb (
 	aircraft_registration VARCHAR(8),
 	aircraft_cn VARCHAR(3),
 	tracked BOOL DEFAULT true,
-	identified BOOL DEFAULT true
+	identified BOOL DEFAULT true,
+	start_ts BIGINT default UNIX_TIMESTAMP(),
+	end_ts BIGINT DEFAULT NULL
 );
 
 CREATE INDEX ddb_device_id ON ddb(device_id);
 CREATE INDEX ddb_aircraft_registration ON ddb(aircraft_registration);
 CREATE INDEX aircraft_cn ON ddb(aircraft_cn);
 --SHOW INDEXES FROM ddb;
+
+--DROP VIEW IF EXISTS airplanes
+CREATE VIEW IF NOT EXISTS airplanes
+	AS
+	SELECT id, device_type, device_id, aircraft_type, aircraft_registration, aircraft_cn, tracked, identified 
+	FROM ddb 
+	WHERE end_ts is NULL;
+
 
 --DROP TABLE IF EXISTS users;
 CREATE TABLE users (
