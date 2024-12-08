@@ -76,7 +76,7 @@ class DDB:  # ..extends (Singleton)
     def _loadFromDb(self):
         self.records.clear()
 
-        sql = "SELECT * FROM ddb;"
+        sql = "SELECT * FROM airplanes;"    # airplanes not ddb to show only the current and up-to-date records
         with DbSource(dbConnectionInfo).getConnection().cursor() as cur:
             cur.execute(sql)
             rows = cur.fetchall()
