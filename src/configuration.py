@@ -38,16 +38,28 @@ DB_USER = '**'
 DB_PASSWORD = '**'
 dbConnectionInfo = (DB_HOST, DB_PORT, DB_NAME, DB_USER, DB_PASSWORD)
 
+MAIL_HOST = 'smtp.centrum.cz'
+MAIL_PORT = 587
+MAIL_USER = '**'
+MAIL_PASSWORD = '**'
+MAIL_FROM = '**'
+if MAIL_PASSWORD != '**':
+    os.environ['MAIL_HOST'] = MAIL_HOST
+    os.environ['MAIL_PORT'] = str(MAIL_PORT)
+    os.environ['MAIL_USER'] = MAIL_USER
+    os.environ['MAIL_PASSWORD'] = MAIL_PASSWORD
+    os.environ['MAIL_FROM'] = MAIL_FROM
+
 INFLUX_DB_NAME = DB_NAME
 INFLUX_DB_HOST = DB_HOST
 INFLUX_DB_NAME_PERMANENT_STORAGE = f"{INFLUX_DB_NAME}_ps"
 
 if DB_PASSWORD != '**':
-    os.environ.setdefault('DB_HOST', DB_HOST)
-    os.environ.setdefault('DB_PORT', str(DB_PORT))
-    os.environ.setdefault('DB_NAME', DB_NAME)
-    os.environ.setdefault('DB_USER', DB_USER)
-    os.environ.setdefault('DB_PASSWORD', DB_PASSWORD)
+    os.environ['DB_HOST'] = DB_HOST
+    os.environ['DB_PORT'] = str(DB_PORT)
+    os.environ['DB_NAME'] = DB_NAME
+    os.environ['DB_USER'] = DB_USER
+    os.environ['DB_PASSWORD'] = DB_PASSWORD
 
 
 MQ_HOST = 'mq.ibisek.com'
@@ -56,10 +68,10 @@ MQ_USER = '**'
 MQ_PASSWORD = '**'
 
 if MQ_PASSWORD != '**':
-    os.environ.setdefault('MQ_HOST', MQ_HOST)
-    os.environ.setdefault('MQ_PORT', str(MQ_PORT))
-    os.environ.setdefault('MQ_USER', MQ_USER)
-    os.environ.setdefault('MQ_PASSWORD', MQ_PASSWORD)
+    os.environ['MQ_HOST'] = MQ_HOST
+    os.environ['MQ_PORT'] = str(MQ_PORT)
+    os.environ['MQ_USER'] = MQ_USER
+    os.environ['MQ_PASSWORD'] = MQ_PASSWORD
 
 # this enforces the SQLITE to be used:
 # if 'SQLITE_DB_FILENAME' not in os.environ:
