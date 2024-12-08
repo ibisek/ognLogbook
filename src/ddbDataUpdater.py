@@ -44,8 +44,10 @@ def _insertOrAmendRecord(cursor: Cursor,
     #     cur.execute(strSql, data)
 
     # SQLITE:
-    select = f"SELECT id, device_type, device_id, aircraft_type, aircraft_registration, aircraft_cn, tracked, identified FROM ddb WHERE device_id='{deviceId}' limit 1;"
+    select = f"SELECT id, device_type, device_id, aircraft_type, aircraft_registration, aircraft_cn, tracked, identified " \
+             f"FROM ddb WHERE device_id='{deviceId}' AND end_ts is NULL limit 1;"
 
+    doInsertion = False
     res = cursor.execute(select)
     if res:
         if not updateRecordIfExists:
@@ -53,13 +55,21 @@ def _insertOrAmendRecord(cursor: Cursor,
 
         (id1, devType1, devId1, aircraftType1, registration1, cn1, tracked1,
          identified1) = cursor.fetchone()  # (id, 'F', '000000', 'HPH 304CZ-17', 'OK-7777', 'KN', 1, 1)
-        if devType1 != deviceType or aircraftType1 != aircraftType or registration1 != registration or cn1 != cn or tracked1 != tracked or identified1 != identified:
-            update = f"UPDATE ddb SET device_type = '{deviceType}', aircraft_type='{aircraftType}', aircraft_registration='{registration}', " \
-                     f"aircraft_cn='{cn}', tracked={tracked}, identified={identified} " \
-                     f"WHERE id = {id1};"
-            cursor.execute(update)
+
+        if registration1 != registration or cn1 != cn:
+            doInsertion = True     # change in registration - close current record and create new one (timestamps)
+            update1 = f"UPDATE ddb set end_ts=UNIX_TIMESTAMP() WHERE id = {id1};"
+            cursor.execute(update1)
+
+        elif devType1 != deviceType or aircraftType1 != aircraftType or tracked1 != tracked or identified1 != identified:
+            update2 = f"UPDATE ddb SET device_type = '{deviceType}', aircraft_type='{aircraftType}', tracked={tracked}, identified={identified} " \
+                      f"WHERE id = {id1};"
+            cursor.execute(update2)
 
     else:
+        doInsertion = True
+
+    if doInsertion:
         insert = f"INSERT INTO ddb " \
                  f"(device_type, device_id, aircraft_type, aircraft_registration, aircraft_cn, tracked, identified)" \
                  f"VALUES " \
