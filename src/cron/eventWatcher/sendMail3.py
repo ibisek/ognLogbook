@@ -3,7 +3,6 @@ https://pypi.org/project/emails/
 https://python-emails.readthedocs.io/en/latest/
 https://realpython.com/python-send-email/
 """
-
 import ssl
 import smtplib
 
@@ -15,12 +14,18 @@ from email.header import Header
 
 
 class SendMail3:
-    host = 'smtp.centrum.cz'
-    port = 587
-    user = 'ognlogbook@centrum.cz'
-    password = '**'
+    # host = 'smtp.centrum.cz'
+    # port = 587
+    # user = 'ognlogbook@centrum.cz'
+    # password = '**'
+    # sender_email = 'ognlogbook@centrum.cz'
 
-    sender_email = 'ognlogbook@centrum.cz'
+    def __init__(self, **config):
+        self.host = config.get('MAIL_HOST', None)
+        self.port = int(config.get('MAIL_PORT', None))
+        self.user = config.get('MAIL_USER', None)
+        self.password = config.get('MAIL_PASSWORD', None)
+        self.sender_email = config.get('MAIL_FROM', None)
 
     def sendMail(self, receiver_email, subject, text, attachment: str = None):
         # body = f"From:Automat\nSubject:{subject}\n\n{body}"
@@ -75,8 +80,10 @@ class SendMail3:
                 raise ValueError(f'Unsupported port {self.port}!')
 
         except smtplib.SMTPAuthenticationError as e:
-            print('[ERROR]', e)
+            # print('[ERROR]', e)
+            raise e
 
         except smtplib.SMTPConnectError as e:
-            print('[ERROR]', e)
+            # print('[ERROR]', e)
+            raise e
 

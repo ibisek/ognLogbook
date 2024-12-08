@@ -9,6 +9,7 @@ from configuration import dbConnectionInfo, redisConfig, ADDRESS_TYPE_PREFIX, AD
 from cron.eventWatcher.sendMail3 import SendMail3
 from db.DbSource import DbSource
 from cron.eventWatcher.messageFormatter import formatMailNotification
+from cron.mailer import Mailer
 
 
 class WatcherEvent:
@@ -45,6 +46,7 @@ class EventWatcher:
 
     def __init__(self):
         self.redis = self.redis = StrictRedis(**redisConfig)
+        self.mailer = Mailer()
 
     @staticmethod
     def createEvent(redis,
@@ -74,18 +76,14 @@ class EventWatcher:
 
         return watchers
 
-    @staticmethod
-    def _notifyWatcher(watcher: Watcher, event: WatcherEvent):
+    def _notifyWatcher(self, watcher: Watcher, event: WatcherEvent):
         if event.icaoLocation:
             dt = datetime.fromtimestamp(event.ts).isoformat()
             print(f"[INFO] Watcher notif. [{event.ts} | {dt}] <{event.event}> @ {event.icaoLocation} {watcher.aircraft_registration} ({watcher.aircraft_cn}) to {watcher.email}")
 
             subject, body = formatMailNotification(event, watcher)
-            try:
-                SendMail3().sendMail(receiver_email=watcher.email, subject=subject, text=body)
-            except Exception as e:
-                print("[ERROR] Email not sent due to ", e)
-                # TODO asi by to chtelo ulozit zpravu pro pozdejsi odeslani..
+
+            self.mailer.enqueue(recipient=watcher.email, subject=subject, body=body)
 
     def processEvents(self):
         if self.busy:
