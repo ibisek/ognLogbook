@@ -59,9 +59,9 @@ class EventWatcher:
         eventCond = 'AND w.w_land IS true' if eventType == 'L' else 'AND w.w_toff IS true'
         dayCond = f"AND w.w_{datetime.now().strftime('%a').lower()} IS true"
 
-        strSql = f"SELECT u.id, u.email, u.lang, d.aircraft_registration, d.aircraft_cn FROM watchers AS w " \
+        strSql = f"SELECT u.id, u.email, u.lang, d.aircraft_registration, a.aircraft_cn FROM watchers AS w " \
                  f"LEFT JOIN users AS u ON u.id = w.user_id " \
-                 f"LEFT JOIN ddb AS d ON d.device_id = w.addr AND d.device_type = w.addr_type " \
+                 f"LEFT JOIN airplanes AS a ON a.device_id = w.addr AND a.device_type = w.addr_type " \
                  f"WHERE addr_type = '{addressTypeChar}' AND addr = '{address}' " \
                  f"{eventCond} {dayCond};"
 

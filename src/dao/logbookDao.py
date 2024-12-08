@@ -48,11 +48,11 @@ def listDepartures(address=None, icaoCode=None, registration=None, forDay=None, 
 
         # (d.tracked != false OR d.tracked IS NULL) AND (d.identified != false OR d.identified IS NULL)
         strSql = f"""SELECT l.id, l.ts, l.address, l.address_type, l.aircraft_type, l.lat, l.lon, l.location_icao, l.in_ps,
-                    d.device_type,	d.aircraft_type, d.aircraft_registration, d.aircraft_cn 
+                    a.device_type,	a.aircraft_type, a.aircraft_registration, a.aircraft_cn 
                     FROM logbook_events AS l 
-                    LEFT JOIN ddb AS d ON l.address = d.device_id 
+                    LEFT JOIN airplanes AS a ON l.address = a.device_id 
                     WHERE l.event = 'T' AND 1 {cond} {condTs} {condIcao}
-                    AND not (l.location_icao is null AND d.aircraft_registration is null)
+                    AND not (l.location_icao is null AND a.aircraft_registration is null)
                     ORDER by ts {sortTs} {condLimit};"""
 
         cur.execute(strSql)
@@ -114,11 +114,11 @@ def listArrivals(address=None, icaoCode=None, registration=None, forDay=None, li
         # (d.tracked != false OR d.tracked IS NULL) AND (d.identified != false OR d.identified IS NULL)
         strSql = f"""SELECT l.ts, l.address, l.address_type, l.aircraft_type, l.lat, l.lon, l.location_icao, 
                     l.flight_time, l.in_ps,
-                    d.device_type,	d.aircraft_type, d.aircraft_registration, d.aircraft_cn 
+                    a.device_type,	a.aircraft_type, a.aircraft_registration, a.aircraft_cn 
                     FROM logbook_events AS l 
-                    LEFT JOIN ddb AS d ON l.address = d.device_id 
+                    LEFT JOIN airplanes AS a ON l.address = a.device_id 
                     WHERE l.event = 'L' AND 1 {cond} {condTs} {condIcao}
-                    AND not (l.location_icao is null AND d.aircraft_registration is null)
+                    AND not (l.location_icao is null AND a.aircraft_registration is null)
                     ORDER by ts {sortTs} {condLimit};"""
 
         cur.execute(strSql)
@@ -188,11 +188,11 @@ def listFlights(address=None, icaoCode=None, registration=None, forDay=None, lim
         # (d.tracked != false OR d.tracked IS NULL) AND (d.identified != false OR d.identified IS NULL)
         strSql = f"""SELECT l.id, l.address, l.takeoff_ts, l.takeoff_lat, l.takeoff_lon, l.takeoff_icao, 
                     l.landing_ts, l.landing_lat, l.landing_lon, l.landing_icao, l.flight_time, l.flown_distance, l.max_alt, l.tow_id, l.in_ps,
-                    d.device_type, d.aircraft_type, d.aircraft_registration, d.aircraft_cn
+                    a.device_type, a.aircraft_type, a.aircraft_registration, a.aircraft_cn
                     FROM logbook_entries as l 
-                    LEFT JOIN ddb AS d ON l.address = d.device_id
+                    LEFT JOIN airplanes AS a ON l.address = a.device_id
                     WHERE l.hidden is false {cond} {condTs} {condIcao} 
-                    AND not (l.takeoff_icao is null AND l.landing_icao is null AND d.aircraft_registration is null)
+                    AND not (l.takeoff_icao is null AND l.landing_icao is null AND a.aircraft_registration is null)
                     ORDER by {orderByCol} {sortTs} {condLimit};"""
 
         cur.execute(strSql)
@@ -236,9 +236,9 @@ def getFlight(flightId, display_tz=pytz.utc) -> LogbookItem:
     :return: basic information about specified flight
     """
     strSql = f"SELECT le.address, le.address_type, le.takeoff_ts, le.landing_ts, le.takeoff_icao, le.landing_icao, " \
-             f"le.flight_time, le.flown_distance, le.in_ps, d.aircraft_type, d.aircraft_registration, d.aircraft_cn " \
+             f"le.flight_time, le.flown_distance, le.in_ps, a.aircraft_type, a.aircraft_registration, a.aircraft_cn " \
              "FROM logbook_entries AS le " \
-             "LEFT JOIN ddb as d ON le.address = d.device_id " \
+             "LEFT JOIN airplanes as a ON le.address = a.device_id " \
              f"WHERE le.id={flightId}"
     with DbSource(dbConnectionInfo).getConnection().cursor() as c:
         c.execute(strSql)
@@ -298,9 +298,9 @@ def getFlightInfoForTakeoff(takeoffId: int, display_tz: pytz = pytz.utc) -> Logb
     :param display_tz:
     :return a not-completely-populated LogbookItem for requested takeoffId (event ID for take-off)
     """
-    strSql = f"SELECT e.ts, e.address, e.address_type, e.in_ps, d.aircraft_type, d.aircraft_registration, d.aircraft_cn " \
+    strSql = f"SELECT e.ts, e.address, e.address_type, e.in_ps, a.aircraft_type, a.aircraft_registration, a.aircraft_cn " \
              f"FROM logbook_events AS e " \
-             f"LEFT JOIN ddb AS d ON e.address = d.device_id " \
+             f"LEFT JOIN airplanes AS a ON e.address = a.device_id " \
              f"WHERE e.event='T' AND e.id={takeoffId};"
 
     with DbSource(dbConnectionInfo).getConnection().cursor() as c:
@@ -333,7 +333,7 @@ def getSums(registration, forDay=None, limit=None):
 
         strSql = f"""SELECT COUNT(l.address) AS num, SUM(l.flight_time) AS time
                         FROM logbook_entries as l 
-                        LEFT JOIN ddb AS d ON l.address = d.device_id
+                        LEFT JOIN airplanes AS a ON l.address = a.device_id
                         WHERE hidden is false AND tracked = true AND identified = true {cond} {condTs}
                         ORDER by landing_ts desc;"""
 
