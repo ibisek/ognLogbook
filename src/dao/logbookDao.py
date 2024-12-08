@@ -12,7 +12,7 @@ def _prepareCondition(address=None, icaoCode=None, registration=None):
     if icaoCode:
         c1 = f" AND l.location_icao = '{icaoCode}'"
     if registration:
-        c2 = f" AND d.aircraft_registration = '{registration}'"
+        c2 = f" AND a.aircraft_registration = '{registration}'"
     cond = c1 + c2
 
     return cond
@@ -157,7 +157,7 @@ def listFlights(address=None, icaoCode=None, registration=None, forDay=None, lim
     if icaoCode:
         c1 = f" AND (l.takeoff_icao = '{icaoCode}' OR l.landing_icao = '{icaoCode}')"
     if registration:
-        c2 = f" AND d.aircraft_registration = '{registration}'"
+        c2 = f" AND a.aircraft_registration = '{registration}'"
     cond = c1 + c2
 
     condTs = ''
@@ -319,7 +319,7 @@ def getFlightInfoForTakeoff(takeoffId: int, display_tz: pytz = pytz.utc) -> Logb
 
 
 def getSums(registration, forDay=None, limit=None):
-    cond = f" AND d.aircraft_registration='{registration}'"
+    cond = f" AND a.aircraft_registration='{registration}'"
 
     condTs = ''
     startTs, endTs = getDayTimestamps(forDay)
