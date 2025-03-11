@@ -23,6 +23,10 @@ MARIA DB:
     redirect the db log files by creating a symlink
     from /var/log/mysql -> /mnt/data/logs/mysql
 
+    infinite errors in syslog: (Got an error reading communication packets)
+    vim /etc/mysql/my.cnf
+        + log_warnings=1
+
 --
 
 INFLUX DB:
@@ -62,6 +66,10 @@ Remote access:
 
     STM / Short Time Memory (for all encountered traffic):
         CREATE RETENTION POLICY ogn_stm_retention1 ON ogn_logbook_stm DURATION 1d REPLICATION 1 SHARD DURATION 1d DEFAULT
+
+    stop logging all queries to syslog:
+        vim /etc/influxdb/influxdb.conf
+            log-enabled = false
 
 --
 
