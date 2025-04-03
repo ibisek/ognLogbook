@@ -1,5 +1,6 @@
 from typing import Union
 from datetime import datetime, time, timedelta
+import pytz
 
 from flask import request
 
@@ -108,7 +109,7 @@ def eligibleForMapView(ts):
     if not ts:
         return False
     else:
-        return ts >= (datetime.utcnow().timestamp() - DATA_AVAILABILITY_DAYS * 24*60*60)
+        return ts >= (datetime.now(tz=pytz.UTC).timestamp() - DATA_AVAILABILITY_DAYS * 24*60*60)
 
 
 def sanitise(s):

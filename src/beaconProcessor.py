@@ -9,7 +9,7 @@ import os
 import time
 import sys
 import pytz
-from datetime import datetime, UTC
+from datetime import datetime
 from threading import Thread
 import multiprocessing as mp
 
@@ -283,7 +283,7 @@ class RawWorker(Thread):
 
         dt = beacon['timestamp'].replace(tzinfo=pytz.UTC)
         ts = round(dt.timestamp())  # UTC [s]
-        now = datetime.now(UTC).replace(tzinfo=pytz.UTC)
+        now = datetime.now(tz=pytz.UTC).replace(tzinfo=pytz.UTC)
         if ts - now.timestamp() > 30:  # timestamp from the future? We'll 30s time offset at most..
             # print(f"[WARN] Timestamp from the future: {dt}, now is {now}")
             return
