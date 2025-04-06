@@ -283,9 +283,9 @@ def getCsv(type: str, code: str, date=None, dateTo=None):
         currentDate = date + timedelta(days=i)
 
         if type == 'LOC':
-            flights += listFlights(icaoCode=code, forDay=currentDate, limit=200, display_tz=display_tz)
+            flights += listFlights(icaoCode=code, forDay=currentDate, limit=100, display_tz=display_tz)
         elif type == 'REG':
-            flights += listFlights(registration=code, forDay=currentDate, limit=200, display_tz=display_tz)
+            flights += listFlights(registration=code, forDay=currentDate, limit=100, display_tz=display_tz)
         else:
             return flask.redirect('/')
 
