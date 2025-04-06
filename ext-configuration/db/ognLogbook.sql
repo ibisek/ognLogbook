@@ -197,6 +197,8 @@ CREATE TABLE ddb (
 CREATE INDEX ddb_device_id ON ddb(device_id);
 CREATE INDEX ddb_aircraft_registration ON ddb(aircraft_registration);
 CREATE INDEX aircraft_cn ON ddb(aircraft_cn);
+CREATE INDEX ddb_start_ts ON ddb(start_ts);
+CREATE INDEX ddb_end_ts ON ddb(end_ts);
 --SHOW INDEXES FROM ddb;
 
 --DROP VIEW IF EXISTS airplanes
