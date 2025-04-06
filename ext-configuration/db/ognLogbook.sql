@@ -84,6 +84,8 @@ CREATE INDEX logbook_entries_aircraft_type ON logbook_entries(aircraft_type);
 CREATE INDEX logbook_entries_tow_id ON logbook_entries(tow_id);
 CREATE INDEX logbook_entries_7 ON logbook_entries(address_type, address, takeoff_ts, landing_ts);
 CREATE INDEX logbook_entries_flown_dist ON logbook_entries(flown_distance);
+CREATE INDEX logbook_entries_8 ON logbook_entries(hidden, takeoff_icao, landing_icao, takeoff_ts);
+
 
 --SHOW INDEXES FROM logbook_entries;
 
