@@ -164,7 +164,7 @@ def listFlights(address=None, icaoCode=None, registration=None, forDay=None, lim
     condLimit = ''
     startTs, endTs = getDayTimestamps(forDay)
     if startTs and endTs:
-        condTs = f" AND l.takeoff_ts >= {startTs} AND l.landing_ts <= {endTs}"
+        condTs = f" AND (takeoff_ts between {startTs} AND {endTs} OR landing_ts between {startTs} AND {endTs})"
 
     if limit:
         condLimit = f" limit {limit}"
@@ -324,7 +324,7 @@ def getSums(registration, forDay=None, limit=None):
     condTs = ''
     startTs, endTs = getDayTimestamps(forDay)
     if startTs and endTs:
-        condTs = f" AND l.takeoff_ts >= {startTs} AND l.landing_ts <= {endTs}"
+        condTs = f" AND (takeoff_ts between {startTs} AND {endTs} OR landing_ts between {startTs} AND {endTs})"
 
     numFlights = 0
     totalFlightTime = 0
