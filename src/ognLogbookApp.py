@@ -81,6 +81,8 @@ if __name__ == '__main__':
         try:
             print('[INFO] Connecting to OGN APRS server..')
             client.connect()
+            remoteAddr, remotePort = client.sock.getpeername()
+            print(f"[INFO] Connected to {remoteAddr}:{remotePort}")
             client.run(callback=process_beacon, autoreconnect=False)
             print('[WARN] Connection to OGN APRS server lost!')
         except KeyboardInterrupt:
