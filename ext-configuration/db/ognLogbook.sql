@@ -93,6 +93,8 @@ CREATE INDEX logbook_entries_flown_dist ON logbook_entries(flown_distance);
 CREATE INDEX logbook_entries_8 ON logbook_entries(hidden, takeoff_icao, landing_icao, takeoff_ts);
 CREATE INDEX logbook_entries_10 ON logbook_entries(address_type, address, takeoff_date, landing_date);
 CREATE INDEX logbook_entries_11 ON logbook_entries(hidden, takeoff_icao, landing_icao, takeoff_date);
+CREATE INDEX logbook_entries_12 ON logbook_entries(takeoff_icao, takeoff_date, hidden);
+CREATE INDEX logbook_entries_13 ON logbook_entries(landing_icao, landing_date, hidden);
 
 
 --SHOW INDEXES FROM logbook_entries;
