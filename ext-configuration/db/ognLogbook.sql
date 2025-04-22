@@ -19,6 +19,7 @@ CREATE TABLE logbook_events (
 );
 
 CREATE INDEX logbook_events_ts ON logbook_events(ts);
+CREATE INDEX logbook_events_date ON logbook_events(date);
 CREATE INDEX logbook_events_address ON logbook_events(address);
 CREATE INDEX logbook_events_location_icao ON logbook_events(location_icao);
 CREATE INDEX logbook_events_addr_addrtype ON logbook_events(address, address_type);
@@ -81,13 +82,17 @@ CREATE TABLE logbook_entries (
 
 CREATE INDEX logbook_entries_address ON logbook_entries(address);
 CREATE INDEX logbook_entries_takeoff_ts ON logbook_entries(takeoff_ts);
+CREATE INDEX logbook_entries_takeoff_date ON logbook_entries(takeoff_date);
 CREATE INDEX logbook_entries_landing_ts ON logbook_entries(landing_ts);
+CREATE INDEX logbook_entries_landing_date ON logbook_entries(landing_date);
 CREATE INDEX logbook_entries_takeoff_icao ON logbook_entries(takeoff_icao);
 CREATE INDEX logbook_entries_aircraft_type ON logbook_entries(aircraft_type);
 CREATE INDEX logbook_entries_tow_id ON logbook_entries(tow_id);
 CREATE INDEX logbook_entries_7 ON logbook_entries(address_type, address, takeoff_ts, landing_ts);
 CREATE INDEX logbook_entries_flown_dist ON logbook_entries(flown_distance);
 CREATE INDEX logbook_entries_8 ON logbook_entries(hidden, takeoff_icao, landing_icao, takeoff_ts);
+CREATE INDEX logbook_entries_10 ON logbook_entries(address_type, address, takeoff_date, landing_date);
+CREATE INDEX logbook_entries_11 ON logbook_entries(hidden, takeoff_icao, landing_icao, takeoff_date);
 
 
 --SHOW INDEXES FROM logbook_entries;
@@ -472,3 +477,4 @@ SELECT * FROM logbook_entries where address_type = 'F' AND address = 'C821D8' AN
 
 
 SELECT * FROM logbook_entries LIMIT 10;
+
