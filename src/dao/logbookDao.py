@@ -18,15 +18,18 @@ def _prepareCondition(address=None, icaoCode=None, registration=None):
     return cond
 
 
-def listDepartures(address=None, icaoCode=None, registration=None, forDay=None, limit=None, icaoFilter: list = [],
+def listDepartures(address=None, icaoCode=None, registration=None, forDay: datetime = None, limit=None, icaoFilter: list = [],
                    sortTsDesc=False, display_tz=pytz.utc):
     cond = _prepareCondition(address=address, icaoCode=icaoCode, registration=registration)
 
     condTs = ''
     condLimit = ''
-    startTs, endTs = getDayTimestamps(forDay)
-    if startTs and endTs:
-        condTs = f" AND l.ts >= {startTs} AND l.ts <= {endTs}"
+    # startTs, endTs = getDayTimestamps(forDay)
+    # if startTs and endTs:
+    #     condTs = f" AND l.ts >= {startTs} AND l.ts <= {endTs}"
+    if forDay:
+        formattedDate = forDay.strftime('%Y-%m-%d')
+        condTs = f" AND date = '{formattedDate}'"
 
     if limit:
         condLimit = f" limit {limit}"
@@ -83,15 +86,18 @@ def listDepartures(address=None, icaoCode=None, registration=None, forDay=None, 
     return records
 
 
-def listArrivals(address=None, icaoCode=None, registration=None, forDay=None, limit=None, icaoFilter: list = [],
+def listArrivals(address=None, icaoCode=None, registration=None, forDay: datetime = None, limit=None, icaoFilter: list = [],
                  sortTsDesc=False, display_tz=pytz.utc):
     cond = _prepareCondition(address=address, icaoCode=icaoCode, registration=registration)
 
     condTs = ''
     condLimit = ''
-    startTs, endTs = getDayTimestamps(forDay)
-    if startTs and endTs:
-        condTs = f" AND l.ts >= {startTs} AND l.ts <= {endTs}"
+    # startTs, endTs = getDayTimestamps(forDay)
+    # if startTs and endTs:
+    #     condTs = f" AND l.ts >= {startTs} AND l.ts <= {endTs}"
+    if forDay:
+        formattedDate = forDay.strftime('%Y-%m-%d')
+        condTs = f" AND date = '{formattedDate}'"
 
     if limit:
         condLimit = f" limit {limit}"
@@ -151,7 +157,7 @@ def listArrivals(address=None, icaoCode=None, registration=None, forDay=None, li
     return records
 
 
-def listFlights(address=None, icaoCode=None, registration=None, forDay=None, limit=None, icaoFilter: list = [],
+def listFlights(address=None, icaoCode=None, registration=None, forDay: datetime=None, limit=None, icaoFilter: list = [],
                 sortTsDesc=False, orderByCol='takeoff_ts', display_tz=pytz.utc):
     c1 = c2 = ''
     if icaoCode:
@@ -162,9 +168,12 @@ def listFlights(address=None, icaoCode=None, registration=None, forDay=None, lim
 
     condTs = ''
     condLimit = ''
-    startTs, endTs = getDayTimestamps(forDay)
-    if startTs and endTs:
-        condTs = f" AND (takeoff_ts between {startTs} AND {endTs} OR landing_ts between {startTs} AND {endTs})"
+    # startTs, endTs = getDayTimestamps(forDay)
+    # if startTs and endTs:
+    #     condTs = f" AND (takeoff_ts between {startTs} AND {endTs} OR landing_ts between {startTs} AND {endTs})"
+    if forDay:
+        formattedDate = forDay.strftime('%Y-%m-%d')
+        condTs = f" AND (takeoff_date = '{formattedDate}' OR landing_date = '{formattedDate})'"
 
     if limit:
         condLimit = f" limit {limit}"
@@ -318,13 +327,16 @@ def getFlightInfoForTakeoff(takeoffId: int, display_tz: pytz = pytz.utc) -> Logb
     return None
 
 
-def getSums(registration, forDay=None, limit=None):
+def getSums(registration, forDay: datetime = None, limit=None):
     cond = f" AND a.aircraft_registration='{registration}'"
 
     condTs = ''
     startTs, endTs = getDayTimestamps(forDay)
-    if startTs and endTs:
-        condTs = f" AND (takeoff_ts between {startTs} AND {endTs} OR landing_ts between {startTs} AND {endTs})"
+    # if startTs and endTs:
+    #     condTs = f" AND (takeoff_ts between {startTs} AND {endTs} OR landing_ts between {startTs} AND {endTs})"
+    if forDay:
+        formattedDate = forDay.strftime('%Y-%m-%d')
+        condTs = f" AND (takeoff_date is {formattedDate} OR landing_date is {formattedDate})"
 
     numFlights = 0
     totalFlightTime = 0
