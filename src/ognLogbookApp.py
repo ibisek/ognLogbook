@@ -37,7 +37,7 @@ def process_beacon(raw_message):
                 if bType in ['aprs_aircraft']:  # still an aircraft, right?
                     print('## ACFT BCN:', beacon)
 
-                elif bType not in ('unknown', 'receiver', 'fanet', 'aprs_receiver', 'pilot_aware', 'flymaster'):
+                elif bType not in ('unknown', 'receiver', 'fanet', 'aprs_receiver', 'pilot_aware', 'flymaster', 'naviter'):
                     print('## TYPE:', bType, '\t\t', beacon)
 
         except AprsParseError:
