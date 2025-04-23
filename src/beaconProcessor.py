@@ -12,6 +12,7 @@ import pytz
 from datetime import datetime
 from threading import Thread
 import multiprocessing as mp
+from tzfpy import get_tz
 
 from redis import StrictRedis
 from queue import Queue, Empty
@@ -398,17 +399,21 @@ class RawWorker(Thread):
 
             icaoLocation = self.airfieldManager.getNearest(lat, lon)
 
-            dt = datetime.fromtimestamp(ts)
             dtStr = dt.strftime('%H:%M:%S')
             print(f"[INFO] event: {dtStr}; {icaoLocation}; [{addressTypeStr}] {address}; {event}; {flightTime}")
-            date = dt.strftime('%Y-%m-%d')
+
+            # get landing-local timezone date:
+            tzStr = get_tz(lon, lat)    # !! order LON , LAT !!
+            tzInfo = pytz.timezone(tzStr)
+            dtLocal = datetime.fromtimestamp(ts, tz=tzInfo)
+            dateLocal = dtLocal.strftime('%Y-%m-%d')
 
             icaoLocation = f"'{icaoLocation}'" if icaoLocation else 'null'
 
             strSql = f"INSERT INTO logbook_events " \
                      f"(ts, date, address, address_type, aircraft_type, event, lat, lon, location_icao, flight_time) " \
                      f"VALUES " \
-                     f"({ts}, '{date}', '{address}', '{addressTypeStr}', '{aircraftType}', " \
+                     f"({ts}, '{dateLocal}', '{address}', '{addressTypeStr}', '{aircraftType}', " \
                      f"'{event}', {lat:.5f}, {lon:.5f}, {icaoLocation}, {flightTime});"
 
             # print('strSql:', strSql)

@@ -13,10 +13,11 @@ msgpack==1.0.7
 ogn-client==1.2.1
 PyMySQL==1.1.0
 python-dateutil==2.8.2
-pytz==2023.3.post1
+pytz==2025.2
 redis==5.0.1
 requests==2.31.0
 six==1.16.0
+tzfpy==1.0.0
 tzlocal==5.2
 urllib3==2.0.7
 Werkzeug==3.0.1
@@ -28,3 +29,4 @@ beautifulsoup4==4.10.0
 matplotlib==3.7.3
 pandas==2.0.3
 plotly==5.18.0
+
