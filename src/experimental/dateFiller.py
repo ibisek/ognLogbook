@@ -15,23 +15,9 @@ from tzfpy import get_tz
 
 from configuration import dbConnectionInfo
 from db.DbSource import DbSource
+from utilsTime import getLocalTzDate
 
 LIMIT = 100
-
-
-def getLocalDate(utcTs: int, lat: float, lon: float) -> str:
-    dateLocal = None
-
-    try:
-        tzStr = get_tz(lon, lat)  # !! order LON , LAT !!
-        tzInfo = pytz.timezone(tzStr)
-        dtLocal = datetime.fromtimestamp(utcTs, tz=tzInfo)
-        dateLocal = dtLocal.strftime('%Y-%m-%d')
-
-    except pytz.exceptions.UnknownTimeZoneError as e:
-        print(f"[ERROR] Unknown timezone for lat {lat:.4f} lon {lon:.4f}:", str(e))
-
-    return dateLocal
 
 
 def processLogbookEvents():
@@ -49,7 +35,7 @@ def processLogbookEvents():
             for row in rows:
                 eventId, ts, date, lat, lon = row
 
-                dateLocal = getLocalDate(ts, lat, lon)
+                dateLocal = getLocalTzDate(utcTs=ts, lat=lat, lon=lon)
 
                 if dateLocal:
                     updateSql = f"UPDATE logbook_events SET date='{dateLocal}' WHERE id={eventId};"
@@ -79,8 +65,8 @@ def processLogbookEntries():
                 if not takeoff_ts or not landing_ts:
                     continue
 
-                dateLocalTakeoff = getLocalDate(takeoff_ts, takeoff_lat, takeoff_lon)
-                dateLocalLanding = getLocalDate(landing_ts, landing_lat, landing_lon)
+                dateLocalTakeoff = getLocalTzDate(utcTs=takeoff_ts, lat=takeoff_lat, lon=takeoff_lon)
+                dateLocalLanding = getLocalTzDate(utcTs=landing_ts, lat=landing_lat, lon=landing_lon)
 
                 if dateLocalTakeoff and dateLocalLanding:
                     updateSql = f"UPDATE logbook_entries SET takeoff_date='{dateLocalTakeoff}', landing_date='{dateLocalLanding}' WHERE id={entryId};"
