@@ -12,7 +12,6 @@ import pytz
 from datetime import datetime
 from threading import Thread
 import multiprocessing as mp
-from tzfpy import get_tz
 
 from redis import StrictRedis
 from queue import Queue, Empty
@@ -35,6 +34,7 @@ from periodicTimer import PeriodicTimer
 from expiringDict import ExpiringDict
 from cron.eventWatcher.eventWatcher import EventWatcher
 from dao.stats import Stats
+from utilsTime import getLocalTzDate
 
 
 class RawWorker(Thread):
@@ -403,10 +403,7 @@ class RawWorker(Thread):
             print(f"[INFO] event: {dtStr}; {icaoLocation}; [{addressTypeStr}] {address}; {event}; {flightTime}")
 
             # get landing-local timezone date:
-            tzStr = get_tz(lon, lat)    # !! order LON , LAT !!
-            tzInfo = pytz.timezone(tzStr)
-            dtLocal = datetime.fromtimestamp(ts, tz=tzInfo)
-            dateLocal = dtLocal.strftime('%Y-%m-%d')
+            dateLocal = getLocalTzDate(utcTs=ts, lat=lat, lon=lon)
 
             icaoLocation = f"'{icaoLocation}'" if icaoLocation else 'null'
 
