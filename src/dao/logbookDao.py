@@ -331,7 +331,7 @@ def getSums(registration, forDay: datetime = None, limit=None):
     cond = f" AND a.aircraft_registration='{registration}'"
 
     condTs = ''
-    startTs, endTs = getDayTimestamps(forDay)
+    # startTs, endTs = getDayTimestamps(forDay)
     # if startTs and endTs:
     #     condTs = f" AND (takeoff_ts between {startTs} AND {endTs} OR landing_ts between {startTs} AND {endTs})"
     if forDay:
