@@ -20,11 +20,16 @@ LIMIT = 100
 
 
 def getLocalDate(utcTs: int, lat: float, lon: float) -> str:
-    # get landing-local timezone date:
-    tzStr = get_tz(lon, lat)  # !! order LON , LAT !!
-    tzInfo = pytz.timezone(tzStr)
-    dtLocal = datetime.fromtimestamp(utcTs, tz=tzInfo)
-    dateLocal = dtLocal.strftime('%Y-%m-%d')
+    dateLocal = None
+
+    try:
+        tzStr = get_tz(lon, lat)  # !! order LON , LAT !!
+        tzInfo = pytz.timezone(tzStr)
+        dtLocal = datetime.fromtimestamp(utcTs, tz=tzInfo)
+        dateLocal = dtLocal.strftime('%Y-%m-%d')
+
+    except pytz.exceptions.UnknownTimeZoneError as e:
+        print(f"[ERROR] Unknown timezone for lat {lat:.4f} lon {lon:.4f}:", str(e))
 
     return dateLocal
 
@@ -46,11 +51,12 @@ def processLogbookEvents():
 
                 dateLocal = getLocalDate(ts, lat, lon)
 
-                updateSql = f"UPDATE logbook_events SET date='{dateLocal}' WHERE id={eventId};"
-                cur.execute(updateSql)
+                if dateLocal:
+                    updateSql = f"UPDATE logbook_events SET date='{dateLocal}' WHERE id={eventId};"
+                    cur.execute(updateSql)
 
-                if i % 10 == 0:
-                    print(f'EVENTS [{i}] updateSql: {updateSql}')
+                    if i % 10 == 0:
+                        print(f'EVENTS [{i}] updateSql: {updateSql}')
 
                 i += 1
 
@@ -76,11 +82,12 @@ def processLogbookEntries():
                 dateLocalTakeoff = getLocalDate(takeoff_ts, takeoff_lat, takeoff_lon)
                 dateLocalLanding = getLocalDate(landing_ts, landing_lat, landing_lon)
 
-                updateSql = f"UPDATE logbook_entries SET takeoff_date='{dateLocalTakeoff}', landing_date='{dateLocalLanding}' WHERE id={entryId};"
-                cur.execute(updateSql)
+                if dateLocalTakeoff and dateLocalLanding:
+                    updateSql = f"UPDATE logbook_entries SET takeoff_date='{dateLocalTakeoff}', landing_date='{dateLocalLanding}' WHERE id={entryId};"
+                    cur.execute(updateSql)
 
-                if i % 10 == 0:
-                    print(f'ENTRIES [{i}] updateSql: {updateSql}')
+                    if i % 10 == 0:
+                        print(f'ENTRIES [{i}] updateSql: {updateSql}')
 
                 i += 1
 
