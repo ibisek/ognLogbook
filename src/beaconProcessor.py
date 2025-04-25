@@ -403,15 +403,19 @@ class RawWorker(Thread):
             print(f"[INFO] event: {dtStr}; {icaoLocation}; [{addressTypeStr}] {address}; {event}; {flightTime}")
 
             # get landing-local timezone date:
-            dateLocal = getLocalTzDate(utcTs=ts, lat=lat, lon=lon)
+            localDate = getLocalTzDate(utcTs=ts, lat=lat, lon=lon)
 
             icaoLocation = f"'{icaoLocation}'" if icaoLocation else 'null'
 
             strSql = f"INSERT INTO logbook_events " \
-                     f"(ts, date, address, address_type, aircraft_type, event, lat, lon, location_icao, flight_time) " \
+                     f"(ts, local_date, address, address_type, aircraft_type, event, lat, lon, location_icao, flight_time) " \
                      f"VALUES " \
-                     f"({ts}, '{dateLocal}', '{address}', '{addressTypeStr}', '{aircraftType}', " \
+                     f"({ts}, '{localDate}', '{address}', '{addressTypeStr}', '{aircraftType}', " \
                      f"'{event}', {lat:.5f}, {lon:.5f}, {icaoLocation}, {flightTime});"
+
+            if event == 'L' and not localDate:
+                print('strSql:', strSql)
+                print(666)
 
             # print('strSql:', strSql)
             self.dbThread.addStatement(strSql)

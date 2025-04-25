@@ -6,7 +6,7 @@
 CREATE TABLE logbook_events (
     id BIGINT PRIMARY KEY auto_increment,
     ts BIGINT,
-    date DATE DEFAULT NULL,
+    local_date DATE DEFAULT NULL,
     address VARCHAR(6),
     address_type VARCHAR(1),
     aircraft_type TINYINT,
@@ -19,7 +19,7 @@ CREATE TABLE logbook_events (
 );
 
 CREATE INDEX logbook_events_ts ON logbook_events(ts);
-CREATE INDEX logbook_events_date ON logbook_events(date);
+CREATE INDEX logbook_events_date ON logbook_events(local_date);
 CREATE INDEX logbook_events_address ON logbook_events(address);
 CREATE INDEX logbook_events_location_icao ON logbook_events(location_icao);
 CREATE INDEX logbook_events_addr_addrtype ON logbook_events(address, address_type);
@@ -35,13 +35,13 @@ CREATE TRIGGER IF NOT EXISTS logbook_events_after_insert
 AFTER INSERT ON logbook_events FOR EACH ROW
 BEGIN
 IF (new.event = 'L') THEN
-SELECT e.ts, e.date, e.address_type, e.aircraft_type, e.lat, e.lon, e.location_icao, e.in_ps
-INTO @t_ts, @t_date, @t_addrtype, @t_type, @t_lat, @t_lon, @t_loc, @in_ps
+SELECT e.ts, e.local_date, e.address_type, e.aircraft_type, e.lat, e.lon, e.location_icao, e.in_ps
+INTO @t_ts, @t_local_date, @t_addrtype, @t_type, @t_lat, @t_lon, @t_loc, @in_ps
 FROM logbook_events as e
 WHERE e.address = new.address and e.event='T' and e.ts < new.ts and e.ts > (new.ts - 16*60*60)
 ORDER BY e.ts DESC LIMIT 1;
 INSERT INTO logbook_entries (address, address_type, aircraft_type, takeoff_ts, takeoff_date, takeoff_lat, takeoff_lon, takeoff_icao, landing_ts, landing_date, landing_lat, landing_lon, landing_icao, flight_time, tow_id, in_ps)
-VALUES (new.address, @t_addrtype, @t_type, @t_ts, @t_date, @t_lat, @t_lon, @t_loc, new.ts, new.date, new.lat, new.lon, new.location_icao, new.ts-@t_ts, null, @in_ps);
+VALUES (new.address, @t_addrtype, @t_type, @t_ts, @t_local_date, @t_lat, @t_lon, @t_loc, new.ts, new.local_date, new.lat, new.lon, new.location_icao, new.ts-@t_ts, null, @in_ps);
 END IF;
 END;//
 DELIMITER ;
