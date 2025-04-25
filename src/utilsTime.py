@@ -41,6 +41,12 @@ def getLocalTzDate(utcTs: int, lat: float, lon: float) -> str:
 
     except pytz.exceptions.UnknownTimeZoneError as e:
         print(f"[ERROR] Unknown timezone for lat {lat:.4f} lon {lon:.4f}:", str(e))
-        dateLocal = datetime.fromtimestamp(utcTs, tz=pytz.timezone('UTC')).strftime('%Y-%m-%d')
+
+    except TypeError as e:
+        print(f"[ERROR] Some other problem:", str(e))
+
+    finally:
+        if not dateLocal:
+            dateLocal = datetime.fromtimestamp(utcTs, tz=pytz.timezone('UTC')).strftime('%Y-%m-%d')
 
     return dateLocal
