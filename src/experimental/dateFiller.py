@@ -25,7 +25,7 @@ def processLogbookEvents():
     i = 0
     while True:
         with DbSource(dbConnectionInfo).getConnection().cursor() as cur:
-            strSql = f'select id, ts, local_date, lat, lon from logbook_events where date is null limit {LIMIT};'
+            strSql = f'select id, ts, local_date, lat, lon from logbook_events where local_date is null limit {LIMIT};'
 
             cur.execute(strSql)
             rows = cur.fetchall()
