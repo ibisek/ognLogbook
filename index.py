@@ -262,6 +262,10 @@ def getCsv(type: str, code: str, date=None, dateTo=None):
     :param dateTo: optional
     :return:
     """
+
+    # TEMPORARY to stop the robots:
+    return flask.render_template('error40x.html', code=401, message="Nope :P"), 401
+
     if not type or not code:
         return flask.redirect('/')
 
@@ -460,6 +464,9 @@ def getIgc(idType: str, flightId: int):
     :param idType   'f' flight or 't' takeoff id
     :param flightId flight or event ID
     """
+
+    # TEMPORARY to stop the robots:
+    return flask.render_template('error40x.html', code=401, message="Nope :P"), 401
 
     if idType not in ['f', 't']:
         return flask.render_template('error40x.html', code=404, message="Nope :P"), 404
