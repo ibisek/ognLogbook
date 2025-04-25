@@ -52,7 +52,7 @@ def processLogbookEntries():
     i = 0
     while True:
         with DbSource(dbConnectionInfo).getConnection().cursor() as cur:
-            strSql = f'SELECT id, takeoff_ts, takeoff_lat, takeoff_lon, landing_ts, landing_lat, landing_lon from logbook_entries where takeoff_date is null or landing_date is null limit {LIMIT};'
+            strSql = f'SELECT id, takeoff_ts, takeoff_lat, takeoff_lon, landing_ts, landing_lat, landing_lon, takeoff_date, landing_date from logbook_entries where takeoff_date is null or landing_date is null limit {LIMIT};'
 
             cur.execute(strSql)
             rows = cur.fetchall()
@@ -60,13 +60,15 @@ def processLogbookEntries():
                 break  # uz tu nic neni
 
             for row in rows:
-                entryId, takeoff_ts, takeoff_lat, takeoff_lon, landing_ts, landing_lat, landing_lon = row
+                entryId, takeoff_ts, takeoff_lat, takeoff_lon, \
+                landing_ts, landing_lat, landing_lon, \
+                takeoff_date, landing_date = row
 
                 if not takeoff_ts or not landing_ts:
                     continue
 
-                dateLocalTakeoff = getLocalTzDate(utcTs=takeoff_ts, lat=takeoff_lat, lon=takeoff_lon)
-                dateLocalLanding = getLocalTzDate(utcTs=landing_ts, lat=landing_lat, lon=landing_lon)
+                dateLocalTakeoff = takeoff_date if takeoff_date else getLocalTzDate(utcTs=takeoff_ts, lat=takeoff_lat, lon=takeoff_lon)
+                dateLocalLanding = landing_date if landing_date else getLocalTzDate(utcTs=landing_ts, lat=landing_lat, lon=landing_lon)
 
                 if dateLocalTakeoff and dateLocalLanding:
                     updateSql = f"UPDATE logbook_entries SET takeoff_date='{dateLocalTakeoff}', landing_date='{dateLocalLanding}' WHERE id={entryId};"
