@@ -21,6 +21,8 @@ events.sql
 NOTE: LANDING events shall not be imported as they cause new entries to be created!!
 """
 
+from utilsTime import getLocalTzDate
+
 if __name__ == '__main__':
 
     ENTRIES_FILEPATH = '/home/ibisek/wqz/temp/entries.tsv'  # tsv = tab separated values
@@ -70,6 +72,7 @@ if __name__ == '__main__':
             items = [None if item == '\\N' else item for item in items]
             (_, ts, address, address_type, aircraft_type, event, lat, lon, location_icao, flight_time, in_ps) = items
 
+            localDate = getLocalTzDate(ts=ts, lat=lat, lon=lon)
             aircraft_type = int(aircraft_type)
             lat = float(lat)
             lon = float(lon)
@@ -78,7 +81,7 @@ if __name__ == '__main__':
             flight_time = int(flight_time)
             in_ps = 'true' if in_ps == '1' else 'false'
 
-            sql = f"INSERT INTO logbook_events (ts, address, address_type, aircraft_type, event, lat, lon, location_icao, flight_time, in_ps) VALUES ({ts}, '{address}', '{address_type}', {aircraft_type}, '{event}', {lat}, {lon}, {location_icao}, {flight_time}, {in_ps});"
+            sql = f"INSERT INTO logbook_events (ts, local_date, address, address_type, aircraft_type, event, lat, lon, location_icao, flight_time, in_ps) VALUES ({ts}, '{localDate}', '{address}', '{address_type}', {aircraft_type}, '{event}', {lat}, {lon}, {location_icao}, {flight_time}, {in_ps});"
             print(sql)
             queries.append(sql)
 

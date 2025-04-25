@@ -17,6 +17,7 @@ from airfieldManager import AirfieldManager
 from dao.logbookDao import findMostRecentTakeoff
 from dataStructures import LogbookItem
 from cron.eventWatcher.eventWatcher import EventWatcher
+from utilsTime import getLocalTzDate
 
 
 class RedisReaper(object):
@@ -123,11 +124,13 @@ class RedisReaper(object):
                         if flightTime < 0:
                             flightTime = 0
 
+                        localDate = getLocalTzDate(utcTs=utcDt.timestamp(), lat=lat, lon=lon)
+
                         icaoLocationVal = f"'{icaoLocation}'" if icaoLocation else 'null'
                         strSql = f"INSERT INTO logbook_events " \
-                                 f"(ts, address, address_type, aircraft_type, event, lat, lon, location_icao, flight_time) " \
+                                 f"(ts, local_date, address, address_type, aircraft_type, event, lat, lon, location_icao, flight_time) " \
                                  f"VALUES " \
-                                 f"({localTs}, '{addr}', '{logbookItem.address_type}', '{logbookItem.aircraft_type}', " \
+                                 f"({localTs}, '{localDate}', '{addr}', '{logbookItem.address_type}', '{logbookItem.aircraft_type}', " \
                                  f"'L', {lat:.5f}, {lon:.5f}, {icaoLocationVal}, {flightTime});"
 
                         # print('strSql:', strSql)
