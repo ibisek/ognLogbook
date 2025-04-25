@@ -25,7 +25,7 @@ def processLogbookEvents():
     i = 0
     while True:
         with DbSource(dbConnectionInfo).getConnection().cursor() as cur:
-            strSql = f'select id, ts, date, lat, lon from logbook_events where date is null limit {LIMIT};'
+            strSql = f'select id, ts, local_date, lat, lon from logbook_events where date is null limit {LIMIT};'
 
             cur.execute(strSql)
             rows = cur.fetchall()
@@ -33,12 +33,12 @@ def processLogbookEvents():
                 break   # uz tu nic neni
 
             for row in rows:
-                eventId, ts, date, lat, lon = row
+                eventId, ts, local_date, lat, lon = row
 
-                dateLocal = getLocalTzDate(utcTs=ts, lat=lat, lon=lon)
+                localDate = getLocalTzDate(utcTs=ts, lat=lat, lon=lon)
 
-                if dateLocal:
-                    updateSql = f"UPDATE logbook_events SET date='{dateLocal}' WHERE id={eventId};"
+                if localDate:
+                    updateSql = f"UPDATE logbook_events SET local_date='{localDate}' WHERE id={eventId};"
                     cur.execute(updateSql)
 
                     if i % 10 == 0:
@@ -67,11 +67,11 @@ def processLogbookEntries():
                 if not takeoff_ts or not landing_ts:
                     continue
 
-                dateLocalTakeoff = takeoff_date if takeoff_date else getLocalTzDate(utcTs=takeoff_ts, lat=takeoff_lat, lon=takeoff_lon)
-                dateLocalLanding = landing_date if landing_date else getLocalTzDate(utcTs=landing_ts, lat=landing_lat, lon=landing_lon)
+                localDateTakeoff = takeoff_date if takeoff_date else getLocalTzDate(utcTs=takeoff_ts, lat=takeoff_lat, lon=takeoff_lon)
+                localDateLanding = landing_date if landing_date else getLocalTzDate(utcTs=landing_ts, lat=landing_lat, lon=landing_lon)
 
-                if dateLocalTakeoff and dateLocalLanding:
-                    updateSql = f"UPDATE logbook_entries SET takeoff_date='{dateLocalTakeoff}', landing_date='{dateLocalLanding}' WHERE id={entryId};"
+                if localDateTakeoff and localDateLanding:
+                    updateSql = f"UPDATE logbook_entries SET takeoff_date='{localDateTakeoff}', landing_date='{localDateLanding}' WHERE id={entryId};"
                     cur.execute(updateSql)
 
                     if i % 10 == 0:
