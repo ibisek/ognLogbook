@@ -413,10 +413,6 @@ class RawWorker(Thread):
                      f"({ts}, '{localDate}', '{address}', '{addressTypeStr}', '{aircraftType}', " \
                      f"'{event}', {lat:.5f}, {lon:.5f}, {icaoLocation}, {flightTime});"
 
-            if event == 'L' and not localDate:
-                print('strSql:', strSql)
-                print(666)
-
             # print('strSql:', strSql)
             self.dbThread.addStatement(strSql)
 
