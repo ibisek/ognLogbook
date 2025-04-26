@@ -29,7 +29,7 @@ def listDepartures(address=None, icaoCode=None, registration=None, forDay: datet
     #     condTs = f" AND l.ts >= {startTs} AND l.ts <= {endTs}"
     if forDay:
         formattedDate = forDay.strftime('%Y-%m-%d')
-        condTs = f" AND date = '{formattedDate}'"
+        condTs = f" AND local_date = '{formattedDate}'"
 
     if limit:
         condLimit = f" limit {limit}"
@@ -97,7 +97,7 @@ def listArrivals(address=None, icaoCode=None, registration=None, forDay: datetim
     #     condTs = f" AND l.ts >= {startTs} AND l.ts <= {endTs}"
     if forDay:
         formattedDate = forDay.strftime('%Y-%m-%d')
-        condTs = f" AND date = '{formattedDate}'"
+        condTs = f" AND local_date = '{formattedDate}'"
 
     if limit:
         condLimit = f" limit {limit}"
