@@ -169,11 +169,11 @@ def listFlights(address=None, icaoCode=None, registration=None, forDay: datetime
     condTs = ''
     condLimit = ''
     if forDay:
-        startTs, endTs = getDayTimestamps(forDay)
-        if startTs and endTs:
-            condTs = f" AND (takeoff_ts between {startTs} AND {endTs} OR landing_ts between {startTs} AND {endTs})"
-    #     formattedDate = forDay.strftime('%Y-%m-%d')
-    #     condTs = f" AND (takeoff_date = '{formattedDate}' OR landing_date = '{formattedDate})'"
+        # startTs, endTs = getDayTimestamps(forDay)
+        # if startTs and endTs:
+        #     condTs = f" AND (takeoff_ts between {startTs} AND {endTs} OR landing_ts between {startTs} AND {endTs})"
+        formattedDate = forDay.strftime('%Y-%m-%d')
+        condTs = f" AND (takeoff_date = '{formattedDate}' OR landing_date = '{formattedDate}')"
 
     if limit:
         condLimit = f" limit {limit}"
@@ -332,11 +332,11 @@ def getSums(registration, forDay: datetime = None, limit=None):
 
     condTs = ''
     if forDay:
-        startTs, endTs = getDayTimestamps(forDay)
-        if startTs and endTs:
-            condTs = f" AND (takeoff_ts between {startTs} AND {endTs} OR landing_ts between {startTs} AND {endTs})"
-        # formattedDate = forDay.strftime('%Y-%m-%d')
-        # condTs = f" AND (takeoff_date is {formattedDate} OR landing_date is {formattedDate})"
+        # startTs, endTs = getDayTimestamps(forDay)
+        # if startTs and endTs:
+        #     condTs = f" AND (takeoff_ts between {startTs} AND {endTs} OR landing_ts between {startTs} AND {endTs})"
+        formattedDate = forDay.strftime('%Y-%m-%d')
+        condTs = f" AND (takeoff_date = '{formattedDate}' OR landing_date = '{formattedDate}')"
 
     numFlights = 0
     totalFlightTime = 0
