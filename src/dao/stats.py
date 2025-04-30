@@ -1,6 +1,7 @@
 
 from datetime import datetime
 
+import pytz
 from redis import StrictRedis
 
 from configuration import dbConnectionInfo, redisConfig
@@ -54,13 +55,16 @@ class Stats:
         return num
 
     @staticmethod
-    def getNumFlightsToday():
+    def getNumFlightsToday(forDay: datetime = None, display_tz=pytz.utc):
         num = 0
-        startTs, endTs = getDayTimestamps(datetime.now())
 
+        if not forDay:
+            forDay = datetime.now(tz=display_tz)
+
+        formattedDate = forDay.strftime('%Y-%m-%d')
         try:
             with DbSource(dbConnectionInfo=dbConnectionInfo).getConnection().cursor() as c:
-                sql = f"SELECT count(address) FROM logbook_entries WHERE takeoff_ts >= {startTs} AND landing_ts <= {endTs};"
+                sql = f"SELECT count(address) FROM logbook_entries WHERE takeoff_date = '{formattedDate}' AND landing_date = '{formattedDate}';"
                 res = c.execute(sql)
 
                 if res:
