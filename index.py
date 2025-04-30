@@ -109,7 +109,7 @@ def index():
 
     stats = Stats()
     totNumFlights = stats.getTotNumFlights()
-    numFlightsToday = stats.getNumFlightsToday()
+    numFlightsToday = stats.getNumFlightsToday(display_tz=display_tz)
     # longestFlightId, longestFlightTime = stats.getLongestFlightToday()
     highestTrafficLocation, highestTrafficCount = stats.getHighestTrafficToday()
 
