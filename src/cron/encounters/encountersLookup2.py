@@ -107,8 +107,6 @@ class EncountersLookup:
                 delEncountersQueueItem(encQItem)
                 continue
 
-            self.cache.ensureAllDataInCache(fromTs=flight.takeoff_ts, toTs=flight.landing_ts)
-
             # load own flight track data:
             ownAddr = f"{dataStructures.addressPrefixes[flight.address_type]}{flight.address}"
             q = f"SELECT time, addr, lat, lon, alt FROM pos WHERE addr='{ownAddr}' AND gs > 80 AND time >= {flight.takeoff_ts}000000000 AND time <= {flight.landing_ts}000000000 ORDER BY time;"
@@ -119,6 +117,14 @@ class EncountersLookup:
 
             alreadyEncounteredAirplanes = {}    # device_id -> True; only first contact will be stored
             mySectors: list[Sector] = splitIntoSectors(rs)
+
+            # Find min/max lat/lon bounding box for this flight:
+            boundingBox = Sector(lat=0, lon=0)
+            for sector in mySectors:
+                boundingBox.extend(sector=sector)
+
+            self.cache.ensureAllDataInCache(fromTs=flight.takeoff_ts, toTs=flight.landing_ts, boundingBox=boundingBox)
+
             for sector in mySectors:
                 # print(f"[INFO] SECTOR addr:{sector.addr} dt: {sector.endTs - sector.startTs} numPositions: {len(sector.positions)}")
 

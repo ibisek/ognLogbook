@@ -46,7 +46,7 @@ class Cache:
             sectorAddr = Sector.calcSectorAddr(lat=pos.lat, lon=pos.lon)
             self._addToData(ts=pos.ts, sectorAddr=sectorAddr, pos=pos)
 
-    def ensureAllDataInCache(self, fromTs: int, toTs: int) -> bool:
+    def ensureAllDataInCache(self, fromTs: int, toTs: int, boundingBox: Sector) -> bool:
         # drop all positions older than X hours:
         nowUtcTs = floor(datetime.now(UTC).timestamp())
         if (nowUtcTs - self.lastCacheCleanupTs) > 3600:
@@ -64,7 +64,11 @@ class Cache:
             self.data.clear()
 
         if not self.tsStart or not self.tsEnd:  # initial data fetch
-            q = f"SELECT time, addr, lat, lon, alt FROM pos WHERE gs > 80 AND time >= {fromTs}000000000 AND time <= {toTs}000000000 ORDER BY time;"
+            q = f"SELECT time, addr, lat, lon, alt FROM pos WHERE gs > 80" \
+                f" AND time >= {fromTs}000000000 AND time <= {toTs}000000000" \
+                f" AND lat >= {boundingBox.lat_min} AND lat <= {boundingBox.lat_max}" \
+                f" AND lon >= {boundingBox.lon_min} AND lon <= {boundingBox.lon_max}" \
+                f" ORDER BY time;"
             self._populateCache(q)
 
             self.tsStart = fromTs

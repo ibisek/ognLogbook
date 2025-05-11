@@ -50,3 +50,19 @@ class Sector:
         lon_min = floor(lon * mult) / mult
 
         return f"{lat_min}_{lon_min}"
+
+    def extend(self, other: Sector):
+        """
+        Extends area covered by this sector by others lat/lon edges.
+        """
+        if self.lat_min == 0 or self.lat_min > other.lat_min:
+            self.lat_min = other.lat_min
+
+        if self.lat_max == 0 or self.lat_max < other.lat_max:
+            self.lat_max = other.lat_max
+
+        if self.lon_min == 0 or self.lon_min > other.lon_min:
+            self.lon_min = other.lon_min
+
+        if self.lon_max == 0 or self.lon_max < other.lon_max:
+            self.lon_max = other.lon_max
