@@ -51,10 +51,12 @@ class Sector:
 
         return f"{lat_min}_{lon_min}"
 
-    def extend(self, other: Sector):
+    def extend(self, other):
         """
         Extends area covered by this sector by others lat/lon edges.
+        :other other sector
         """
+
         if self.lat_min == 0 or self.lat_min > other.lat_min:
             self.lat_min = other.lat_min
 
