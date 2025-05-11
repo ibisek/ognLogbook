@@ -1,3 +1,4 @@
+import sys
 from datetime import datetime, UTC
 from math import floor
 
@@ -8,6 +9,8 @@ from db.InfluxDbThread import InfluxDbThread
 from encountersUtils import rowIntoPosition
 from position import Position
 from sector import Sector
+
+MEM_SIZE_LIMIT = 8 * 1024 * 1024 * 1024    # [GB]
 
 
 class Cache:
@@ -44,6 +47,22 @@ class Cache:
             self._addToData(ts=pos.ts, sectorAddr=sectorAddr, pos=pos)
 
     def ensureAllDataInCache(self, fromTs: int, toTs: int) -> bool:
+        # drop all positions older than X hours:
+        nowUtcTs = floor(datetime.now(UTC).timestamp())
+        if (nowUtcTs - self.lastCacheCleanupTs) > 3600:
+            self.lastCacheCleanupTs = nowUtcTs
+            thrTs = nowUtcTs - 12 * 60 * 60
+            keys = [k for k in self.data.keys()]    # to avoid concurrent data access in the dict
+            for ts in keys:
+                if ts < thrTs:
+                    self.data.pop(ts, None)
+                else:
+                    break
+
+        # ensure cache size is less than MEM limit:
+        if sys.getsizeof(self.data) > MEM_SIZE_LIMIT:
+            self.data.clear()
+
         if not self.tsStart or not self.tsEnd:  # initial data fetch
             q = f"SELECT time, addr, lat, lon, alt FROM pos WHERE gs > 80 AND time >= {fromTs}000000000 AND time <= {toTs}000000000 ORDER BY time;"
             self._populateCache(q)
@@ -64,17 +83,6 @@ class Cache:
 
                 self.tsEnd = toTs
 
-        # drop all positions older than 24h:
-        nowUtcTs = floor(datetime.now(UTC).timestamp())
-        if (nowUtcTs - self.lastCacheCleanupTs) > 3600:
-            self.lastCacheCleanupTs = nowUtcTs
-            thrTs = nowUtcTs - 12 * 60 * 60
-            keys = [k for k in self.data.keys()]    # to avoid concurrent data access in the dict
-            for ts in keys:
-                if ts < thrTs:
-                    self.data.pop(ts, None)
-                else:
-                    break
 
     def list(self, ts: int, sectorAddr: str, omitDeviceAddr: str) -> [Position]:
         positions = self.data.get(ts, {}).get(sectorAddr, [])
