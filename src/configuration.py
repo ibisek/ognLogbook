@@ -25,7 +25,7 @@ else:
 OGN_USERNAME = 'blume1'
 
 redisConfig = {"host": "127.0.0.1", "password": "", "port": 6379}
-REDIS_RECORD_EXPIRATION = 8*60*60     # [s]
+REDIS_RECORD_EXPIRATION = 12*60*60     # [s]
 
 AGL_LANDING_LIMIT = 100
 
