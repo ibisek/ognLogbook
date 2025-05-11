@@ -121,7 +121,7 @@ class EncountersLookup:
             # Find min/max lat/lon bounding box for this flight:
             boundingBox = Sector(lat=0, lon=0)
             for sector in mySectors:
-                boundingBox.extend(sector=sector)
+                boundingBox.extend(otherSector=sector)
 
             self.cache.ensureAllDataInCache(fromTs=flight.takeoff_ts, toTs=flight.landing_ts, boundingBox=boundingBox)
 
