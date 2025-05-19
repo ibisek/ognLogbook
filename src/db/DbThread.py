@@ -77,6 +77,7 @@ class DbThread(threading.Thread):
 
                     except Exception as ex:
                         print('[ERROR] in DbThread (1):', ex)
+                        print('[ERROR] the sql:', sql)
                         connection = DbSource(self.dbConnectionInfo).getConnection()
                         # self.toDoStatements.append(sql)  # requeue for retry
                         self.toDoStatements.put(sql)  # requeue for retry
