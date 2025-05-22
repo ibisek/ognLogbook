@@ -170,7 +170,7 @@ class EncountersLookup:
         self.running = False
         if batchCounter > 0:
             runTime = datetime.now().timestamp() - startTs
-            dt = datetime.utcnow.strftime("%d-%m-%Y %H:%M:%S")
+            dt = datetime.utcnow().strftime("%d-%m-%Y %H:%M:%S")
             print(f"[INFO] {dt} Analyzed {batchCounter} flights in {round(runTime)}s while discovered {encountersCounter} encounter(s).")
 
         return batchCounter + 1
