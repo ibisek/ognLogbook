@@ -37,7 +37,13 @@ class Cache:
         self.data[ts][sectorAddr].append(pos)
 
     def _populateCache(self, q: str):
-        rs: ResultSet = self.influxDb.query(q)
+        rs: ResultSet = None
+        try:
+            rs = self.influxDb.query(q)
+        except Exception as e:
+            print(f"[ERROR] when populating cache:", str(e))
+            print(f"[ERROR] query:", q)
+
         if not rs:  # no data for this flight
             return
 
