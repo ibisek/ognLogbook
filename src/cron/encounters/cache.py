@@ -10,7 +10,7 @@ from encountersUtils import rowIntoPosition
 from position import Position
 from sector import Sector
 
-MEM_SIZE_LIMIT = 8 * 1024 * 1024 * 1024    # [GB]
+MEM_SIZE_LIMIT = 16 * 1024 * 1024 * 1024    # [GB]
 
 
 class Cache:
@@ -62,6 +62,8 @@ class Cache:
         # ensure cache size is less than MEM limit:
         if sys.getsizeof(self.data) > MEM_SIZE_LIMIT:
             self.data.clear()
+            self.tsStart = None
+            self.tsEnd = None
 
         if not self.tsStart or not self.tsEnd:  # initial data fetch
             q = f"SELECT time, addr, lat, lon, alt FROM pos WHERE gs > 80" \
