@@ -10,7 +10,7 @@ from encountersUtils import rowIntoPosition
 from position import Position
 from sector import Sector
 
-MEM_SIZE_LIMIT = 16 * 1024 * 1024 * 1024    # [GB]
+MEM_SIZE_LIMIT = 8 * 1024 * 1024 * 1024    # [GB]
 
 
 class Cache:
