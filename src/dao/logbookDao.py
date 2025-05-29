@@ -391,16 +391,15 @@ def getNumStatsPerDay(forDay: datetime = None):
     """
     @return numFlights, totalFlightTime [s]
     """
-    startTs, endTs = getDayTimestamps(forDay)
-    if not startTs or not endTs:
-        return None, None
 
     numFlights = 0
     totalFlightTime = 0
 
+    theDate = forDay.strftime('%Y-%m-%d')
+
     with DbSource(dbConnectionInfo).getConnection().cursor() as c:
         strSql = f"""SELECT count(id), sum(flight_time) FROM logbook_entries 
-            WHERE takeoff_ts >= {startTs} AND landing_ts <= {endTs};"""
+            WHERE takeoff_date = '{theDate}' OR landing_date = '{theDate}';"""
 
         c.execute(strSql)
         row = c.fetchall()
