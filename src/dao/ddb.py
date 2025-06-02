@@ -122,9 +122,9 @@ class DDB:  # ..extends (Singleton)
 
             if rec.id:
                 sql = (f"UPDATE ddb "
-                       f"SET (device_type='{rec.device_type}', device_id='{rec.device_id}', "
+                       f"SET device_type='{rec.device_type}', device_id='{rec.device_id}', "
                        f"aircraft_type='{aircraftType}', aircraft_registration='{rec.aircraft_registration}', aircraft_cn='{aircraftCn}', "
-                       f"tracked={tracked}, identified={identified}) "
+                       f"tracked={tracked}, identified={identified} "
                        f"WHERE id = {rec.id};")
                 self.dbThread.addStatement(sql)
 
