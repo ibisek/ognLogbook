@@ -49,7 +49,7 @@ afCountryCodes = airfieldManager.afCountryCodes
 # limiter = Limiter(app=app, key_func=get_remote_address)
 limiter = Limiter(
     app=app,
-    key_func=get_remote_address,
+    key_func=getRemoteAddr,
     storage_uri=f"redis://{redisConfig['host']}:{redisConfig['port']}",
     storage_options={"socket_connect_timeout": 30},
     strategy="fixed-window"     # fixed-window  | moving-window | sliding-window-counter
