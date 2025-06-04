@@ -259,7 +259,7 @@ def search(text=None):
         return flask.redirect(f"/reg/{text}")
 
 
-@limiter.limit("10/day")
+@limiter.limit("10 per day")
 @app.route('/csv/<type>/<code>', methods=['GET'])
 @app.route('/csv/<type>/<code>/<date>', methods=['GET'])
 @app.route('/csv/<type>/<code>/<date>/<dateTo>', methods=['GET'])
@@ -370,7 +370,7 @@ def _prepareDataForMap(flightRecord) -> (list, list):
 
 
 @app.route('/map/<flightId>', methods=['GET'])
-@limiter.limit("10/minute")
+@limiter.limit("10 per minute")
 def getMap(flightId: int):
     try:
         flightId = int(sanitise(flightId))
@@ -401,7 +401,7 @@ def getMap(flightId: int):
 
 
 @app.route('/api/fd/<flightId>', methods=['GET'])
-@limiter.limit("20/minute")
+@limiter.limit("10 per minute")
 def getFlightData(flightId: int):
     try:
         flightId = int(sanitise(flightId))
@@ -427,7 +427,7 @@ def getFlightData(flightId: int):
 
 
 @app.route('/api/ff', methods=['GET'])
-@limiter.limit("20/minute")
+@limiter.limit("10 per minute")
 def findFlights():
     date: datetime = parseDate(request.args.get("date", None), default=datetime.now(), endOfTheDay=True)
     loc: str = sanitise(request.args.get("loc", None))
@@ -452,7 +452,7 @@ def findFlights():
 
 
 @app.route('/api/enc/<flightId>', methods=['GET'])
-@limiter.limit("20/minute")
+@limiter.limit("10 per minute")
 def listEncounters(flightId: int):
     flightId = sanitise(flightId)
 
@@ -466,7 +466,7 @@ def listEncounters(flightId: int):
     return jsonify(listOfDicts)
 
 
-@limiter.limit("10/day")
+@limiter.limit("10 per day")
 @app.route('/api/igc/<idType>/<flightId>', methods=['GET'])
 def getIgc(idType: str, flightId: int):
     """
