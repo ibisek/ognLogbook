@@ -2,7 +2,7 @@ certifi==2023.7.22
 charset-normalizer==3.3.2
 click==8.1.7
 Flask==3.0.0
-Flask-Limiter==3.5.0
+Flask-Limiter==3.8.0
 idna==3.3
 importlib-metadata==6.8.0
 influxdb==5.3.1
