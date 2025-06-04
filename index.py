@@ -367,9 +367,9 @@ def _prepareDataForMap(flightRecord) -> (list, list):
 def getMap(flightId: int):
     try:
         flightId = int(sanitise(flightId))
-        print(f"[INFO] MAP: flightId='{flightId}'")
+        print(f"[INFO] MAP: flightId='{flightId} from {getRemoteAddr()}")
     except:
-        print(f"[INFO] MAP: invalid flightId='{flightId}'")
+        print(f"[INFO] MAP: invalid flightId='{flightId} from {getRemoteAddr()}'")
         return flask.render_template('error40x.html', code=404, message="Nope :P"), 404
 
     display_tz = _getBrowserTimezone()
