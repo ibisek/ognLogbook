@@ -19,7 +19,7 @@ from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from utils import getRemoteAddr
 
-from configuration import DEBUG, DATA_AVAILABILITY_DAYS, MAX_DAYS_IN_RANGE, INFLUX_DB_HOST, INFLUX_DB_NAME, INFLUX_DB_NAME_PERMANENT_STORAGE
+from configuration import DEBUG, DATA_AVAILABILITY_DAYS, MAX_DAYS_IN_RANGE, INFLUX_DB_HOST, INFLUX_DB_NAME, INFLUX_DB_NAME_PERMANENT_STORAGE, redisConfig
 from airfieldManager import AirfieldManager, AirfieldRecord
 from dataStructures import LogbookItem, addressPrefixes
 from dao.encountersDao import Encounter, listEncountersWithRegistration
@@ -46,7 +46,14 @@ airfieldManager = AirfieldManager()
 afCountryCodes = airfieldManager.afCountryCodes
 
 # limiter = Limiter(app=app, key_func=getRemoteAddr)
-limiter = Limiter(app=app, key_func=get_remote_address)
+# limiter = Limiter(app=app, key_func=get_remote_address)
+limiter = Limiter(
+    app=app,
+    key_func=get_remote_address,
+    storage_uri=f"redis://{redisConfig['host']}:{redisConfig['port']}",
+    storage_options={"socket_connect_timeout": 30},
+    strategy="fixed-window"     # fixed-window  | moving-window | sliding-window-counter
+)
 
 
 @app.route('/set_timezone', methods=['POST'])
