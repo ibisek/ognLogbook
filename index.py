@@ -370,7 +370,7 @@ def _prepareDataForMap(flightRecord) -> (list, list):
 
 
 @app.route('/map/<flightId>', methods=['GET'])
-@limiter.limit("10 per minute")
+@limiter.limit("20 per hour")
 def getMap(flightId: int):
     try:
         flightId = int(sanitise(flightId))
@@ -401,7 +401,7 @@ def getMap(flightId: int):
 
 
 @app.route('/api/fd/<flightId>', methods=['GET'])
-@limiter.limit("10 per minute")
+@limiter.limit("20 per hour")
 def getFlightData(flightId: int):
     try:
         flightId = int(sanitise(flightId))
