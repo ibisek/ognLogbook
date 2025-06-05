@@ -259,10 +259,10 @@ def search(text=None):
         return flask.redirect(f"/reg/{text}")
 
 
-@limiter.limit("10 per day")
 @app.route('/csv/<type>/<code>', methods=['GET'])
 @app.route('/csv/<type>/<code>/<date>', methods=['GET'])
 @app.route('/csv/<type>/<code>/<date>/<dateTo>', methods=['GET'])
+@limiter.limit("10 per day")
 def getCsv(type: str, code: str, date=None, dateTo=None):
     """
     :param type: loc | reg
@@ -466,8 +466,8 @@ def listEncounters(flightId: int):
     return jsonify(listOfDicts)
 
 
-@limiter.limit("10 per day")
 @app.route('/api/igc/<idType>/<flightId>', methods=['GET'])
+@limiter.limit("10 per day")
 def getIgc(idType: str, flightId: int):
     """
     :param idType   'f' flight or 't' takeoff id
