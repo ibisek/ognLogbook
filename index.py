@@ -262,7 +262,7 @@ def search(text=None):
 @app.route('/csv/<type>/<code>', methods=['GET'])
 @app.route('/csv/<type>/<code>/<date>', methods=['GET'])
 @app.route('/csv/<type>/<code>/<date>/<dateTo>', methods=['GET'])
-@limiter.limit("10 per day")
+@limiter.limit("10 per week")
 def getCsv(type: str, code: str, date=None, dateTo=None):
     """
     :param type: loc | reg
@@ -370,7 +370,7 @@ def _prepareDataForMap(flightRecord) -> (list, list):
 
 
 @app.route('/map/<flightId>', methods=['GET'])
-@limiter.limit("20 per hour")
+@limiter.limit("10 per hour")
 def getMap(flightId: int):
     try:
         flightId = int(sanitise(flightId))
@@ -467,7 +467,7 @@ def listEncounters(flightId: int):
 
 
 @app.route('/api/igc/<idType>/<flightId>', methods=['GET'])
-@limiter.limit("10 per day")
+@limiter.limit("10 per week")
 def getIgc(idType: str, flightId: int):
     """
     :param idType   'f' flight or 't' takeoff id
