@@ -370,7 +370,7 @@ def _prepareDataForMap(flightRecord) -> (list, list):
 
 
 @app.route('/map/<flightId>', methods=['GET'])
-@limiter.limit("10 per hour")
+@limiter.limit("20/day")
 def getMap(flightId: int):
     try:
         flightId = int(sanitise(flightId))
