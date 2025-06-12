@@ -399,7 +399,7 @@ class RawWorker(Thread):
 
             icaoLocation = self.airfieldManager.getNearest(lat, lon)
 
-            dtStr = dt.strftime('%H:%M:%S')
+            dtStr = dt.strftime('%d-%m-%Y %H:%M:%S')
             print(f"[INFO] event: {dtStr}; {icaoLocation}; [{addressTypeStr}] {address}; {event}; {flightTime}")
 
             # get landing-local timezone date:
