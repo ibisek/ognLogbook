@@ -47,7 +47,7 @@
 			<div class="cell">{{formatTsToHHMM(item.takeoff_dt)}}</div>
 			<div class="cell">{% if item.takeoff_icao %}<a href="/loc/{{item.takeoff_icao}}/{{date.strftime('%Y-%m-%d')}}">{{item.takeoff_icao}}</a>{% else %}<a href="https://mapy.cz/zakladni?x={{item.takeoff_lon}}&y={{item.takeoff_lat}}&z=14&source=coor&id={{item.takeoff_lon}}%2C{{item.takeoff_lat}}" target="_blank">{{ gettext('main.map') }}</a>{% endif %}</div>
 			<div class="cell">{% if item.registration %}<a href="/reg/{{item.registration}}/{{date.strftime('%Y-%m-%d')}}">{{item.registration}}</a>{% else %}{{ gettext('tab.hidden') }}{% endif %}</div>
-			<div class="cell">{% if item.cn %}<a href="https://glideandseek.com/?aircraft={{item.address}}" target="_blank">{{item.cn}}</a>{% endif %}</div>
+			<div class="cell"><a href="https://glideandseek.com/?aircraft={{item.address}}" target="_blank">&#8982;&nbsp;{% if item.cn %}{{item.cn}}{% else %}<span class="tinyref">G&S</span>{% endif %}</a></div>
 		</div>
 		{% endfor %}
 	</div>
