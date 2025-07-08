@@ -311,6 +311,11 @@ a:hover {
     max-width: 1450px;
 }
 
+span.tinyref {
+    font-size: 0.6em;
+    vertical-align: middle;
+}
+
 /* ------------------------------ footer --------------------------- */
 
 .footer {
