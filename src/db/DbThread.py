@@ -93,7 +93,7 @@ class DbThread(threading.Thread):
                         cur = connection.cursor()
                         cur.execute('SELECT 1;')    # to prevent connection timeouts
                         cur.close()
-                    except ex:
+                    except Exception as ex:
                         print(f"[ERROR] in DbThread (2):", ex)
 
         if connection:
