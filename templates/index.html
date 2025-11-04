@@ -18,10 +18,6 @@
 	<link rel="stylesheet" href="/static/css/mc-calendar.min.css">
 	<script type="text/javascript" src="/static/js/mc-calendar.min.js"></script>
 
-	{% if not debugMode %}
-	<img alt="pocitadlo" src="https://counter.ibisek.com/log/img/ognLogbook.png">
-	{% endif %}
-
 	{% if 'browser_timezone' not in session %}
 	<script type="text/javascript">
 	  const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
