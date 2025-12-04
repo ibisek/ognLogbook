@@ -6,7 +6,7 @@ Needs to be executed in separate process due to performance reasons.
 """
 
 from math import sqrt, pow
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 import sys
 from time import sleep
 from random import randint
