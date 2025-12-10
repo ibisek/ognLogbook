@@ -17,7 +17,7 @@ from redis import StrictRedis
 from queue import Queue, Empty
 
 from ogn.parser import parse
-from ogn.parser.exceptions import ParseError
+from ogn.parser.exceptions import AprsParseError
 
 from configuration import DEBUG, redisConfig, \
     dbConnectionInfo, REDIS_RECORD_EXPIRATION, MQ_HOST, MQ_PORT, MQ_USER, MQ_PASSWORD, INFLUX_DB_NAME, INFLUX_DB_HOST, INFLUX_DB_NAME_PERMANENT_STORAGE, \
@@ -252,7 +252,7 @@ class RawWorker(Thread):
                 # print('bt:', beacon.get('beacon_type', None), str(beacon))
                 return
 
-        except ParseError as e:
+        except AprsParseError as e:
             # print(f'[ERROR] when parsing a beacon: {str(e)}', raw_message, file=sys.stderr)
             return
 
