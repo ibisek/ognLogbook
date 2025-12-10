@@ -68,7 +68,8 @@ class DDB:  # ..extends (Singleton)
         return DDB._instance
 
     def stop(self):
-        self.dbThread.stop()
+        if hasattr(self, 'dbThread'):
+            self.dbThread.stop()
 
     def __del__(self):
         self.stop()
