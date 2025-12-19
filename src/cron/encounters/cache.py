@@ -1,5 +1,5 @@
 import sys
-from datetime import datetime
+from datetime import datetime, timezone
 from math import floor
 
 from influxdb.resultset import ResultSet
@@ -54,7 +54,7 @@ class Cache:
 
     def ensureAllDataInCache(self, fromTs: int, toTs: int, boundingBox: Sector) -> bool:
         # drop all positions older than X hours:
-        nowUtcTs = floor(datetime.utcnow().timestamp())
+        nowUtcTs = floor(datetime.now(timezone.utc).timestamp())
         if (nowUtcTs - self.lastCacheCleanupTs) > 3600:
             self.lastCacheCleanupTs = nowUtcTs
             thrTs = nowUtcTs - 12 * 60 * 60

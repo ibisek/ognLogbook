@@ -178,7 +178,7 @@ class EncountersLookup:
 
     @staticmethod
     def doPostLookup():
-        ts = int((datetime.utcnow() - timedelta(hours=6)).timestamp())
+        ts = int((datetime.now(timezone.utc) - timedelta(hours=6)).timestamp())
         callEncountersPostLookup(startTs=ts)
 
 

@@ -10,7 +10,7 @@ Needs to be executed in separate process due to performance reasons.
 """
 
 from math import degrees, radians, floor, ceil, sqrt, pow
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timezone, timedelta, timezone
 import sys
 from time import sleep
 from random import randint
@@ -267,14 +267,14 @@ class EncountersLookup:
         self.running = False
         if batchCounter > 0:
             runTime = datetime.now().timestamp() - startTs
-            dt = datetime.utcnow().strftime("%d-%m-%Y %H:%M:%S")
+            dt = datetime.now(timezone.utc).strftime("%d-%m-%Y %H:%M:%S")
             print(f"[INFO] {dt} Analyzed {batchCounter} flights in {round(runTime)}s while discovered {encountersCounter} encounter(s).")
 
         return batchCounter + 1
 
     @staticmethod
     def doPostLookup():
-        ts = int((datetime.utcnow() - timedelta(hours=6)).timestamp())
+        ts = int((datetime.now(timezone.utc) - timedelta(hours=6)).timestamp())
         callEncountersPostLookup(startTs=ts)
 
 
