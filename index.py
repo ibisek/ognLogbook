@@ -249,11 +249,10 @@ def _prepareData(icaoCode=None, registration=None, forDay=None, limit=None, icao
 
 @app.route('/search/<text>', methods=['GET'])
 def search(text=None):
-    text = sanitise(text)
+    text = sanitise(text).upper()
 
-    # TODO determine if that is an ICAO code or registration!
-
-    if len(text) in (4, 6) and text.upper()[0:2] in afCountryCodes:
+    # Determine if that is an airfield identification code (not always an ICAO code) or registration:
+    if text in airfieldManager.afCodes:
         return flask.redirect(f"/loc/{text.upper()}")
     else:
         return flask.redirect(f"/reg/{text}")
