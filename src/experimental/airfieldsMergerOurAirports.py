@@ -38,12 +38,21 @@ if __name__ == '__main__':
             items = line.split(',')
 
             try:
+                code = items[1]
+                if code == 'GB-0429':
+                    print(666)
+
                 int(items[0])  # this is just to detect valid entries; id shall be numeric
                 code = items[1]
                 type = items[2]
                 lat = float(items[4])
                 lon = float(items[5])
-                eleFt = float(items[6])
+
+                # some strips are without elevation
+                if items[6]:
+                    eleFt = float(items[6])
+                else:
+                    eleFt = 0
 
                 lat = float(f'{lat:.4f}')
                 lon = float(f'{lon:.4f}')
@@ -59,11 +68,14 @@ if __name__ == '__main__':
             # print(code, lat, lon, alt)
 
             if code not in airfields:
-                airfields[code] = {'lat': lat, 'lon': lon, 'alt': alt}
+                airfields[code] = {'lat': lat, 'lon': lon}
+                if alt:
+                    airfields[code]['alt'] = alt
+
                 nAccepted += 1
             else:
                 entry = airfields[code]
-                if 'alt' not in entry:
+                if alt and 'alt' not in entry:
                     airfields[code]['alt'] = alt
                 else:
                     nRejected += 1
