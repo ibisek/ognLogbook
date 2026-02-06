@@ -20,7 +20,7 @@ class AirfieldRecord(object):
 
 class AirfieldManager(object):  # , metaclass=Singleton
 
-    __slots__ = ('airfields', 'afCountryCodes')
+    __slots__ = ('airfields', 'afCountryCodes', 'afCodes')
 
     def __init__(self):
         self.airfields, _ = self.loadAirfieldsFromFile()
@@ -29,6 +29,8 @@ class AirfieldManager(object):  # , metaclass=Singleton
         self.airfields.sort(key=lambda af: af.lon)      # ordering by lon gives better & faster results
         # get airfields country codes:
         self.afCountryCodes = self._getCountryCodes(self.airfields)
+        # extract all airfields codes:
+        self.afCodes = self._getAirfieldCodes(self.airfields)
         # split into four sections for faster lookup:
         self.airfields = self._splitAirfieldsIntoQuadrants(self.airfields)
 
@@ -60,6 +62,20 @@ class AirfieldManager(object):  # , metaclass=Singleton
             code2 = af.code[:2]
             if code2 not in d:
                 d[code2] = 1
+
+        return d
+
+    @staticmethod
+    def _getAirfieldCodes(airfields: List[AirfieldRecord]) -> Dict:
+        """
+        Used on homepage to identify meaning of searched string is an ICAO (or alike) code or airplane's registration
+        :param airfields:
+        :return: dict(keys) of full airfields' CODES
+        """
+        d = {}
+        for af in airfields:
+            code = af.code
+            d[code] = True
 
         return d
 
