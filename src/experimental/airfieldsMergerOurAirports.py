@@ -5,34 +5,30 @@
 # https://ourairports.com/countries/GB/airports.hxl
 #
 
+import glob
 import os
 import json
 
-AIRFIELDS_FN = '../../data/airfields.json'
+# AIRFIELDS_FN = '../../data/airfields.json'
+AIRFIELDS_FN = '../../data/airfields.json.new'
 AIRFIELDS_FN_new = '../../data/airfields.json.new'
 
-AIRFIELDS_FN_INCOMING = '../../data/se-airports.csv'
+AIRFIELDS_FN_INCOMING = None
+# AIRFIELDS_FN_INCOMING = '../../data/lv-airports.csv'
+AIRFIELDS_PATH_INCOMING = '../../data/*-airports.csv'
 
 new = 0
 old = 0
 
-if __name__ == '__main__':
 
-    airfields = dict()
-
-    with open(AIRFIELDS_FN, 'r') as f:
-        l = json.load(f)
-        for item in l:
-            code = item.get('code', None)
-            lat = float(item.get('lat', 0))
-            lon = float(item.get('lon', 0))
-            airfields[code] = {'lat': lat, 'lon': lon}
-
-    print('Total (old) num of airfield locations:', len(airfields))
-
+def importFile(inFilePath: str):
+    """
+    :param inFilePath:
+    MODIFIES GLOBAL LIST 'airfields'
+    """
     nAccepted = 0
     nRejected = 0
-    with open(AIRFIELDS_FN_INCOMING, 'r') as f:
+    with open(inFilePath, 'r') as f:
         lines = f.readlines()
         for line in lines:
             items = line.split(',')
@@ -54,18 +50,30 @@ if __name__ == '__main__':
                 else:
                     eleFt = 0
 
+                # icao code 16, local code 18
+                icaoCode = items[16]
+                localCode = items[18]
+                gpsCode = items[15]
+
                 lat = float(f'{lat:.4f}')
                 lon = float(f'{lon:.4f}')
-                alt = round(eleFt * 0.3048) # [ft] -> [m]
+                alt = round(eleFt * 0.3048)  # [ft] -> [m]
 
             except ValueError as e:
                 continue
 
             if type.lower() in ['closed', 'heliport']:
                 nRejected += 1
-                continue    # ignore closed strips
+                continue  # ignore closed strips
 
-            # print(code, lat, lon, alt)
+            # print(code, icaoCode, localCode, lat, lon, alt)
+
+            if icaoCode:  # take a reasonable one
+                code = icaoCode
+            elif localCode:
+                code = localCode
+            elif gpsCode:
+                code = gpsCode
 
             if code not in airfields:
                 airfields[code] = {'lat': lat, 'lon': lon}
@@ -82,6 +90,30 @@ if __name__ == '__main__':
 
     print('Total (new) num of airfield locations:', len(airfields))
     print(f"  nAccepted: {nAccepted}\n  nRejected: {nRejected}")
+
+    return airfields
+
+
+if __name__ == '__main__':
+
+    airfields = dict()
+
+    with open(AIRFIELDS_FN, 'r') as f:
+        l = json.load(f)
+        for item in l:
+            code = item.get('code', None)
+            lat = float(item.get('lat', 0))
+            lon = float(item.get('lon', 0))
+            airfields[code] = {'lat': lat, 'lon': lon}
+
+    print('Total (old) num of airfield locations:', len(airfields))
+
+    if AIRFIELDS_FN_INCOMING:   # from a single file
+        importFile(inFilePath=AIRFIELDS_FN_INCOMING)
+    else:   # batch import
+        for filePath in glob.glob(AIRFIELDS_PATH_INCOMING):
+            print(f"Importing {filePath};")
+            importFile(inFilePath=filePath)
 
     with open(AIRFIELDS_FN_new, 'w') as f:
         l = list()
