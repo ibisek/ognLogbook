@@ -11,7 +11,7 @@ import json
 AIRFIELDS_FN = '../../data/airfields.json'
 AIRFIELDS_FN_new = '../../data/airfields.json.new'
 
-AIRFIELDS_FN_INCOMING = '../../data/gb-airports.csv'
+AIRFIELDS_FN_INCOMING = '../../data/se-airports.csv'
 
 new = 0
 old = 0
@@ -61,7 +61,7 @@ if __name__ == '__main__':
             except ValueError as e:
                 continue
 
-            if type == 'closed':
+            if type.lower() in ['closed', 'heliport']:
                 nRejected += 1
                 continue    # ignore closed strips
 
