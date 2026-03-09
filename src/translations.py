@@ -43,6 +43,7 @@ i10n['sum.hours'] = ['Hours', 'Hodin', 'Gesamtflugzeit']
 
 i10n['werbung.vfrmanual'] = ['VFR Manual', 'VFR Manuál', 'VFR Manual']
 i10n['werbung.krt2bt.link'] = ['https://ogn.ibisek.com/index.php/2022/04/20/krt2-bluetooth-adapter/', 'https://ogn.ibisek.com/index.php/en/2022/04/20/krt2-bluetooth/', 'https://ogn.ibisek.com/index.php/2022/04/20/krt2-bluetooth-adapter/']
+i10n['werbung.krt2ble.link'] = ['https://ogn.ibisek.com/index.php/en/2026/02/25/novy-krt2ble-pro-aplikace-vyzadujici-bluetooth-low-energy-ble/', 'https://ogn.ibisek.com/index.php/2026/02/25/new-krt2ble-for-apps-requiring-bluetooth-low-energy/', 'https://ogn.ibisek.com/index.php/en/2026/02/25/novy-krt2ble-pro-aplikace-vyzadujici-bluetooth-low-energy-ble/']
 
 i10n['notif.mail.departure'] = ['departed from', 'odstartoval z', 'gestartet von']
 i10n['notif.mail.landing'] = ['landed at', 'přistál v', 'gelandet bei']
