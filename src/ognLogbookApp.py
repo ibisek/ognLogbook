@@ -27,7 +27,7 @@ def process_beacon(raw_message):
     # print("RAW:", raw_message)
 
     # accept only supported types of messages:
-    if raw_message[:3] in {'OGN', 'FLR', 'ICA', 'SKY'}:
+    if raw_message[:3] in {'OGN', 'FLR', 'ICA', 'SKY', 'MTK'}:
         bp.enqueueForProcessing(raw_message)
 
     elif "OGNEMO" in raw_message[:16] and "fpm" in raw_message:
@@ -44,7 +44,7 @@ def process_beacon(raw_message):
                 if bType in ['aprs_aircraft']:  # still an aircraft, right?
                     print('## ACFT BCN:', beacon)
 
-                elif bType not in ('unknown', 'receiver', 'fanet', 'aprs_receiver', 'pilot_aware', 'flymaster', 'naviter'):
+                elif bType not in ('unknown', 'receiver', 'fanet', 'aprs_receiver', 'pilot_aware', 'flymaster', 'naviter', 'microtrak'):
                     print('## TYPE:', bType, '\t\t', beacon)
 
         except AprsParseError:

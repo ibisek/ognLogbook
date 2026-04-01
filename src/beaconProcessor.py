@@ -536,7 +536,7 @@ class BeaconProcessor(object):
         self.startTime = now
 
     def enqueueforProcessingWithPrefix(self, raw_message: str, prefix: str):
-        if prefix == 'OGN':
+        if prefix in ['OGN', 'MTK']:
             self.rawQueueOGN.put(raw_message)
         elif prefix == 'FLR':
             self.rawQueueFLR.put(raw_message)
