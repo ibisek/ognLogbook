@@ -70,6 +70,12 @@ def _insertOrAmendRecord(cursor: Cursor,
         doInsertion = True
 
     if doInsertion:
+        # TODO this shall be fixed at the origin of the problem - the 'ogn-client' library
+        # There appears to be wrongly parsed beacon for ICAO type packet where the aircraft_registration
+        # contains a big portion of the beacon. This omits such line to be repeatedly not-inserted:
+        if len(registration) > 8:   # 'Data too long for column aircraft_registration at row 1'
+            return
+
         insert = f"INSERT INTO ddb " \
                  f"(device_type, device_id, aircraft_type, aircraft_registration, aircraft_cn, tracked, identified)" \
                  f"VALUES " \
