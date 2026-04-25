@@ -113,7 +113,7 @@ class DDB:  # ..extends (Singleton)
         dirtyRecords = [rec for rec in self.records.values() if rec.dirty]
 
         for rec in dirtyRecords:
-            if not rec.device_type or not rec.device_id or not rec.aircraft_registration:
+            if not rec.device_type or not rec.device_id or not rec.aircraft_type or not rec.aircraft_registration:
                 continue  # no point of inserting into db
 
             aircraftType = rec.aircraft_type if rec.aircraft_type else ''
