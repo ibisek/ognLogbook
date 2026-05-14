@@ -13,6 +13,7 @@ msgpack==1.1.2
 ogn-client==2.0.0
 PyMySQL==1.1.2
 python-dateutil==2.9.0.post0
+python-geohash==0.8.5
 pytz==2026.1.post1
 redis==7.4.0
 requests==2.33.1

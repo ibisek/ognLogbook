@@ -13,6 +13,7 @@ from datetime import datetime
 from threading import Thread
 import multiprocessing as mp
 
+import geohash
 from redis import StrictRedis
 from queue import Queue, Empty
 
@@ -331,7 +332,8 @@ class RawWorker(Thread):
         # pos ~ position, vs = vertical speed, tr = turn rate
         if agl is None or agl < 128000:  # groundSpeed > 0 and
             aglStr = 0 if agl is None else f"{agl:.0f}"
-            q = f"pos,addr={ADDRESS_TYPE_PREFIX[addressType]}{address} lat={lat:.6f},lon={lon:.6f},alt={altitude:.0f},gs={groundSpeed:.2f},vs={verticalSpeed:.2f},tr={turnRate:.2f},agl={aglStr},ss={signalStrength} {ts}000000000"
+            geoHash = geohash.encode(lat, lon, precision=5)  # 4 ~ 30km, 5 ~ 5km, 6 ~ 1km
+            q = f"pos,addr={ADDRESS_TYPE_PREFIX[addressType]}{address},gh={geoHash} lat={lat:.6f},lon={lon:.6f},alt={altitude:.0f},gs={groundSpeed:.2f},vs={verticalSpeed:.2f},tr={turnRate:.2f},agl={aglStr},ss={signalStrength} {ts}000000000"
 
             self.influxDb.addStatement(q)
             # if self.permanentStorage.eligible4ps(address):  # shall be saved into permanent storage?
