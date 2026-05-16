@@ -22,7 +22,7 @@ class SendMail3:
 
     def __init__(self, **config):
         self.host = config.get('MAIL_HOST', None)
-        self.port = int(config.get('MAIL_PORT', None))
+        self.port = int(config.get('MAIL_PORT', 587))
         self.user = config.get('MAIL_USER', None)
         self.password = config.get('MAIL_PASSWORD', None)
         self.sender_email = config.get('MAIL_FROM', None)
