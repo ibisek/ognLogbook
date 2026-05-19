@@ -3,7 +3,6 @@ Created on 20. 5. 2020
 
 @author: ibisek
 """
-import json
 import sys
 import math
 from datetime import datetime, timedelta
@@ -16,16 +15,15 @@ import getopt
 from platform import node
 import pytz
 from flask_limiter import Limiter
-from flask_limiter.util import get_remote_address
 from utils import getRemoteAddr
 
-from configuration import DEBUG, DATA_AVAILABILITY_DAYS, MAX_DAYS_IN_RANGE, INFLUX_DB_HOST, INFLUX_DB_NAME, INFLUX_DB_NAME_PERMANENT_STORAGE, redisConfig
+from atzTraffic.airfieldTrafficDensity import trafficForAirfieldCode, coordsForAirfield
+from configuration import DEBUG, DATA_AVAILABILITY_DAYS, MAX_DAYS_IN_RANGE, INFLUX_DB_HOST, INFLUX_DB_NAME, redisConfig
 from airfieldManager import AirfieldManager, AirfieldRecord
 from dataStructures import LogbookItem, addressPrefixes
 from dao.encountersDao import Encounter, listEncountersWithRegistration
 from dao.logbookDao import listDepartures, listArrivals, listFlights, getSums, getFlight, getFlightIdForTakeoffId, getFlightInfoForTakeoff
 from dao.logs import logIgcDownload
-from dao.permanentStorage import PermanentStorageFactory
 from dao.stats import Stats
 from db.InfluxDbThread import InfluxDbThread
 from igc import flightToIGC
@@ -41,6 +39,7 @@ app.jinja_env.globals.update(node=node)
 app.jinja_env.globals.update(eligibleForMapView=eligibleForMapView)
 
 DayRecord = namedtuple('DayRecords', ['date', 'numFlights', 'totalFlightTime', 'departures', 'arrivals', 'flights'])
+ATZMarker = namedtuple('ATZMarker', ['lat', 'lon', 'name'])
 
 airfieldManager = AirfieldManager()
 afCountryCodes = airfieldManager.afCountryCodes
@@ -517,6 +516,43 @@ def getIgc(idType: str, flightId: int):
     output.headers["Content-type"] = "text/plain"
 
     return output
+
+
+@app.route('/atzTraffic/<airfieldCode>', methods=['GET'])
+@limiter.limit("555/day")
+def getAtzTraffic(airfieldCode: str):
+    try:
+        airfieldCode = sanitise(airfieldCode)
+        print(f"[INFO] ATZTRAF: flightId='{airfieldCode} from {getRemoteAddr()}")
+    except:
+        print(f"[INFO] ATZTRAF: invalid airfieldCode='{airfieldCode} from {getRemoteAddr()}")
+        return flask.render_template('error40x.html', code=404, message="Nope :P"), 404
+
+    flights, ddbRecs = trafficForAirfieldCode(airfieldCode)
+    if not flights:   # nothing to show
+        return flask.render_template('error40x.html', code=204, message="No data."), 204  # 204 = No content ;)
+
+    # # extract valid segments for each flight (omit out-of-signal-range holes):
+    allFlightSegments = []
+    for deviceAddr in flights.keys():
+        flight = flights.get(deviceAddr, None)
+        if not flight: continue
+
+        flightSegments, _ = _prepareDataForMap(flight)
+        # flights[deviceAddr] = flightSegments     # .. we just ignore the skipSegments here
+        allFlightSegments.extend(flightSegments)
+
+    lat, lon = coordsForAirfield(airfieldCode)
+    atzMarkers = [ATZMarker(lat, lon, airfieldCode)]
+
+    return flask.render_template('atzTraffic.html',
+                                 showDatePicker=False,
+                                 dateMin=None,
+                                 # flights=flights,
+                                 # ddbRecs=ddbRecs,
+                                 flightSegments=allFlightSegments,
+                                 skipSegments=[],
+                                 atzMarkers=atzMarkers)
 
 
 @app.route('/stats', methods=['GET'])

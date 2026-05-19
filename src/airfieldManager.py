@@ -20,10 +20,10 @@ class AirfieldRecord(object):
 
 class AirfieldManager(object):  # , metaclass=Singleton
 
-    __slots__ = ('airfields', 'afCountryCodes', 'afCodes')
+    __slots__ = ('airfields', 'airfieldsDict', 'afCountryCodes', 'afCodes')
 
     def __init__(self):
-        self.airfields, _ = self.loadAirfieldsFromFile()
+        self.airfields, self.airfieldsDict = self.loadAirfieldsFromFile()
 
         # self.airfields.sort(key=lambda af: af.lat)    # sort airfields by latitude
         self.airfields.sort(key=lambda af: af.lon)      # ordering by lon gives better & faster results

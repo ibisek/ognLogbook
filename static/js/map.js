@@ -65,6 +65,7 @@ function onPageLoad(flightId) {
 
     addFlightToMap(flightSegments, skipSegments);
     listEncounters(flightId);
+    if (typeof atzMarkers !== 'undefined') { drawAtzMarkers(atzMarkers); }
 }
 
 function addButtonClicked() {
@@ -198,6 +199,7 @@ function addFoundFlightToMap(flightId) {
 var encountersMarkers = [];
 
 function listEncounters(flightId) {
+    if (flightId == null) return;
     if (encountersMarkers.length > 0) return; // already loaded
 
     var query = `/api/enc/${flightId}`;
@@ -246,5 +248,25 @@ function listEncounters(flightId) {
     };
     req.send(null);
 
+}
+
+function drawAtzMarkers(atzMarkers) {
+    for (const item of atzMarkers) {
+        var lat = item[0];
+        var lon = item[1];
+        var name = item[2];
+
+        L.circle([lat, lon], {
+          radius: 5000,
+          dashArray: '6, 6',
+          color: 'gray',
+          fillColor: '#3f8efc',
+          fillOpacity: 0.2
+        }).addTo(map);
+
+//        L.marker([lat, lon]).addTo(map)
+//          .bindPopup(name)
+//          .openPopup();
+      } // ~ for
 }
 

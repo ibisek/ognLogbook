@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>map view</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" integrity="sha256-kLaT2GOSpHechhsozzB+flnD+zUyjE2LlfWPgU04xyI=" crossorigin=""/>
+    <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js" integrity="sha256-WBkoXOwTeyKclOHuWtc+i2uENFpDZ9YPdf5Hf+D7ewM=" crossorigin=""></script>
+    <link rel="stylesheet" href="/static/css/index.css"	type="text/css">
+    <link rel="stylesheet" href="/static/css/map.css"	type="text/css">
+    <link rel="stylesheet" href="/static/css/font-awesome.min.css">
+</head>
+<body onload="onPageLoad({{null}});">
+
+    {% include 'header.html' %}
+
+    <div style="margin-top: 90px; text-align: center;">
+        ## TODO ## TADY NIC ZATIM NENI ##
+    </div>
+
+    <div id="map" style="margin-top: 10px; width: 100vw; max-width: 1450px; height:80vh">
+        <div id="sideBar" class="sideBar">
+            <div id="closeButton" class="closeButton" onclick="closeSideBar()">&#128473;</div>
+            TADY NECO BYVALO
+        </div>  {# ~sidebar #}
+    </div>  {# ~map #}
+
+    <script src="/static/js/map.js"></script> {# !! needs to be here AFTER the map div !! #}
+    <script>
+        var flightSegments = [
+            {% for flightSegment in flightSegments %}
+            [
+                {% for item in flightSegment %}
+                    [{{item.lat}}, {{item.lon}}],
+                {% endfor %}
+            ],
+            {% endfor %}
+        ];
+
+        var skipSegments = [
+            {% for skipSegment in skipSegments %}
+            [
+                {% for item in skipSegment %}
+                    [{{item.lat}}, {{item.lon}}],
+                {% endfor %}
+            ],
+            {% endfor %}
+        ];
+
+        var atzMarkers = [
+            {% for item in atzMarkers %}
+            [{{item.lat}}, {{item.lon}}, '{{item.name}}'],
+            {% endfor %}
+        ];
+    </script>
+
+    {% include 'footer.html' %}
+
+</body>
+</html>
