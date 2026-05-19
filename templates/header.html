@@ -18,7 +18,7 @@
                     <span>{% if linkPrevDay %} <a href="{{linkPrevDay}}" style="font-size:20px; line-height: 1.5;"><</a> {% set leftArrow = True %}{% endif %}</span>
                 </span>
                 <span class="menuitem"{% if leftArrow %} style="margin-left: 10px;"{% endif %}>
-                    {% if showDatePicker %}
+                    {% if showDatePicker and date %}
                     <div class="datepickerWrap">
                         <input id="datepicker" class="datepicker" type="text" value="{{date.strftime('%d.%m.%Y')}}"/>
                         <button type="submit" class="searchButton" id="datepickerButton" onclick="return false;", style="cursor: default;">
@@ -26,7 +26,7 @@
                         </button>
                     </div>
                     {% else %}
-                    {{date.strftime('%d.%m.%Y')}}
+                    {% if date %}{{date.strftime('%d.%m.%Y')}}{% endif %}
                     {% endif %}
                 </span>
                 <span class="menuitem" style="margin-left: 10px;">
