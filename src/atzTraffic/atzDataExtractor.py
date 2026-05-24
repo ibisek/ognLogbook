@@ -19,11 +19,15 @@ def getGeohashesFor(airfieldCode: str) -> []:
 
 
 if __name__ == '__main__':
-    WANTED_GEOHASHES = getGeohashesFor('LKKA')
-    WANTED_GEOHASHES.extend(getGeohashesFor('LKMK'))
+    # WANTED_GEOHASHES = getGeohashesFor('LKKA')          # ['u2g2v', 'u2g2z', 'u2g2w', 'u2g2t', 'u2g2x', 'u2g3n', 'u2g3j', 'u2g3p', 'u2g2y']
+    # WANTED_GEOHASHES.extend(getGeohashesFor('LKMK'))    # ['u2gg6', 'u2ggk', 'u2gg5', 'u2gg4', 'u2ggh', 'u2gge', 'u2ggd', 'u2ggs', 'u2gg7']
 
-    # CSV_ROOT = "/mnt/samba/temp/archive"
-    CSV_ROOT = "/home/jaja/btsync/doma/temp"
+    WANTED_GEOHASHES = ['u2g2v', 'u2g2z', 'u2g2w', 'u2g2t', 'u2g2x', 'u2g3n', 'u2g3j', 'u2g3p', 'u2g2y']
+    WANTED_GEOHASHES.extend(['u2gg6', 'u2ggk', 'u2gg5', 'u2gg4', 'u2ggh', 'u2gge', 'u2ggd', 'u2ggs', 'u2gg7'])
+
+    CSV_ROOT = "/media/samba/temp/archive/2025"
+    # CSV_ROOT = "/home/ibisek/btsync/doma/temp"
+    # CSV_ROOT = "/home/ibisek/btsync/krizanov/temp"
 
     files = [f for f in listdir(CSV_ROOT) if isfile(join(CSV_ROOT, f)) and f.endswith('.csv')]
     files.sort()

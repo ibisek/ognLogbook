@@ -12,9 +12,6 @@ from configuration import INFLUX_DB_NAME, INFLUX_DB_HOST, ADDRESS_TYPES, REVERSE
 from dao.ddb import DDB, DDBRecord
 from db.InfluxDbThread import InfluxDbThread
 
-ddb = DDB.getInstance()
-influxDb = InfluxDbThread(dbName=INFLUX_DB_NAME, host=INFLUX_DB_HOST, startThread=False)
-
 
 def boundingBox(lat, lon, diameter):
     """
@@ -67,6 +64,8 @@ def _trafficForCoords(lat: float, lon: float):
     flights = {}
     ddbRecs = {}
 
+    influxDb = InfluxDbThread(dbName=INFLUX_DB_NAME, host=INFLUX_DB_HOST, startThread=False)
+
     rs = influxDb.client.query(query=q)
     if rs:
         for row in rs.get_points():
@@ -79,6 +78,8 @@ def _trafficForCoords(lat: float, lon: float):
                 if len(l) == 0:
                     flights[addr] = l
                 l.append(row)
+
+    ddb = DDB.getInstance()
 
     # fetch appropriate DDB records:
     for addr in flights.keys():
