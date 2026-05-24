@@ -32,10 +32,14 @@ var blueIcon = new L.Icon({
 });
 
 function addFlightToMap(flightSegments, skipSegments, lineColor='red') {
+    let lineWhiteWeight = 4;
+    let lineColorWeight = 2;
+//    let lineWhiteWeight = 0;
+//    let lineColorWeight = 1;
     var allPoints = new Array();
     for (var i = 0; i < flightSegments.length; i++) {
-        L.polyline(flightSegments[i], {color: 'white', weight: 4}).addTo(map);
-        L.polyline(flightSegments[i], {color: lineColor, weight: 2}).addTo(map);
+        L.polyline(flightSegments[i], {color: 'white', weight: lineWhiteWeight}).addTo(map);
+        L.polyline(flightSegments[i], {color: lineColor, weight: lineColorWeight}).addTo(map);
         allPoints = allPoints.concat(flightSegments[i]);
     }
     for (var i = 0; i < skipSegments.length; i++) {
@@ -45,12 +49,12 @@ function addFlightToMap(flightSegments, skipSegments, lineColor='red') {
     var polyline = L.polyline(allPoints, {color: 'green', weight: 2});
     map.fitBounds(polyline.getBounds());
 
-    var takeoffMarker = L.marker(flightSegments[0][0], {icon: greenIcon}).addTo(map);
-    takeoffMarker.bindPopup("<b>Take-off<b>");
+//    var takeoffMarker = L.marker(flightSegments[0][0], {icon: greenIcon}).addTo(map);
+//    takeoffMarker.bindPopup("<b>Take-off<b>");
 
-    var lastFlightSegment = flightSegments[flightSegments.length-1];
-    var landingMarker = L.marker(lastFlightSegment[lastFlightSegment.length-1],{icon: redIcon}).addTo(map);
-    landingMarker.bindPopup("<b>Landing</b>");
+//    var lastFlightSegment = flightSegments[flightSegments.length-1];
+//    var landingMarker = L.marker(lastFlightSegment[lastFlightSegment.length-1],{icon: redIcon}).addTo(map);
+//    landingMarker.bindPopup("<b>Landing</b>");
 }
 
 function onPageLoad(flightId) {
