@@ -50,13 +50,19 @@ def coordsForAirfield(airfieldCode: str):
 
 
 def _trafficForCoords(lat: float, lon: float):
-    RANGE_KM = 5    # [km]
+    RANGE_KM = 10    # [km]
 
     latRad = radians(lat)
     lonRad = radians(lon)
 
     gh = geohash.encode(lat, lon, precision=5)  # 4 ~ 30km, 5 ~ 5km, 6 ~ 1km
     neighbouringGhs = geohash.expand(gh)
+
+    # ultra expansion:
+    nested = [geohash.expand(x) for x in neighbouringGhs]
+    flat_list = [item for sublist in nested for item in sublist]
+    neighbouringGhs = set(flat_list)
+
     ghCond = "".join([f"gh = '{n}' OR " for n in neighbouringGhs]).rstrip('OR ')
 
     q = f"SELECT time, addr, lat, lon, alt FROM pos WHERE ({ghCond})"
