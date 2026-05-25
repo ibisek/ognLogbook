@@ -7,7 +7,7 @@ from os.path import isfile, join
 
 import geohash
 
-from airfieldTrafficDensity import coordsForAirfield
+from atzTraffic.airfieldTrafficDensity import coordsForAirfield
 
 
 def getGeohashesFor(airfieldCode: str) -> []:
