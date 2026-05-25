@@ -50,7 +50,7 @@ def coordsForAirfield(airfieldCode: str):
 
 
 def _trafficForCoords(lat: float, lon: float):
-    RANGE_KM = 10    # [km]
+    RANGE_KM = 5    # [km]
 
     latRad = radians(lat)
     lonRad = radians(lon)
