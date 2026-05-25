@@ -22,10 +22,15 @@ if __name__ == '__main__':
     # WANTED_GEOHASHES = getGeohashesFor('LKKA')          # ['u2g2v', 'u2g2z', 'u2g2w', 'u2g2t', 'u2g2x', 'u2g3n', 'u2g3j', 'u2g3p', 'u2g2y']
     # WANTED_GEOHASHES.extend(getGeohashesFor('LKMK'))    # ['u2gg6', 'u2ggk', 'u2gg5', 'u2gg4', 'u2ggh', 'u2gge', 'u2ggd', 'u2ggs', 'u2gg7']
 
-    WANTED_GEOHASHES = ['u2g2v', 'u2g2z', 'u2g2w', 'u2g2t', 'u2g2x', 'u2g3n', 'u2g3j', 'u2g3p', 'u2g2y']
-    WANTED_GEOHASHES.extend(['u2gg6', 'u2ggk', 'u2gg5', 'u2gg4', 'u2ggh', 'u2gge', 'u2ggd', 'u2ggs', 'u2gg7'])
+    # 9 neighbours:
+    # WANTED_GEOHASHES = ['u2g2v', 'u2g2z', 'u2g2w', 'u2g2t', 'u2g2x', 'u2g3n', 'u2g3j', 'u2g3p', 'u2g2y']
+    # WANTED_GEOHASHES.extend(['u2gg6', 'u2ggk', 'u2gg5', 'u2gg4', 'u2ggh', 'u2gge', 'u2ggd', 'u2ggs', 'u2gg7'])
 
-    CSV_ROOT = "/media/samba/temp/archive/2025"
+    # 25 neighbours:
+    WANTED_GEOHASHES = ['u2g3q', 'u2g8b', 'u2g2w', 'u2g2m', 'u2g3n', 'u2g2x', 'u2g2k', 'u2g82', 'u2g2q', 'u2g2u', 'u2g88', 'u2g2r', 'u2g2t', 'u2g3h', 'u2g2z', 'u2g3m', 'u2g2v', 'u2g3j', 'u2g92', 'u2g3k', 'u2g3r', 'u2g3p', 'u2g90', 'u2g2y', 'u2g2s']
+    WANTED_GEOHASHES.extend(['u2gg9', 'u2gg7', 'u2gfv', 'u2gg1', 'u2gge', 'u2gfc', 'u2ggc', 'u2gg5', 'u2gfg', 'u2ggs', 'u2ggh', 'u2ggj', 'u2ggt', 'u2ggm', 'u2ggf', 'u2gff', 'u2gg4', 'u2gg3', 'u2ggu', 'u2ggk', 'u2gg6', 'u2ggd', 'u2gfu', 'u2ggg', 'u2ggv'])
+
+    CSV_ROOT = "/media/samba/temp/archiv/2025"
     # CSV_ROOT = "/home/ibisek/btsync/doma/temp"
     # CSV_ROOT = "/home/ibisek/btsync/krizanov/temp"
 
@@ -44,11 +49,18 @@ if __name__ == '__main__':
                 try:
                     lat = float(items[4])
                     lon = float(items[5])
+
+                    if lat == 90.0:
+                        continue
+
                 except ValueError:
                     continue
 
-                gh = geohash.encode(lat, lon, precision=5)  # 4 ~ 30km, 5 ~ 5km, 6 ~ 1km
-                if gh in WANTED_GEOHASHES:
-                    writeF.write(line)
+                try:
+                    gh = geohash.encode(lat, lon, precision=5)  # 4 ~ 30km, 5 ~ 5km, 6 ~ 1km
+                    if gh in WANTED_GEOHASHES:
+                        writeF.write(line)
+                except Exception as e:
+                    print(f"[ERROR] lat: {lat}; lon: {lon} ", e)
 
     print('KOHEU.')
