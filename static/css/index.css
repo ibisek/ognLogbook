@@ -316,6 +316,10 @@ span.tinyref {
     vertical-align: middle;
 }
 
+.littleIcon {
+    height: 1em;
+    vertical-align: middle;
+}
 /* ------------------------------ footer --------------------------- */
 
 .footer {
