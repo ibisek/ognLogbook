@@ -49,12 +49,14 @@ function addFlightToMap(flightSegments, skipSegments, lineColor='red') {
     var polyline = L.polyline(allPoints, {color: 'green', weight: 2});
     map.fitBounds(polyline.getBounds());
 
-//    var takeoffMarker = L.marker(flightSegments[0][0], {icon: greenIcon}).addTo(map);
-//    takeoffMarker.bindPopup("<b>Take-off<b>");
+    if (typeof hideMarkers == "undefined") {   // global variable is not set.. ehm, somewhere B-)
+        var takeoffMarker = L.marker(flightSegments[0][0], {icon: greenIcon}).addTo(map);
+        takeoffMarker.bindPopup("<b>Take-off<b>");
 
-//    var lastFlightSegment = flightSegments[flightSegments.length-1];
-//    var landingMarker = L.marker(lastFlightSegment[lastFlightSegment.length-1],{icon: redIcon}).addTo(map);
-//    landingMarker.bindPopup("<b>Landing</b>");
+        var lastFlightSegment = flightSegments[flightSegments.length-1];
+        var landingMarker = L.marker(lastFlightSegment[lastFlightSegment.length-1],{icon: redIcon}).addTo(map);
+        landingMarker.bindPopup("<b>Landing</b>");
+    }
 }
 
 function onPageLoad(flightId) {

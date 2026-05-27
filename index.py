@@ -519,16 +519,21 @@ def getIgc(idType: str, flightId: int):
 
 
 @app.route('/atzTraffic/<airfieldCode>', methods=['GET'])
-@limiter.limit("555/day")
+@limiter.limit("10/day")
 def getAtzTraffic(airfieldCode: str):
     try:
         airfieldCode = sanitise(airfieldCode)
+        lat, lon = coordsForAirfield(airfieldCode)
         print(f"[INFO] ATZTRAF: flightId='{airfieldCode} from {getRemoteAddr()}")
     except:
         print(f"[INFO] ATZTRAF: invalid airfieldCode='{airfieldCode} from {getRemoteAddr()}")
         return flask.render_template('error40x.html', code=404, message="Nope :P"), 404
 
-    flights, ddbRecs = trafficForAirfieldCode(airfieldCode)
+    tz = _getBrowserTimezone()
+    endDt = datetime.now(tz)
+    startDt = (endDt - timedelta(days=7)).replace(hour=0, minute=0, second=0, microsecond=0)
+
+    flights, ddbRecs = trafficForAirfieldCode(airfieldCode=airfieldCode, startDt=startDt, endDt=endDt, maxAltM=None)
     if not flights:   # nothing to show
         return flask.render_template('error40x.html', code=204, message="No data."), 204  # 204 = No content ;)
 
@@ -542,8 +547,11 @@ def getAtzTraffic(airfieldCode: str):
         # flights[deviceAddr] = flightSegments     # .. we just ignore the skipSegments here
         allFlightSegments.extend(flightSegments)
 
-    lat, lon = coordsForAirfield(airfieldCode)
     atzMarkers = [ATZMarker(lat, lon, airfieldCode)]
+
+    startDtStr = startDt.strftime("%d. %m. %Y")
+    endDtStr = endDt.strftime("%d. %m. %Y")
+    title = f"{airfieldCode} {startDtStr} -> {endDtStr}"
 
     return flask.render_template('atzTraffic.html',
                                  showDatePicker=False,
@@ -552,7 +560,9 @@ def getAtzTraffic(airfieldCode: str):
                                  # ddbRecs=ddbRecs,
                                  flightSegments=allFlightSegments,
                                  skipSegments=[],
-                                 atzMarkers=atzMarkers)
+                                 atzMarkers=atzMarkers,
+                                 hideMarkers=True,
+                                 title=title)
 
 
 @app.route('/stats', methods=['GET'])

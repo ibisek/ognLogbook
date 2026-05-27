@@ -13,7 +13,7 @@
     {% include 'header.html' %}
 
     <div style="margin-top: 90px; text-align: center;">
-        ## TODO ## TADY NIC ZATIM NENI ##
+        <b>{{title}}<b>
     </div>
 
     <div id="map" style="margin-top: 10px; width: 100vw; max-width: 1450px; height:80vh">
@@ -23,7 +23,12 @@
         </div>  {# ~sidebar #}
     </div>  {# ~map #}
 
+    <script>
+        var hideMarkers = {% if hideMarkers %}true{% else %}false{% endif %};
+    </script>
+
     <script src="/static/js/map.js"></script> {# !! needs to be here AFTER the map div !! #}
+
     <script>
         var flightSegments = [
             {% for flightSegment in flightSegments %}

@@ -46,26 +46,34 @@ def boundingBox(lat, lon, diameter):
 
 def coordsForAirfield(airfieldCode: str):
     af: AirfieldRecord = AirfieldManager().airfieldsDict.get(airfieldCode, None)
+    if not af:
+        raise ValueError("No such airfiledCode: ", airfieldCode)
     return degrees(af.lat), degrees(af.lon)
 
 
-def _trafficForCoords(lat: float, lon: float):
-    RANGE_KM = 5    # [km]
-
+def _trafficForCoords(lat: float, lon: float,
+                      startDt: datetime = None,
+                      endDt: datetime = None,
+                      RANGE_KM: float = 5,
+                      MAX_ALT_M: int = None):
     latRad = radians(lat)
     lonRad = radians(lon)
 
     gh = geohash.encode(lat, lon, precision=5)  # 4 ~ 30km, 5 ~ 5km, 6 ~ 1km
     neighbouringGhs = geohash.expand(gh)
 
-    # ultra expansion:
+    # ultra expansion to 25 neighbours:
     nested = [geohash.expand(x) for x in neighbouringGhs]
     flat_list = [item for sublist in nested for item in sublist]
     neighbouringGhs = set(flat_list)
 
     ghCond = "".join([f"gh = '{n}' OR " for n in neighbouringGhs]).rstrip('OR ')
 
-    q = f"SELECT time, addr, lat, lon, alt FROM pos WHERE ({ghCond})"
+    dtRangeCond = ''
+    if startDt and endDt:
+        dtRangeCond = f" AND time >= {int(startDt.timestamp() * 1e+9)} AND time <= {int(endDt.timestamp() * 1e+9)}" # [ns]
+
+    q = f"SELECT time, addr, lat, lon, alt FROM pos WHERE ({ghCond}) {dtRangeCond}"
 
     flights = {}
     ddbRecs = {}
@@ -77,8 +85,13 @@ def _trafficForCoords(lat: float, lon: float):
         for row in rs.get_points():
             row['dt'] = datetime.strptime(row['time'], '%Y-%m-%dT%H:%M:%SZ')
 
+            altAccept = True
+            alt = row.get('alt', None)
+            if MAX_ALT_M and alt and alt >= MAX_ALT_M:
+                altAccept = False
+
             dist = AirfieldManager.getDistanceInKm(lat1=latRad, lon1=lonRad, lat2=radians(row['lat']), lon2=radians(row['lon']))
-            if dist <= RANGE_KM:    # keep only records within the RANGE; drop the more distant ones
+            if dist <= RANGE_KM and altAccept:    # keep only records within the RANGE and ALT; drop the others
                 addr = row['addr']
                 l = flights.get(addr, [])
                 if len(l) == 0:
@@ -104,9 +117,13 @@ def _trafficForCoords(lat: float, lon: float):
     return flights, ddbRecs
 
 
-def trafficForAirfieldCode(aifieldCode: str):
-    lat, lon = coordsForAirfield(aifieldCode)
-    flights, ddbRecs = _trafficForCoords(lat, lon)
+def trafficForAirfieldCode(airfieldCode: str,
+                           startDt: datetime = None,
+                           endDt: datetime = None,
+                           rangeKm: float = 5,
+                           maxAltM: int = None):
+    lat, lon = coordsForAirfield(airfieldCode)
+    flights, ddbRecs = _trafficForCoords(lat, lon, startDt=startDt, endDt=endDt, RANGE_KM=rangeKm, MAX_ALT_M=maxAltM)
 
     return flights, ddbRecs
 
