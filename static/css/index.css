@@ -162,7 +162,7 @@ a:hover {
 }
 
 .menuitem {
-    margin-left: 20px;
+    margin-left: 15px;
     float:left;
     line-height: 1.5;
 }
@@ -226,7 +226,7 @@ a:hover {
 
 .littleTable {
       display: table;
-      width: 8em;
+      width: 9em;
       border-collapse: collapse;
       font-size: 12px;
       line-height: 1.1;

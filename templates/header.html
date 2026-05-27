@@ -36,13 +36,13 @@
                 <span class="menuitem">
                     <div>
                     {% if date %}
-                        {{icaoCode}}
+                        <b>{{icaoCode}}</b>
                         <div class="littleTable">
                           <div>
-                            <div><a href="https://www.google.com/maps/@?api=1&map_action=map&basemap=satellite&&zoom=16&center={{lat}},{{lon}}" target="_blank">show on map</a></div>
+                            <div><a href="https://www.google.com/maps/@?api=1&map_action=map&basemap=satellite&&zoom=16&center={{lat}},{{lon}}" target="_blank">{{ gettext('header.showMap') }}</a></div>
                           </div>
                           <div>
-                            <div><a href="/csv/loc/{{icaoCode}}/{{date.strftime('%Y-%m-%d')}}{% if dateTo %}/{{dateTo.strftime('%Y-%m-%d')}}{% endif %}">.CSV file</a></div>
+                            <div><a href="/csv/loc/{{icaoCode}}/{{date.strftime('%Y-%m-%d')}}{% if dateTo %}/{{dateTo.strftime('%Y-%m-%d')}}{% endif %}">{{ gettext('header.csvFile') }}</a></div>
                           </div>
                           <div>
                             <div><a href="/atzTraffic/{{icaoCode}}">ATZ traffic</a></div>
