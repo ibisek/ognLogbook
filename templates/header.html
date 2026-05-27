@@ -36,16 +36,18 @@
                 <span class="menuitem">
                     <div>
                     {% if date %}
-                        <a href="/csv/loc/{{icaoCode}}/{{date.strftime('%Y-%m-%d')}}{% if dateTo %}/{{dateTo.strftime('%Y-%m-%d')}}{% endif %}">{{icaoCode}}
-                            {% if dayRecords|length > 0 %}
-                            <img src="/static/img/csv-file-icon-green.svg" style="width: 25px; height:25px; vertical-align: middle; padding-left: 5px;"/>
-                            {% endif %}
-                        </a>
-                        &ensp;
-                        {# <a href="https://mapy.cz/zakladni?x={{lon}}&y={{lat}}&z=16&base=ophoto&source=coor&id={{lon}}%2C{{lat}}" target="_blank"> #}
-                        <a href="https://www.google.com/maps/@?api=1&map_action=map&basemap=satellite&&zoom=16&center={{lat}},{{lon}}" target="_blank">
-                            <img src="/static/img/map.svg" style="width: 30px; height:30px; vertical-align: middle; padding-left: 5px;"/>
-                        </a>
+                        {{icaoCode}}
+                        <div class="littleTable">
+                          <div>
+                            <div><a href="https://www.google.com/maps/@?api=1&map_action=map&basemap=satellite&&zoom=16&center={{lat}},{{lon}}" target="_blank">show on map</a></div>
+                          </div>
+                          <div>
+                            <div><a href="/csv/loc/{{icaoCode}}/{{date.strftime('%Y-%m-%d')}}{% if dateTo %}/{{dateTo.strftime('%Y-%m-%d')}}{% endif %}">.CSV file</a></div>
+                          </div>
+                          <div>
+                            <div><a href="/atzTraffic/{{icaoCode}}">ATZ traffic</a></div>
+                          </div>
+                        </div>
                     {% else %}
                             {{icaoCode}}
                     {% endif %}

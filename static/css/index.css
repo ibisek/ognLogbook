@@ -162,7 +162,7 @@ a:hover {
 }
 
 .menuitem {
-    margin-left: 21px;
+    margin-left: 20px;
     float:left;
     line-height: 1.5;
 }
@@ -182,6 +182,7 @@ a:hover {
 }
 
 .banner img {
+    margin-left: 20px;
     position: relative;
     top: -5px;
 }
@@ -222,6 +223,16 @@ a:hover {
 .tooltip:hover .tooltiptext {
   visibility: visible;
 }
+
+.littleTable {
+      display: table;
+      width: 8em;
+      border-collapse: collapse;
+      font-size: 12px;
+      line-height: 1.1;
+      float: inline-end;
+      margin-left: 0.5em;
+    }
 
 /* ------------------------------ search --------------------------- */
 
