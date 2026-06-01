@@ -25,6 +25,7 @@
 
     <script>
         var hideMarkers = {% if hideMarkers %}true{% else %}false{% endif %};
+        var lineWidth = {% if lineWidth %}{{lineWidth}}{% else %}0{% endif %};
     </script>
 
     <script src="/static/js/map.js"></script> {# !! needs to be here AFTER the map div !! #}

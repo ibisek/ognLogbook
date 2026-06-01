@@ -32,10 +32,12 @@ var blueIcon = new L.Icon({
 });
 
 function addFlightToMap(flightSegments, skipSegments, lineColor='red') {
-    let lineWhiteWeight = 4;
-    let lineColorWeight = 2;
-//    let lineWhiteWeight = 0;
-//    let lineColorWeight = 1;
+    var lineWhiteWeight = 4;    // default
+    var lineColorWeight = 2;
+    if (typeof lineWidth != "undefined" && lineWidth == 1) {   // global variable is set.. ehm, somewhere B-)
+        lineWhiteWeight = 0;    // thin line for ATZ dense traffic
+        lineColorWeight = 1;
+    }
     var allPoints = new Array();
     for (var i = 0; i < flightSegments.length; i++) {
         L.polyline(flightSegments[i], {color: 'white', weight: lineWhiteWeight}).addTo(map);

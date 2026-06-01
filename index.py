@@ -524,9 +524,9 @@ def getAtzTraffic(airfieldCode: str):
     try:
         airfieldCode = sanitise(airfieldCode)
         lat, lon = coordsForAirfield(airfieldCode)
-        print(f"[INFO] ATZTRAF: flightId='{airfieldCode} from {getRemoteAddr()}")
+        print(f"[INFO] ATZTraf: flightId='{airfieldCode} from {getRemoteAddr()}")
     except:
-        print(f"[INFO] ATZTRAF: invalid airfieldCode='{airfieldCode} from {getRemoteAddr()}")
+        print(f"[INFO] ATZTraf: invalid airfieldCode='{airfieldCode} from {getRemoteAddr()}")
         return flask.render_template('error40x.html', code=404, message="Nope :P"), 404
 
     tz = _getBrowserTimezone()
@@ -562,7 +562,8 @@ def getAtzTraffic(airfieldCode: str):
                                  skipSegments=[],
                                  atzMarkers=atzMarkers,
                                  hideMarkers=True,
-                                 title=title)
+                                 title=title,
+                                 lineWidth=1)
 
 
 @app.route('/stats', methods=['GET'])
