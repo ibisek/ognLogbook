@@ -31,6 +31,13 @@ class Status(object):
 
         return s
 
+    def airborne(self):
+        return self.s == 1
+
+
+class LogbookEvent:
+    __slots__ = ('ts', 'localDate', 'type', 'address', 'addressType', 'aircraftType', 'lat', 'lon', 'icaoLocation', 'flightTime')
+
 
 class LogbookItem(object):
     __slots__ = ('id', 'address', 'address_type',
