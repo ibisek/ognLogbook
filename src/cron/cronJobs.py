@@ -5,6 +5,7 @@ General periodic tasks are defined and executed from here.
 from periodicTimer import PeriodicTimer
 # from cron.encountersLookup import EncountersLookup
 from cron.eventWatcher.eventWatcher import EventWatcher
+from cron.flightsPostLookup import FlightsPostLookup
 from cron.flownDistanceCalculator import FlownDistanceCalculator
 from cron.realTakeoff import RealTakeoffLookup
 from cron.redisReaper import RedisReaper
@@ -48,6 +49,10 @@ class CronJobs(object):
 
         self.statsTimer = PeriodicTimer(Stats.RELOAD_INTERVAL, Stats.refreshValueInRedis)
         self.statsTimer.start()
+
+        flightsPostLookup = FlightsPostLookup()
+        self.flightsPostLookupTimer = PeriodicTimer(FlightsPostLookup.RUN_INTERVAL, flightsPostLookup.doWork)
+        self.flightsPostLookupTimer.start()
 
     def stop(self):
         self.towLookupTimer.stop()
