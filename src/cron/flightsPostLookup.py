@@ -19,16 +19,23 @@ from airfieldManager import AirfieldManager
 from configuration import dbConnectionInfo, redisConfig, INFLUX_DB_NAME, INFLUX_DB_HOST, ADDRESS_TYPE_PREFIX_LETTER
 from dataStructures import LogbookEvent, Status
 from db.DbSource import DbSource
+from db.DbThread import DbThread
 from db.InfluxDbThread import InfluxDbThread
+from utils import getGroundSpeedThreshold
 
 
 class FlightsPostLookup:
     RUN_INTERVAL = 12 * 3600   # [s]
 
     def __init__(self):
+        print(f"[INFO] FlightsPostLookup scheduled to run every {self.RUN_INTERVAL}s.")
+
         self.redis = StrictRedis(**redisConfig)
         self.influxDb = InfluxDbThread(dbName=INFLUX_DB_NAME, host=INFLUX_DB_HOST, startThread=False)
         self.afm = AirfieldManager()
+
+        self.dbt = DbThread(dbConnectionInfo=dbConnectionInfo)
+        self.dbt.start()
 
         self.running = False
 
@@ -36,7 +43,10 @@ class FlightsPostLookup:
         if self.influxDb:
             self.influxDb.client.close()
 
-    def _findTakeoffsWithoutLanding(self, date: datetime) -> List[LogbookEvent]:
+        if self.dbt:
+            self.dbt.stop()
+
+    def _findTakeoffsWithoutLanding(date: datetime) -> List[LogbookEvent]:
         dateFormatted = date.strftime('%Y-%m-%d')
 
         q = f"""SELECT ts, address, address_type, aircraft_type FROM logbook_events as e
@@ -104,14 +114,14 @@ class FlightsPostLookup:
             if rs:
                 rows = [row for row in rs.get_points()]
 
-                landingOrLostIndex = -1
+                landingOrSignalLostIndex = -1
                 for i, row in enumerate(rows):
                     groundSpeed = row['gs']
                     agl = row.get('agl', 111e+111)
-                    if groundSpeed <= 80 or agl < 300:  # getGroundSpeedThreshold(logbookItem.aircraft_type, forEvent='T'):
-                        landingOrLostIndex = i
+                    if groundSpeed <= getGroundSpeedThreshold(e.aircraft_type, forEvent='L') or agl < 300:
+                        landingOrSignalLostIndex = i
 
-                finalFixRow = rows[landingOrLostIndex]
+                finalFixRow = rows[landingOrSignalLostIndex]
 
                 landingTs = int(datetime.strptime(finalFixRow['time'], '%Y-%m-%dT%H:%M:%S%z').timestamp())  # UTC
                 flightTime = landingTs - e.ts
@@ -135,9 +145,7 @@ class FlightsPostLookup:
                      f"({e.ts}, '{e.localDate}', '{e.address}', '{e.addressType}', '{e.aircraftType}', " \
                      f"'{e.type}', {e.lat:.5f}, {e.lon:.5f}, '{e.icaoLocation}', {e.flightTime});"
 
-            connection = DbSource(dbConnectionInfo).getConnection()
-            cur = connection.cursor()
-            cur.execute(strSql)
+            self.dbt.addStatement(strSql)
 
             formattedDt = datetime.fromtimestamp(e.ts, tz=timezone.utc).strftime('%Y-%m-%d %H:%M')
             loc = e.icaoLocation if e.icaoLocation else f"[{e.lat:.4f}; {e.lon:.4f}]"
@@ -165,5 +173,3 @@ class FlightsPostLookup:
 if __name__ == '__main__':
     fpl = FlightsPostLookup()
     fpl.doWork()
-
-    print('Done.')
