@@ -23,7 +23,7 @@ from db.InfluxDbThread import InfluxDbThread
 
 
 class FlightsPostLookup:
-    RUN_INTERVAL = 2 * 3600   # [s]
+    RUN_INTERVAL = 12 * 3600   # [s]
 
     def __init__(self):
         self.redis = StrictRedis(**redisConfig)
