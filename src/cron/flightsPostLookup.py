@@ -126,6 +126,9 @@ class FlightsPostLookup:
                 landingTs = int(datetime.strptime(finalFixRow['time'], '%Y-%m-%dT%H:%M:%S%z').timestamp())  # UTC
                 flightTime = landingTs - e.ts
 
+                if flightTime < 1.0:    # ignore zero-lenght 'flights'
+                    continue
+
                 e.type = 'L'
                 e.flightTime = flightTime
                 e.ts = landingTs
