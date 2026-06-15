@@ -71,7 +71,7 @@ def _parseEnvVars():
 if __name__ == '__main__':
     influxDbName, storageDir, weekNumber = _parseEnvVars()
 
-    dt = datetime.now(tz=timezone.UTC)
+    dt = datetime.now(tz=timezone.utc)
 
     if weekNumber:  # this is an override to export a specific week
         d = f"{dt.year}-W{weekNumber}"

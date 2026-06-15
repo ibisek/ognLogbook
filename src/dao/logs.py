@@ -16,7 +16,7 @@ def logIgcDownload(userId: str, recType: str, recId: int, remoteAddr: str):
     if recType not in ('f', 't'):
         return
 
-    ts = round(datetime.now(tz=timezone.UTC).timestamp())
+    ts = round(datetime.now(tz=timezone.utc).timestamp())
 
     strSql = f"INSERT INTO log_igc_download (ts, user_id, rec_type, rec_id, remote_addr) VALUES ({ts}, {userId}, '{recType}', {recId}, '{remoteAddr}');"
     print(f"strSql: {strSql}")
