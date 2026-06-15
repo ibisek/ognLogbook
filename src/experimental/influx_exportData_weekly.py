@@ -50,8 +50,8 @@ def _getTsIntervals10Min(startDt: datetime, endDt: datetime) -> List[Interval]:
 
 
 def _dataFromInflux(influx, interval: Interval):
-    a = datetime.fromtimestamp(interval.startTs).strftime("%a %Y-%m-%d %H:%M:%S")
-    b = datetime.fromtimestamp(interval.endTs).strftime("%a %Y-%m-%d %H:%M:%S")
+    a = datetime.fromtimestamp(timestamp=interval.startTs, tz=timezone.utc).strftime("%a %Y-%m-%d %H:%M:%S")
+    b = datetime.fromtimestamp(timestamp=interval.endTs, tz=timezone.utc).strftime("%a %Y-%m-%d %H:%M:%S")
     print(f"Retrieving data {a} -> {b}")
 
     q = f"select * from pos where time >= {interval.startTs}000000000 and time <= {interval.endTs}000000000"
