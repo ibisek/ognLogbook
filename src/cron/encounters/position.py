@@ -2,12 +2,16 @@ from math import radians
 
 
 class Position:
-    def __init__(self, ts: int, addr: str, lat: float, lon: float, alt: float):
+    __slots__ = ('ts', 'addr', 'agl', 'alt', 'gh', 'gs', 'lat', 'lon')
+
+    def __init__(self, ts: int, addr: str, lat: float, lon: float, alt: float, gh: str = None, gs: float = 0):
         self.ts = ts
         self.addr = addr
         self.lat = lat
         self.lon = lon
         self.alt = alt
+        self.gh = gh
+        self.gs = gs
 
         self._lat_rad = None
         self._lon_rad = None
