@@ -21,8 +21,13 @@ def roundNearestUp(value, multiple):
 
 
 def rowIntoPosition(row: dict) -> Position:
-    pos = Position(ts=int(datetime.strptime(row['time'], '%Y-%m-%dT%H:%M:%SZ').replace(tzinfo=timezone.utc).timestamp()), addr=row['addr'], lat=row['lat'],
-                   lon=row['lon'], alt=row['alt'])
+    pos = Position(ts=int(datetime.strptime(row['time'], '%Y-%m-%dT%H:%M:%SZ').replace(tzinfo=timezone.utc).timestamp()),
+                   addr=row.get('addr', None),
+                   lat=row.get('lat', 0.0),
+                   lon=row.get('lon', 0.0),
+                   alt=row.get('alt', 0),
+                   gh=row.get('gh', None),
+                   gs=row.get('gs', 0.0))
 
     return pos
 
