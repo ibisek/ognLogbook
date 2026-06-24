@@ -146,8 +146,8 @@ class EncountersLookup:
             # fetch other data from that squares and time range into memory:
             numOtherPositions = 0
             for sector in mySectors:
-                # q = f"SELECT time, addr, lat, lon, alt FROM pos WHERE gh = '{sector.gh}' AND addr != '{ownAddr}' AND time >= {sector.startTs}000000000 AND time <= {sector.endTs}000000000 AND gs > 80 AND alt >= {sector.minAlt} AND alt <= {sector.maxAlt}"
-                q = f"SELECT time, addr, lat, lon, alt FROM pos WHERE gh = '{sector.gh}' AND time >= {sector.startTs}000000000 AND time <= {sector.endTs}000000000"
+                # q = f"SELECT time, addr, alt, gs, lat, lon FROM pos WHERE gh = '{sector.gh}' AND addr != '{ownAddr}' AND time >= {sector.startTs}000000000 AND time <= {sector.endTs}000000000 AND gs > 80 AND alt >= {sector.minAlt} AND alt <= {sector.maxAlt}"
+                q = f"SELECT time, addr, alt, gs, lat, lon  FROM pos WHERE gh = '{sector.gh}' AND time >= {sector.startTs}000000000 AND time <= {sector.endTs}000000000"
                 rs = self.influxDb.query(q)
                 if not rs:  # no other data in this sector
                     continue
