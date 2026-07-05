@@ -1,4 +1,4 @@
-
+import logging
 from time import sleep
 from threading import Thread
 
@@ -27,7 +27,10 @@ class PeriodicTimer(Thread):
                     break
 
             if self.doRun:
-                self.function()
+                try:
+                    self.function()
+                except Exception as e:
+                    logging.error("A cron job excepted with:", str(e))
 
     def stop(self):
         self.doRun = False
