@@ -10,6 +10,7 @@ for i in {14..15}; do echo "WEEK: $i" && export INFLUX_DB_NAME='ogn_logbook_ps' 
 
 from collections import namedtuple
 import os
+from time import sleep
 from typing import List
 
 from dateutil import parser
@@ -23,14 +24,13 @@ DUMP_FILEPATH_TEMPLATE = '{}/{}.{}_{:02}.csv'   # storageDir, db_name, year, wee
 Interval = namedtuple('Interval', ['startTs', 'endTs'])
 
 
-def _getTsIntervals10Min(startDt: datetime, endDt: datetime) -> List[Interval]:
+def _getTsIntervalsXMin(startDt: datetime, endDt: datetime, stepMin: int = 5) -> List[Interval]:
     hours = (endDt-startDt).days*24
-    minStep = 10   # [min]
     l = []
     for h in range(0, hours):
-        for m in range(0, 60, minStep):
+        for m in range(0, 60, stepMin):
             startTs = int((startDt + timedelta(hours=h, minutes=m, seconds=0)).replace(tzinfo=timezone.utc).timestamp())
-            endTs = int((startDt + timedelta(hours=h, minutes=m+minStep-1, seconds=59, microseconds=999999)).replace(tzinfo=timezone.utc).timestamp())
+            endTs = int((startDt + timedelta(hours=h, minutes=m+stepMin-1, seconds=59, microseconds=999999)).replace(tzinfo=timezone.utc).timestamp())
             interval = Interval(startTs=startTs, endTs=endTs)
             l.append(interval)
 
@@ -65,7 +65,7 @@ def _parseEnvVars():
 
     print(f"[INFO] Using\n\tinfluxDbName: {influxDbName}\n\tarchive storageDir: {storageDir}\n\tweek number: {weekNumber}")
 
-    return (influxDbName, storageDir, weekNumber)
+    return influxDbName, storageDir, weekNumber
 
 
 if __name__ == '__main__':
@@ -103,10 +103,16 @@ if __name__ == '__main__':
         header = 'ts;addr;alt;gs;lat;lon;tr;vs;ss\n'
         f.write(header)
 
-        # tsIntervals = _getTsIntervalsByHour(monday1, monday2)
-        tsIntervals = _getTsIntervals10Min(monday1, monday2)
+        tsIntervals = _getTsIntervalsXMin(startDt=monday1, endDt=monday2, stepMin=5)
         for interval in tsIntervals:
-            rs = _dataFromInflux(influx, interval)
+            dataRetrieved = False
+            while not dataRetrieved:
+                try:
+                    rs = _dataFromInflux(influx, interval)
+                    dataRetrieved = True
+                except Exception as ex: # InvalidChunkLength.. something is broken in the DB
+                    print(f"[ERROR] when retrieving data from influx:", str(ex))
+                    sleep(60)   # give influx some rest
 
             for r in rs:
                 print('Num records in result set:', len(r))
