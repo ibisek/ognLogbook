@@ -86,6 +86,8 @@ if __name__ == '__main__':
         monday1 = prevMonday.replace(hour=0, minute=0, second=0, microsecond=0)
         monday2 = prevSunday.replace(hour=0, minute=0, second=0, microsecond=0)
 
+        weekNumber = monday1.isocalendar()[1]
+
     print("monday1:", monday1)
     print("monday2:", monday2)
 
@@ -94,14 +96,28 @@ if __name__ == '__main__':
     outFilePath = DUMP_FILEPATH_TEMPLATE.format(storageDir, influxDbName, year, week)
     print(f"[INFO] Exporting influx data into '{outFilePath}'..")
 
+    # If file already exists seek to the end and retrieve last inserted timestamp to continue data export from this ts:
+    resume = False
+    if os.path.exists(outFilePath):
+        with open(outFilePath, 'r') as f:    # fetch last line of the file
+            lastLine = f.readlines()[-1]
+
+        ts = int(lastLine.split(';')[0].replace('000000000', ''))
+        monday1 = datetime.fromtimestamp(int(ts), tz=timezone.utc)  # not essentially a monday ;P
+
+        resume = True
+        print(f"resuming data export from {str(monday1)} (ts {ts})")
+
     # --
 
     influx = InfluxDbThread(dbName=influxDbName, host=INFLUX_DB_HOST)
 
+    writeMode = 'a' if resume else 'w'
     numRecords = 0
-    with open(outFilePath, 'w') as f:
-        header = 'ts;addr;alt;gs;lat;lon;tr;vs;ss\n'
-        f.write(header)
+    with open(outFilePath, writeMode) as f:
+        if not resume:
+            header = 'ts;addr;alt;gs;lat;lon;tr;vs;ss\n'
+            f.write(header)
 
         tsIntervals = _getTsIntervalsXMin(startDt=monday1, endDt=monday2, stepMin=5)
         for interval in tsIntervals:
@@ -110,14 +126,14 @@ if __name__ == '__main__':
                 try:
                     rs = _dataFromInflux(influx, interval)
                     dataRetrieved = True
-                except Exception as ex: # InvalidChunkLength.. something is broken in the DB
+                except Exception as ex: # InvalidChunkLength - something is broken in the DB
                     print(f"[ERROR] when retrieving data from influx:", str(ex))
                     sleep(60)   # give influx some rest
 
             for r in rs:
                 print('Num records in result set:', len(r))
                 for res in r:
-                    ts = int(parser.parse(res['time']).timestamp()*1000000000)
+                    ts = int(parser.parse(res['time']).timestamp())
                     addr = res['addr']
                     alt = res['alt']
                     gs = res['gs']          # ground speed
@@ -137,8 +153,8 @@ if __name__ == '__main__':
 
     print(f"[INFO] Exported {numRecords} lines of data.")
 
-    cmd = f"sed -i 's/000000000//g' {outFilePath}"
-    os.system(cmd)
+    # cmd = f"sed -i 's/000000000//g' {outFilePath}"
+    # os.system(cmd)
 
     # cmd = f"xz -9e {outFilePath}"
     cmd = f"zpaq a {outFilePath}.zpaq {outFilePath} -m5 -t4"
