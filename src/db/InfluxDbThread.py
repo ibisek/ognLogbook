@@ -65,6 +65,10 @@ class InfluxDbThread(threading.Thread):
                     if len(queries) >= 1000:    # batching
                         break   # influx writes are said to be optimised to 5000 queries/batch
 
+            if len(queries) < 100:     # ~ wait for more items in the queue to save network resources a bit..
+                time.sleep(1)  # ~ thread.yield()
+                continue
+
             if len(queries) > 0:
                 try:
                     queriesAccepted = self.client.write(data=queries, params={'db': self.dbName}, expected_response_code=204, protocol='line')
@@ -80,8 +84,6 @@ class InfluxDbThread(threading.Thread):
                     print(f"[ERROR] when connecting to influx db at {self.host}:{self.port}", str(e))
                     self._connect()
 
-            if len(queries) < 1000:     # ~ wait for more items in the queue to save network resources a bit..
-                time.sleep(1)  # ~ thread.yield()
 
         if self.client:
             self.client.close()
