@@ -48,8 +48,8 @@ class FlownDistanceCalculator:
         try:
             rs = self.influxDb.query(q)
         except Exception as ex:
+            rs = None
             print(f"[ERROR] when retrieving data from influx for {addrWithPrefix}:", ex)
-            return (None, None)
 
         if rs:
             prevLat = prevLon = curLat = curLon = None
@@ -74,6 +74,7 @@ class FlownDistanceCalculator:
 
         else:
             print(f"[WARN] No influx data for '{address}' between {startTs} and {endTs}.")
+            return None, None
 
         return round(totalDist), round(maxAlt)
 
