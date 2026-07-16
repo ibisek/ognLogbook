@@ -62,7 +62,11 @@ class RealTakeoffLookup(object):
             q = f"select * from pos where addr='{addr}' " \
                 f"and time >= {windowStartTs}000000000 and time <= {windowEndTs}000000000 " \
                 f"order by time desc"
-            rs = self.influxDb.query(q)
+            try:
+                rs = self.influxDb.query(q)
+            except Exception as ex:
+                print("[ERROR] when retrieving data from influx:", ex)
+                continue
 
             if rs:
                 rows = [row for row in rs.get_points()]
