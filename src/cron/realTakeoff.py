@@ -65,7 +65,7 @@ class RealTakeoffLookup(object):
             try:
                 rs = self.influxDb.query(q)
             except Exception as ex:
-                print("[ERROR] when retrieving data from influx:", ex)
+                print(f"[ERROR] when retrieving data from influx for {addr}:", ex)
                 continue
 
             if rs:

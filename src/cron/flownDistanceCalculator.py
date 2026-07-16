@@ -44,7 +44,13 @@ class FlownDistanceCalculator:
         addrWithPrefix = f"{addressPrefixes[addressType]}{address}"
 
         q = f"SELECT lat, lon, alt FROM pos WHERE addr='{addrWithPrefix}' AND time >= {startTs}000000000 AND time <= {endTs}000000000"
-        rs = influxInstance.client.query(query=q)
+
+        try:
+            rs = self.influxDb.query(q)
+        except Exception as ex:
+            print(f"[ERROR] when retrieving data from influx for {addrWithPrefix}:", ex)
+            return (None, None)
+
         if rs:
             prevLat = prevLon = curLat = curLon = None
 
@@ -91,6 +97,9 @@ class FlownDistanceCalculator:
                     continue
 
                 dist, maxAlt = self._calcFlownDistance(address=address, addressType=addressType, startTs=takeoffTs, endTs=landingTs)
+                if not dist or not maxAlt:
+                    continue
+
                 print(f"[INFO] Flown dist for '{addressPrefixes[addressType]}{address}' is {dist} km with maxAlt of {maxAlt} m")
 
                 sql = f"UPDATE logbook_entries SET flown_distance={dist}, max_alt={maxAlt} WHERE id = {entryId};"
