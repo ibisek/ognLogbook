@@ -49,24 +49,27 @@ class InfluxDbThread(threading.Thread):
         return self.client.query(query)
 
     def run(self):
-        while self.doRun or self.toDoStatements.qsize() > 0:
-            queries = list()
-            while self.toDoStatements.qsize() > 0:
-                try:
-                    query = self.toDoStatements.get(block=False)
-                except Empty:  # _queue.Empty (cannot catch it in any other way)
-                    break
+        queries = list()
+        while self.doRun:
+            if len(queries) < 2000:
+                while self.toDoStatements.qsize() > 0:
+                    try:
+                        query = self.toDoStatements.get(block=False)
+                    except Empty:  # _queue.Empty (cannot catch it in any other way)
+                        break
 
-                if query:
-                    # print(f"[INFO] influxDbThread sql: {query}")
-                    queries.append(query)
+                    if query:
+                        # print(f"[INFO] influxDbThread sql: {query}")
+                        queries.append(query)
 
-                if len(queries) >= 1000:
-                    break   # influx writes are optimised to 5000 queries/batch
+                    if len(queries) >= 1000:    # batching
+                        break   # influx writes are said to be optimised to 5000 queries/batch
 
             if len(queries) > 0:
                 try:
-                    res = self.client.write(data=queries, params={'db': self.dbName}, expected_response_code=204, protocol='line')
+                    queriesAccepted = self.client.write(data=queries, params={'db': self.dbName}, expected_response_code=204, protocol='line')
+                    if queriesAccepted:
+                        queries.clear()
 
                 except InfluxDBClientError as e:
                     print(f"[ERROR] when executing influx query: '{query}' -> {e}")
