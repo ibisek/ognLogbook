@@ -15,6 +15,8 @@ echo "Using INFLUX_DB_NAME: '$INFLUX_DB_NAME'"
 
 export STORAGE_DIR='/mnt/data/zalohy/archiv'
 
+#export WEEK_NUMBER=27
+
 python3 ./src/experimental/influx_exportData_weekly.py
 
 deactivate
