@@ -48,7 +48,7 @@ class FlownDistanceCalculator:
         try:
             rs = self.influxDb.query(q)
         except Exception:
-            rs = None
+            return None, None
 
         if rs:
             prevLat = prevLon = curLat = curLon = None
@@ -73,7 +73,7 @@ class FlownDistanceCalculator:
 
         else:
             print(f"[WARN] No influx data for '{addrWithPrefix}' between {startTs} and {endTs}.")
-            return None, None
+            return 0, 0
 
         return round(totalDist), round(maxAlt)
 
@@ -97,7 +97,7 @@ class FlownDistanceCalculator:
                     continue
 
                 dist, maxAlt = self._calcFlownDistance(address=address, addressType=addressType, startTs=takeoffTs, endTs=landingTs)
-                if not dist or not maxAlt:
+                if dist is None or maxAlt is None: # None is result of influx failure, 0 is a valid response (the data is not there)
                     continue
 
                 print(f"[INFO] Flown dist for '{addressPrefixes[addressType]}{address}' is {dist} km with maxAlt of {maxAlt} m")
