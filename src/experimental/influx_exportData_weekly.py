@@ -80,8 +80,7 @@ if __name__ == '__main__':
     print("monday2:", monday2)
 
     year = monday1.year
-    week = monday1.isocalendar()[1]
-    outFilePath = DUMP_FILEPATH_TEMPLATE.format(storageDir, influxDbName, year, week)
+    outFilePath = DUMP_FILEPATH_TEMPLATE.format(storageDir, influxDbName, year, weekNumber)
     print(f"[INFO] Exporting influx data into '{outFilePath}'..")
 
     # If file already exists seek to the end and retrieve last inserted timestamp to continue data export from this ts:
