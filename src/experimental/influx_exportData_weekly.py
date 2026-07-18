@@ -37,18 +37,6 @@ def _getTsIntervalsXMin(startDt: datetime, endDt: datetime, stepMin: int = 5) ->
     return l
 
 
-# def _getTsIntervalsByHour(startDt: datetime, endDt: datetime) -> List[Interval]:
-#     hours = (endDt-startDt).days*24
-#     l = []
-#     for h in range(0, hours):
-#         startTs = int((startDt + timedelta(hours=h)).replace(tzinfo=timezone.utc).timestamp())
-#         endTs = int((startDt + timedelta(hours=h+1)).replace(tzinfo=timezone.utc).timestamp())
-#         interval = Interval(startTs=startTs, endTs=endTs)
-#         l.append(interval)
-#
-#     return l
-
-
 def _dataFromInflux(influx, interval: Interval):
     a = datetime.fromtimestamp(timestamp=interval.startTs, tz=timezone.utc).strftime("%a %Y-%m-%d %H:%M:%S")
     b = datetime.fromtimestamp(timestamp=interval.endTs, tz=timezone.utc).strftime("%a %Y-%m-%d %H:%M:%S")
@@ -75,7 +63,7 @@ if __name__ == '__main__':
 
     if weekNumber:  # this is an override to export a specific week
         d = f"{dt.year}-W{weekNumber}"
-        dt = datetime.strptime(d + '-1', "%Y-W%W-%w")
+        dt = datetime.strptime(d + '-1', "%Y-W%W-%w").replace(tzinfo=timezone.utc)
         monday1 = dt                         # monday of the specified week
         monday2 = dt + timedelta(days=7)     # monday of the specified week+1
 
