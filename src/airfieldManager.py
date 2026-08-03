@@ -7,15 +7,16 @@ from configuration import AIRFIELDS_FILE
 
 
 class AirfieldRecord(object):
-    __slots__ = ('lat', 'lon', 'code')
+    __slots__ = ('lat', 'lon', 'code', 'alt')
 
     def __init__(self, map: dict):
         self.lat = math.radians(map['lat'])
         self.lon = math.radians(map['lon'])
         self.code = map['code']
+        self.alt = map.get('alt', 0)
 
     def __str__(self):
-        return f'#AirfieldRecord: {self.code}; lat:{self.lat:.4f}; lon:{self.lon:.4f}'
+        return f'#AirfieldRecord: {self.code}; lat:{self.lat:.4f}; lon:{self.lon:.4f}; alt:{self.alt}'
 
 
 class AirfieldManager(object):  # , metaclass=Singleton
