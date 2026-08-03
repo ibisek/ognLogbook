@@ -135,6 +135,9 @@ class AirfieldManager(object):  # , metaclass=Singleton
         lonSign = 1 if lonRad >= 0 else -1
         airfields = self.airfields[latSign][lonSign]
 
+        rangeLimit = 8000 if latSign == 1 and lonSign == -1 else 100  # in Canada there a too many strips in narrow latitude band
+        # TODO the  look-up algo needs to be fixed!
+
         startI = 0
         endI = len(airfields)
         n = 0
@@ -145,14 +148,14 @@ class AirfieldManager(object):  # , metaclass=Singleton
             else:
                 startI = i
 
-            if endI - startI <= 100:
+            if endI - startI <= rangeLimit:
                 break
 
             n += 1
             if n > 100:
                 break
 
-        for rec in airfields[startI:endI + 1]:  # the +1 makes a HUGE difference - the location is often at the last index position(!)
+        for rec in airfields[startI:endI + 10]:  # the +1 makes a HUGE difference - the location is often at the last index position(!)
             dist = AirfieldManager.getDistanceInKm(latRad, lonRad, rec.lat, rec.lon)
             if dist < minDist:
                 minDist = dist
