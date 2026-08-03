@@ -99,10 +99,10 @@ class OpenAipAirfields(object):
             if not items[3]:
                 continue
 
+            # threeDotsButton = tr.find_elements(By.TAG_NAME, "button")[0]
             threeDotsButton = WebDriverWait(tr, 120).until(
                 EC.presence_of_element_located((By.TAG_NAME, 'button'))
             )
-            # threeDotsButton = tr.find_elements(By.TAG_NAME, "button")[0]
             threeDotsButton.click()
 
             try:
@@ -134,9 +134,6 @@ class OpenAipAirfields(object):
             self.driver.close()
             self.driver.switch_to.window(self.driver.window_handles[0])
 
-            # backButton = self.driver.find_element(By.CSS_SELECTOR, 'div.back-to-list-section')
-            # backButton.find_element(By.TAG_NAME, 'span').click()
-
             wait(2, 6)
 
     def run(self):
@@ -160,7 +157,3 @@ if __name__ == '__main__':
 
     oaa = OpenAipAirfields()
     oaa.run()
-
-# https://www.openaip.net/data/airports?page=2&limit=200&sortBy=name&sortDesc=false&searchOptLwc=false&searchOptRegex=false
-# https://www.openaip.net/data/airports?page=4&limit=200&sortBy=name&sortDesc=false&searchOptLwc=false&searchOptRegex=false
-# https://www.openaip.net/data/airports?page=6&limit=200&sortBy=name&sortDesc=false&searchOptLwc=false&searchOptRegex=false
