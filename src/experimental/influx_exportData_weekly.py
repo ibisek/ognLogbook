@@ -56,6 +56,14 @@ def _parseEnvVars():
     return influxDbName, storageDir, weekNumber
 
 
+def _withinSuspendInterval() -> bool:
+    h = datetime.now(tz=timezone.utc).hour
+    if 8 <= h <= 23:
+        return True
+    else:
+        return False
+
+
 if __name__ == '__main__':
     influxDbName, storageDir, weekNumber = _parseEnvVars()
 
@@ -135,6 +143,9 @@ if __name__ == '__main__':
                     f.write(line)
 
                     numRecords += 1
+
+            while _withinSuspendInterval():    # keep the export running during off-the-peak hours
+                sleep(60)   # [s]
 
     influx.client.close()
 
