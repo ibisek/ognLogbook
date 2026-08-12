@@ -116,6 +116,9 @@ if __name__ == '__main__':
 
         tsIntervals = _getTsIntervalsXMin(startDt=monday1, endDt=monday2, stepMin=5)
         for interval in tsIntervals:
+            while _withinSuspendInterval():    # keep the export running during off-the-peak hours
+                sleep(60)   # [s]
+
             dataRetrieved = False
             while not dataRetrieved:
                 try:
@@ -143,9 +146,6 @@ if __name__ == '__main__':
                     f.write(line)
 
                     numRecords += 1
-
-            while _withinSuspendInterval():    # keep the export running during off-the-peak hours
-                sleep(60)   # [s]
 
     influx.client.close()
 
