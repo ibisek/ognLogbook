@@ -22,6 +22,8 @@ def _waitUntilCpuLoadLow():
 
 
 def _processLogbookEvents():
+    _waitUntilCpuLoadLow()
+
     strSql = 'SELECT id, location_icao, lat, lon FROM logbook_events WHERE location_icao IS null;'
 
     cur = dbs.getConnection().cursor()
@@ -48,6 +50,8 @@ def _processLogbookEvents():
 
 
 def _processLogbookEntries():
+    _waitUntilCpuLoadLow()
+
     strSql = 'SELECT id, takeoff_icao, takeoff_lat, takeoff_lon, landing_icao, landing_lat, landing_lon FROM logbook_entries ' \
              'WHERE takeoff_icao IS null OR landing_icao IS null;'
     cur = dbs.getConnection().cursor()
