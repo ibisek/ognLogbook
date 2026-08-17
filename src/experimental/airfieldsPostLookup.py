@@ -3,6 +3,7 @@ A tool to replenish missing ICAO records in the logbook_entries table.
 Can be used after airfields.json got extended by new locations.
 """
 
+import logging
 import os
 
 from time import sleep
@@ -13,8 +14,15 @@ from db.DbSource import DbSource
 from db.DbThread import DbThread
 
 
+def _waitUntilCpuLoadLow():
+    # load1, load5, load15 = os.getloadavg()
+    while normalizedLoad := os.getloadavg()[1] / (os.cpu_count() or 1) > 1:
+        logging.info('Waiting for lower CPU load')
+        sleep(60)
+
+
 def _processLogbookEvents():
-    strSql = 'SELECT id, location_icao, lat, lon FROM logbook_events WHERE location_icao IS null LIMIT 100;'
+    strSql = 'SELECT id, location_icao, lat, lon FROM logbook_events WHERE location_icao IS null;'
 
     cur = dbs.getConnection().cursor()
     cur.execute(strSql)
@@ -32,6 +40,8 @@ def _processLogbookEvents():
                 dbt.addStatement(strSql)
                 numUpdatedRecords += 1
 
+        _waitUntilCpuLoadLow()
+
     print('LE numUpdatedRecords:', numUpdatedRecords)
 
     return numUpdatedRecords
@@ -39,7 +49,7 @@ def _processLogbookEvents():
 
 def _processLogbookEntries():
     strSql = 'SELECT id, takeoff_icao, takeoff_lat, takeoff_lon, landing_icao, landing_lat, landing_lon FROM logbook_entries ' \
-             'WHERE takeoff_icao IS null OR landing_icao IS null LIMIT 100;'
+             'WHERE takeoff_icao IS null OR landing_icao IS null;'
     cur = dbs.getConnection().cursor()
     cur.execute(strSql)
 
@@ -64,6 +74,8 @@ def _processLogbookEntries():
                 dbt.addStatement(strSql)
                 numUpdatedRecords += 1
 
+        _waitUntilCpuLoadLow()
+
     print('numUpdatedRecords:', numUpdatedRecords)
 
     return numUpdatedRecords
@@ -78,16 +90,8 @@ if __name__ == '__main__':
 
     dbs = DbSource(dbConnectionInfo=dbConnectionInfo)
 
-    while True:
-        # _load1, load5, _load15 = os.getloadavg()
-        while normalizedLoad := os.getloadavg()[1] / (os.cpu_count() or 1) > 1:
-            sleep(60)
-
-        nUpdated = _processLogbookEvents()     # take-offs and landings
-        nUpdated += _processLogbookEntries()   # flights
-
-        if nUpdated == 0:
-            break   # all done
+    _processLogbookEvents()     # take-offs and landings
+    _processLogbookEntries()   # flights
 
     while not dbt.toDoStatements.empty():
         print('len DB toDoStatements:', dbt.toDoStatements.qsize())
