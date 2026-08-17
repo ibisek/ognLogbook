@@ -3,6 +3,8 @@ A tool to replenish missing ICAO records in the logbook_entries table.
 Can be used after airfields.json got extended by new locations.
 """
 
+import os
+
 from time import sleep
 
 from airfieldManager import AirfieldManager
@@ -12,7 +14,7 @@ from db.DbThread import DbThread
 
 
 def _processLogbookEvents():
-    strSql = 'SELECT id, location_icao, lat, lon FROM logbook_events WHERE location_icao IS null;'
+    strSql = 'SELECT id, location_icao, lat, lon FROM logbook_events WHERE location_icao IS null LIMIT 100;'
 
     cur = dbs.getConnection().cursor()
     cur.execute(strSql)
@@ -32,10 +34,12 @@ def _processLogbookEvents():
 
     print('LE numUpdatedRecords:', numUpdatedRecords)
 
+    return numUpdatedRecords
+
 
 def _processLogbookEntries():
     strSql = 'SELECT id, takeoff_icao, takeoff_lat, takeoff_lon, landing_icao, landing_lat, landing_lon FROM logbook_entries ' \
-             'WHERE takeoff_icao IS null OR landing_icao IS null;'
+             'WHERE takeoff_icao IS null OR landing_icao IS null LIMIT 100;'
     cur = dbs.getConnection().cursor()
     cur.execute(strSql)
 
@@ -62,6 +66,8 @@ def _processLogbookEntries():
 
     print('numUpdatedRecords:', numUpdatedRecords)
 
+    return numUpdatedRecords
+
 
 if __name__ == '__main__':
 
@@ -72,8 +78,16 @@ if __name__ == '__main__':
 
     dbs = DbSource(dbConnectionInfo=dbConnectionInfo)
 
-    _processLogbookEvents()     # take-offs and landings
-    _processLogbookEntries()    # flights
+    while True:
+        # _load1, load5, _load15 = os.getloadavg()
+        while normalizedLoad := os.getloadavg()[1] / (os.cpu_count() or 1) > 1:
+            sleep(60)
+
+        nUpdated = _processLogbookEvents()     # take-offs and landings
+        nUpdated += _processLogbookEntries()   # flights
+
+        if nUpdated == 0:
+            break   # all done
 
     while not dbt.toDoStatements.empty():
         print('len DB toDoStatements:', dbt.toDoStatements.qsize())
