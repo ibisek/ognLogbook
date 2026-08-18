@@ -1,5 +1,7 @@
-
+import math
 import pytz
+
+from enum import Enum
 
 from datetime import datetime
 from utilsTime import formatDuration
@@ -91,6 +93,24 @@ class LogbookItem(object):
         self.flight_time = formatDuration(self.flight_time)
 
         self.tow_id = tow_id
+
+
+class AirfieldRecord(object):
+    __slots__ = ('lat', 'lon', 'code', 'alt')
+
+    def __init__(self, map: dict):
+        self.lat = math.radians(map['lat'])
+        self.lon = math.radians(map['lon'])
+        self.code = map['code']
+        self.alt = map.get('alt', 0)
+
+    def __str__(self):
+        return f'#AirfieldRecord: {self.code}; lat:{math.degrees(self.lat):.4f}; lon:{math.degrees(self.lon):.4f}; alt:{self.alt}'
+
+
+class Units(Enum):
+    DEG = 1
+    RAD = 2
 
 
 addressPrefixes = {'O': 'OGN', 'I': 'ICA', 'F': 'FLR', 'S': 'SKY'}
