@@ -1,30 +1,25 @@
 import sys
 import json
-import math
+from math import degrees, radians, sin, cos, acos
 
+from copy import deepcopy
 from typing import Dict, List
+
 from configuration import AIRFIELDS_FILE
-
-
-class AirfieldRecord(object):
-    __slots__ = ('lat', 'lon', 'code', 'alt')
-
-    def __init__(self, map: dict):
-        self.lat = math.radians(map['lat'])
-        self.lon = math.radians(map['lon'])
-        self.code = map['code']
-        self.alt = map.get('alt', 0)
-
-    def __str__(self):
-        return f'#AirfieldRecord: {self.code}; lat:{self.lat:.4f}; lon:{self.lon:.4f}; alt:{self.alt}'
+from dataStructures import AirfieldRecord, Units
+from experimental.nearestGeoPointFinder import NearestGeoPointFinder
 
 
 class AirfieldManager(object):  # , metaclass=Singleton
 
-    __slots__ = ('airfields', 'airfieldsDict', 'afCountryCodes', 'afCodes')
+    MIN_DIST_FROM_AIRFIELD = 5
+
+    __slots__ = ('airfields', 'airfieldsDict', 'afCountryCodes', 'afCodes', 'finder')
 
     def __init__(self):
         self.airfields, self.airfieldsDict = self.loadAirfieldsFromFile()
+
+        self.finder = NearestGeoPointFinder(records=deepcopy(self.airfields))
 
         # self.airfields.sort(key=lambda af: af.lat)    # sort airfields by latitude
         self.airfields.sort(key=lambda af: af.lon)      # ordering by lon gives better & faster results
@@ -106,19 +101,33 @@ class AirfieldManager(object):  # , metaclass=Singleton
         :param lon2: in radians (!)
         :return: ICAO code of the nearest airfield
         """
-        arg = math.sin(lat1) * math.sin(lat2) + math.cos(lat1) * math.cos(lat2) * math.cos(lon2 - lon1)
+        arg = sin(lat1) * sin(lat2) + cos(lat1) * cos(lat2) * cos(lon2 - lon1)
         if arg >= 1.0:
             return 0
 
         R = 6371  # km
-        dist = math.acos(arg) * R
+        dist = acos(arg) * R
 
         return dist
 
-    def getNearest(self, lat, lon):
+    def getNearest2(self, lat, lon, units: Units = Units.DEG, calcDistance=False):
         """
         :param lat: in degrees
         :param lon: in degrees
+        :return: nearest ICAO code or None
+        """
+        if not lat or not lon:
+            return None, None
+
+        record, distanceKm = self.finder.findNearest(lat, lon, units=units, calcDistance=calcDistance)
+
+        return record.code, distanceKm
+
+    def getNearest(self, lat, lon, units: Units = Units.DEG):
+        """
+        :param lat: in degrees
+        :param lon: in degrees
+        :param units explicit DEG/RAD, default DEG
         :return: nearest ICAO code or None
         """
         if not lat or not lon:
@@ -127,8 +136,12 @@ class AirfieldManager(object):  # , metaclass=Singleton
         minDist = 99999999999999
         code = None
 
-        latRad = math.radians(lat)
-        lonRad = math.radians(lon)
+        if units == Units.DEG:
+            latRad = radians(lat)
+            lonRad = radians(lon)
+        else:
+            latRad = lat
+            lonRad = lon
 
         # pick the appropriate airfields list (NE / NW / SE / SW):
         latSign = 1 if latRad >= 0 else -1
@@ -155,16 +168,65 @@ class AirfieldManager(object):  # , metaclass=Singleton
             if n > 100:
                 break
 
-        for rec in airfields[startI:endI + 10]:  # the +1 makes a HUGE difference - the location is often at the last index position(!)
+        for rec in airfields[startI:endI + 1]:  # the +1 makes a HUGE difference - the location is often at the last index position(!)
             dist = AirfieldManager.getDistanceInKm(latRad, lonRad, rec.lat, rec.lon)
             if dist < minDist:
                 minDist = dist
                 code = rec.code
 
-        if minDist < 5:  # [km]
+        if minDist < MIN_DIST_FROM_AIRFIELD:  # [km]
             return code
         else:
             return None
+
+    def xxx_remove(self, code):
+        rec = self.airfieldsDict.get(code, None)
+        if not rec:
+            return None
+
+        # pick the appropriate airfields list (NE / NW / SE / SW):
+        latSign = 1 if rec.lat >= 0 else -1
+        lonSign = 1 if rec.lon >= 0 else -1
+
+        airfieldSlice = self.airfields[latSign][lonSign]
+        airfieldSlice.remove(rec)
+
+        return rec
+
+    def xxx_return(self, rec: AirfieldRecord):
+        # pick the appropriate airfields list (NE / NW / SE / SW):
+        latSign = 1 if rec.lat >= 0 else -1
+        lonSign = 1 if rec.lon >= 0 else -1
+
+        airfieldSlice = self.airfields[latSign][lonSign]
+        airfieldSlice.append(rec)
+
+    def get(self, code: str) -> AirfieldRecord:
+        return self.airfieldsDict.get(code, None)
+
+    def saveIntoFile(self, filepath: str):
+        """
+        Stores current airfields into a specified file.
+        :param filepath
+        """
+
+        with open(filepath, 'w') as f:
+            l = list()
+            for code, ar in self.airfieldsDict.items():
+                d = dict()
+                d['code'] = ar.code
+                d['lat'] = float(f"{degrees(ar.lat):.4f}")
+                d['lon'] = float(f"{degrees(ar.lon):.4f}")
+                if ar.alt != 0:
+                    d['alt'] = int(ar.alt)
+
+                l.append(d)
+
+            # sort the list by latitude:
+            l.sort(key=lambda x: x['lat'])
+
+            j = json.dumps(l)
+            f.write(j)
 
 
 if __name__ == '__main__':
@@ -180,10 +242,12 @@ if __name__ == '__main__':
     # recs.append(AirfieldRecord({'lat': , 'lon': , 'code': ''}))
 
     for rec in recs:
-        icao = am.getNearest(math.degrees(rec.lat), math.degrees(rec.lon))
-        match = rec.code == icao
+        # nearestCode = am.getNearest(degrees(rec.lat), degrees(rec.lon))
+        nearestCode, distKm = am.getNearest2(degrees(rec.lat), degrees(rec.lon), calcDistance=True)
+        nearest = am.get(nearestCode)
+        match = rec.code == nearest.code
         out = sys.stderr if not match else sys.stdout
-        print(f"match: {match}, {rec.code} -> found: {icao}", file=out)
+        print(f"match: {match}, {rec.code} -> found: {nearest.code} {distKm} km apart", file=out)
 
     # am.listInRange(49.1611, 49.1822, 16.4011, 16.9001)
 
