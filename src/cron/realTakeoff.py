@@ -90,7 +90,9 @@ class RealTakeoffLookup(object):
 
                 if dirty:
                     if not logbookItem.takeoff_icao:
-                        logbookItem.takeoff_icao = self.airfieldManager.getNearest(logbookItem.takeoff_lat, logbookItem.takeoff_lon)
+                        icao, distKm = self.airfieldManager.getNearest2(logbookItem.takeoff_lat, logbookItem.takeoff_lon, calcDistance=True)
+                        if icao and distKm < AirfieldManager.MIN_DIST_FROM_AIRFIELD:
+                            logbookItem.takeoff_icao = icao
 
                     # the DB stores datetime as Europe-local (UTC+2/1) - shift from influx's UTC to local:
                     utcDt = datetime.strptime(logbookItem.takeoff_ts, '%Y-%m-%dT%H:%M:%S%z')

@@ -399,7 +399,9 @@ class RawWorker(Thread):
 
             self._saveToRedis(statusKey, currentStatus)
 
-            icaoLocation = self.airfieldManager.getNearest(lat, lon)
+            icaoLocation, distanceKm = self.airfieldManager.getNearest2(lat, lon, calcDistance=True)
+            if icaoLocation and distanceKm > AirfieldManager.MIN_DIST_FROM_AIRFIELD:
+                icaoLocation = None
 
             dtStr = dt.strftime('%d-%m-%Y %H:%M:%S')
             print(f"[INFO] event: {dtStr}; {icaoLocation}; [{addressTypeStr}] {address}; {event}; {flightTime}")

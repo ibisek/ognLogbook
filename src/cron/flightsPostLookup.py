@@ -134,7 +134,9 @@ class FlightsPostLookup:
                 e.ts = landingTs
                 e.lat = float(finalFixRow.get('lat', -1))
                 e.lon = float(finalFixRow.get('lon', -1))
-                e.icaoLocation = self.afm.getNearest(e.lat, e.lon)
+                e.icaoLocation, distKm = self.afm.getNearest2(e.lat, e.lon, calcDistance=True)
+                if e.icaoLocation and distKm > AirfieldManager.MIN_DIST_FROM_AIRFIELD:
+                    e.icaoLocation = None
 
                 landingEvents.append(e)
 

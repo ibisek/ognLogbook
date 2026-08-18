@@ -104,7 +104,10 @@ class RedisReaper(object):
                         landingSuspected = True
 
                 if landingSuspected:
-                    icaoLocation = self.airfieldManager.getNearest(lat, lon)
+                    icaoLocation, distKm = self.airfieldManager.getNearest2(lat, lon, calcDistance=True)
+                    if icaoLocation and distKm > AirfieldManager.MIN_DIST_FROM_AIRFIELD:
+                        icaoLocation = None     # it is just too far away - this might have been true field landing
+
                     # if not icaoLocation:  # no outlandings yet..
                     #     continue
 

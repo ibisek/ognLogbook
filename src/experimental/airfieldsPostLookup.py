@@ -41,8 +41,8 @@ def _processLogbookEvents():
         (id, icao, lat, lon) = row
 
         if not icao and lat and lon:
-            icao = afm.getNearest(lat, lon)
-            if icao:
+            icao, distKm = afm.getNearest2(lat, lon, calcDistance=True)
+            if icao and distKm < AirfieldManager.MIN_DIST_FROM_AIRFIELD:
                 print('locationIcao:', icao)
                 strSql = f"UPDATE logbook_events set location_icao = '{icao}' where id = {id}"
                 dbt.addStatement(strSql)
@@ -59,7 +59,7 @@ def _processLogbookEntries():
     _waitUntilCpuLoadLow()
 
     strSql = f"SELECT id, takeoff_icao, takeoff_lat, takeoff_lon, landing_icao, landing_lat, landing_lon FROM logbook_entries ' \
-             'WHERE takeoff_icao IS null OR landing_icao IS null AND ts >= {_getTsLimit()};"
+             'WHERE takeoff_icao IS null OR landing_icao IS null AND takeoff_ts >= {_getTsLimit()};"
     cur = dbs.getConnection().cursor()
     cur.execute(strSql)
 
@@ -69,16 +69,16 @@ def _processLogbookEntries():
         (id, takeoffIcao, takeoffLat, takeoffLon, landingIcao, landingLat, landingLon) = row
 
         if not takeoffIcao and takeoffLat and takeoffLon:
-            takeoffIcao = afm.getNearest(takeoffLat, takeoffLon)
-            if takeoffIcao:
+            takeoffIcao, distKm = afm.getNearest2(takeoffLat, takeoffLon, calcDistance=True)
+            if takeoffIcao and distKm < AirfieldManager.MIN_DIST_FROM_AIRFIELD:
                 print('takeoffIcao:', takeoffIcao)
                 strSql = f"UPDATE logbook_entries set takeoff_icao = '{takeoffIcao}' where id = {id}"
                 dbt.addStatement(strSql)
                 numUpdatedRecords += 1
 
         if not landingIcao and landingLat and landingLon:
-            landingIcao = afm.getNearest(landingLat, landingLon)
-            if landingIcao:
+            landingIcao, distKm = afm.getNearest2(landingLat, landingLon, calcDistance=True)
+            if landingIcao and distKm < AirfieldManager.MIN_DIST_FROM_AIRFIELD:
                 print('landingIcao:', landingIcao)
                 strSql = f"UPDATE logbook_entries set landing_icao = '{landingIcao}' where id = {id}"
                 dbt.addStatement(strSql)
