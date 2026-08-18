@@ -6,6 +6,7 @@ Can be used after airfields.json got extended by new locations.
 import logging
 import os
 
+from datetime import datetime, timezone, timedelta
 from time import sleep
 
 from airfieldManager import AirfieldManager
@@ -21,10 +22,15 @@ def _waitUntilCpuLoadLow():
         sleep(60)
 
 
+def _getTsLimit():
+    now = datetime.now(tz=timezone.utc) - timedelta(days=60)
+    return int(now.timestamp())
+
+
 def _processLogbookEvents():
     _waitUntilCpuLoadLow()
 
-    strSql = 'SELECT id, location_icao, lat, lon FROM logbook_events WHERE location_icao IS null;'
+    strSql = f'SELECT id, location_icao, lat, lon FROM logbook_events WHERE location_icao IS null AND ts >= {_getTsLimit()};'
 
     cur = dbs.getConnection().cursor()
     cur.execute(strSql)
@@ -52,8 +58,8 @@ def _processLogbookEvents():
 def _processLogbookEntries():
     _waitUntilCpuLoadLow()
 
-    strSql = 'SELECT id, takeoff_icao, takeoff_lat, takeoff_lon, landing_icao, landing_lat, landing_lon FROM logbook_entries ' \
-             'WHERE takeoff_icao IS null OR landing_icao IS null;'
+    strSql = f"SELECT id, takeoff_icao, takeoff_lat, takeoff_lon, landing_icao, landing_lat, landing_lon FROM logbook_entries ' \
+             'WHERE takeoff_icao IS null OR landing_icao IS null AND ts >= {_getTsLimit()};"
     cur = dbs.getConnection().cursor()
     cur.execute(strSql)
 
