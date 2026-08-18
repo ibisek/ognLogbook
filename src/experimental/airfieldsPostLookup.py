@@ -58,8 +58,8 @@ def _processLogbookEvents():
 def _processLogbookEntries():
     _waitUntilCpuLoadLow()
 
-    strSql = f"SELECT id, takeoff_icao, takeoff_lat, takeoff_lon, landing_icao, landing_lat, landing_lon FROM logbook_entries ' \
-             'WHERE takeoff_icao IS null OR landing_icao IS null AND takeoff_ts >= {_getTsLimit()};"
+    strSql = f"SELECT id, takeoff_icao, takeoff_lat, takeoff_lon, landing_icao, landing_lat, landing_lon FROM logbook_entries " \
+             f"WHERE takeoff_icao IS null OR landing_icao IS null AND takeoff_ts >= {_getTsLimit()};"
     cur = dbs.getConnection().cursor()
     cur.execute(strSql)
 
