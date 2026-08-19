@@ -233,15 +233,14 @@ if __name__ == '__main__':
     am = AirfieldManager()
 
     recs = []
-    recs.append(AirfieldRecord({'lat': 49.16, 'lon': 16.11, 'code': 'LKNA'}))
-    recs.append(AirfieldRecord({'lat': 52.4396, 'lon': 17.0553, 'code': 'EPPK'}))
-    recs.append(AirfieldRecord({'lat': -32.2144, 'lon': 148.2247, 'code': 'YNRM'}))
-    recs.append(AirfieldRecord({'lat': 47.2620200, 'lon': 11.3483200, 'code': 'LOWI'}))
-    recs.append(AirfieldRecord({'lat': -32.5488500, 'lon': 151.0252500, 'code': 'YWKW'}))
-    recs.append(AirfieldRecord({'lat': 43.7535000, 'lon': -79.8711000, 'code': 'CNC3'}))    # lehce bokem podle db ale najde
-    recs.append(AirfieldRecord({'lat': 45.5829, 'lon': -74.5496, 'code': 'CNV4'}))         # hawkesbury WEST
-    recs.append(AirfieldRecord({'lat': 45.5828, 'lon': -74.5487, 'code': 'CPG5'}))          # hawkesbury EAST
-
+    # recs.append(AirfieldRecord({'lat': 49.16, 'lon': 16.11, 'code': 'LKNA'}))
+    # recs.append(AirfieldRecord({'lat': 52.4396, 'lon': 17.0553, 'code': 'EPPK'}))
+    # recs.append(AirfieldRecord({'lat': -32.2144, 'lon': 148.2247, 'code': 'YNRM'}))
+    # recs.append(AirfieldRecord({'lat': 47.2620200, 'lon': 11.3483200, 'code': 'LOWI'}))
+    # recs.append(AirfieldRecord({'lat': -32.5488500, 'lon': 151.0252500, 'code': 'YWKW'}))
+    # recs.append(AirfieldRecord({'lat': 43.7535000, 'lon': -79.8711000, 'code': 'CNC3'}))    # lehce bokem podle db ale najde
+    recs.append(AirfieldRecord({'lat': 45.6177203, 'lon': -74.6452272, 'code': 'CNV4'}))    # near Hawkesbury WEST
+    recs.append(AirfieldRecord({'lat': 45.5828, 'lon': -74.5487, 'code': 'CPG5'}))          # near Hawkesbury EAST
     # recs.append(AirfieldRecord({'lat': , 'lon': , 'code': ''}))
 
     for rec in recs:
@@ -254,7 +253,7 @@ if __name__ == '__main__':
         # out = sys.stderr if not match else sys.stdout
         # print(f"\tmatch: {match}, {rec.code} -> found: {nearest.code} {distKm} km apart", file=out)
         res = 'XX' if not match else 'OK'
-        print(f"\t{res} match: {match}, {rec.code} -> found: {nearest.code} {distKm} km apart")
+        print(f"\t{res} match: {match}, {rec.code} -> found: {nearest.code} {distKm:.3f} km apart")
 
     # am.listInRange(49.1611, 49.1822, 16.4011, 16.9001)
 
