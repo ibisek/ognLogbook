@@ -3,6 +3,8 @@ More sophisticated geo-distace finder than the original one ;)
 """
 
 import numpy as np
+
+from math import radians
 from scipy.spatial import KDTree
 
 from dataStructures import AirfieldRecord, Units
@@ -69,7 +71,7 @@ class NearestGeoPointFinder:
         distanceKm = None
         if calcDistance:
             # Convert both points to radians before calling _haversineKm
-            lat1_rad, lon1_rad = np.radians(lat_deg), np.radians(lon_deg)
+            lat1_rad, lon1_rad = radians(lat_deg), radians(lon_deg)
             lat2_rad, lon2_rad = matchedRecord.lat_rad, matchedRecord.lon_rad
 
             distanceKm = self._haversineKm(lat1_rad, lon1_rad, lat2_rad, lon2_rad)
