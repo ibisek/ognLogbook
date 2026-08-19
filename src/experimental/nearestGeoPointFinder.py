@@ -33,10 +33,12 @@ def recordToCartesian3d(lat_deg, lon_deg, alt_meters=0.0):
     return np.column_stack((x, y, z))
 
 
-def chordDistanceToKm(chord_dist, radius=EARTH_RADIUS_KM):
-    """Converts 3D Euclidean distance to spherical ground distance in km."""
-    chord_dist = np.clip(chord_dist, 0.0, 2.0)
-    return 2.0 * radius * np.arcsin(chord_dist / 2.0)
+def chordDistanceToKm(chord_dist_meters):
+    """Converts 3D Euclidean distance (in meters) to spherical ground distance in km."""
+    # Normalize chord length to unit sphere [0, 2]
+    radius_meters = EARTH_RADIUS_KM * 1000.0
+    unit_chord = np.clip(chord_dist_meters / radius_meters, 0.0, 2.0)
+    return 2.0 * EARTH_RADIUS_KM * np.arcsin(unit_chord / 2.0)
 
 
 class NearestGeoPointFinder:
@@ -55,26 +57,24 @@ class NearestGeoPointFinder:
         """
         Finds the nearest record in the dataset for a given query point.
         """
-        # Convert input to DEGREES if passed as RADIANS
-        if units is Units.RAD:
+        if units is Units.RAD:  # Convert input to DEGREES if passed as RADIANS
             lat_deg = np.degrees(lat)
             lon_deg = np.degrees(lon)
         else:
             lat_deg = lat
             lon_deg = lon
 
-        query3d = recordToCartesian3d(lat_deg, lon_deg)
-        _, nearest_idx = self.tree.query(query3d)
+        query3d = recordToCartesian3d(lat_deg, lon_deg, alt)
+
+        # scipy KDTree query returns both 3D distance (in meters) and index
+        euclidean_dist_m, nearest_idx = self.tree.query(query3d)
 
         matchedRecord = self.records[nearest_idx]
 
         distanceKm = None
         if calcDistance:
-            # Convert both points to radians before calling _haversineKm
-            lat1_rad, lon1_rad = radians(lat_deg), radians(lon_deg)
-            lat2_rad, lon2_rad = matchedRecord.lat_rad, matchedRecord.lon_rad
-
-            distanceKm = self._haversineKm(lat1_rad, lon1_rad, lat2_rad, lon2_rad)
+            # Direct conversion from 3D Euclidean distance to spherical ground distance
+            distanceKm = chordDistanceToKm(euclidean_dist_m)
 
         return matchedRecord, distanceKm
 
@@ -99,7 +99,7 @@ class NearestGeoPointFinder:
 #     finder = NearestGeoPointFinder(records=airfields)
 #
 #     # target_lat, target_lon = 45.4861, -75.0961  # CNF3
-#     # target_lat, target_lon = 45.5833,  -74.5544 # CNV4 # hawkesbury WEST
+#     # target_lat, target_lon = 45.6174,  -74.6476 # CNV4 # hawkesbury WEST
 #     target_lat, target_lon = 45.5828,  -74.5489 # CPG5 # hawkesbury EAST
 #
 #     print("--- Nearest Point ---")
