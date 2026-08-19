@@ -21,8 +21,8 @@ class AirfieldManager(object):  # , metaclass=Singleton
 
         self.finder = NearestGeoPointFinder(records=deepcopy(self.airfields))
 
-        # self.airfields.sort(key=lambda af: af.lat)    # sort airfields by latitude
-        self.airfields.sort(key=lambda af: af.lon)      # ordering by lon gives better & faster results
+        # self.airfields.sort(key=lambda af: af.lat_deg)    # sort airfields by latitude
+        self.airfields.sort(key=lambda af: af.lon_deg)      # ordering by lon gives better & faster results
         # get airfields country codes:
         self.afCountryCodes = self._getCountryCodes(self.airfields)
         # extract all airfields codes:
@@ -85,8 +85,8 @@ class AirfieldManager(object):  # , metaclass=Singleton
         afDict = {1: {1: [], -1: []}, -1: {1: [], -1: []}}
 
         for af in airfields:
-            latSign = 1 if af.lat >= 0 else -1
-            lonSign = 1 if af.lon >= 0 else -1
+            latSign = 1 if af.lat_deg >= 0 else -1
+            lonSign = 1 if af.lon_deg >= 0 else -1
 
             afDict[latSign][lonSign].append(af)
 
@@ -174,7 +174,7 @@ class AirfieldManager(object):  # , metaclass=Singleton
                 minDist = dist
                 code = rec.code
 
-        if minDist < MIN_DIST_FROM_AIRFIELD:  # [km]
+        if minDist < AirfieldManager.MIN_DIST_FROM_AIRFIELD:  # [km]
             return code
         else:
             return None
@@ -185,8 +185,8 @@ class AirfieldManager(object):  # , metaclass=Singleton
             return None
 
         # pick the appropriate airfields list (NE / NW / SE / SW):
-        latSign = 1 if rec.lat >= 0 else -1
-        lonSign = 1 if rec.lon >= 0 else -1
+        latSign = 1 if rec.lat_deg >= 0 else -1
+        lonSign = 1 if rec.lon_deg >= 0 else -1
 
         airfieldSlice = self.airfields[latSign][lonSign]
         airfieldSlice.remove(rec)
@@ -195,8 +195,8 @@ class AirfieldManager(object):  # , metaclass=Singleton
 
     def xxx_return(self, rec: AirfieldRecord):
         # pick the appropriate airfields list (NE / NW / SE / SW):
-        latSign = 1 if rec.lat >= 0 else -1
-        lonSign = 1 if rec.lon >= 0 else -1
+        latSign = 1 if rec.lat_deg >= 0 else -1
+        lonSign = 1 if rec.lon_deg >= 0 else -1
 
         airfieldSlice = self.airfields[latSign][lonSign]
         airfieldSlice.append(rec)
@@ -215,8 +215,8 @@ class AirfieldManager(object):  # , metaclass=Singleton
             for code, ar in self.airfieldsDict.items():
                 d = dict()
                 d['code'] = ar.code
-                d['lat'] = float(f"{degrees(ar.lat):.4f}")
-                d['lon'] = float(f"{degrees(ar.lon):.4f}")
+                d['lat'] = float(f"{degrees(ar.lat_deg):.4f}")
+                d['lon'] = float(f"{degrees(ar.lon_deg):.4f}")
                 if ar.alt != 0:
                     d['alt'] = int(ar.alt)
 
@@ -239,15 +239,22 @@ if __name__ == '__main__':
     recs.append(AirfieldRecord({'lat': 47.2620200, 'lon': 11.3483200, 'code': 'LOWI'}))
     recs.append(AirfieldRecord({'lat': -32.5488500, 'lon': 151.0252500, 'code': 'YWKW'}))
     recs.append(AirfieldRecord({'lat': 43.7535000, 'lon': -79.8711000, 'code': 'CNC3'}))    # lehce bokem podle db ale najde
+    recs.append(AirfieldRecord({'lat': 45.5829, 'lon': -74.5496, 'code': 'CNV4'}))         # hawkesbury WEST
+    recs.append(AirfieldRecord({'lat': 45.5828, 'lon': -74.5487, 'code': 'CPG5'}))          # hawkesbury EAST
+
     # recs.append(AirfieldRecord({'lat': , 'lon': , 'code': ''}))
 
     for rec in recs:
+        print(f"CODE {rec.code}")
         # nearestCode = am.getNearest(degrees(rec.lat), degrees(rec.lon))
-        nearestCode, distKm = am.getNearest2(degrees(rec.lat), degrees(rec.lon), calcDistance=True)
+        nearestCode, distKm = am.getNearest2(rec.lat_deg, rec.lon_deg, calcDistance=True)
         nearest = am.get(nearestCode)
         match = rec.code == nearest.code
-        out = sys.stderr if not match else sys.stdout
-        print(f"match: {match}, {rec.code} -> found: {nearest.code} {distKm} km apart", file=out)
+
+        # out = sys.stderr if not match else sys.stdout
+        # print(f"\tmatch: {match}, {rec.code} -> found: {nearest.code} {distKm} km apart", file=out)
+        res = 'XX' if not match else 'OK'
+        print(f"\t{res} match: {match}, {rec.code} -> found: {nearest.code} {distKm} km apart")
 
     # am.listInRange(49.1611, 49.1822, 16.4011, 16.9001)
 
