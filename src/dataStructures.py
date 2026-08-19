@@ -96,16 +96,20 @@ class LogbookItem(object):
 
 
 class AirfieldRecord(object):
-    __slots__ = ('lat', 'lon', 'code', 'alt')
+    __slots__ = ('lat_deg', 'lon_deg', 'lat_rad', 'lon_rad', 'code', 'alt')
 
     def __init__(self, map: dict):
-        self.lat = math.radians(map['lat'])
-        self.lon = math.radians(map['lon'])
+        self.lat_deg = map['lat']
+        self.lat_rad = math.radians(self.lat_deg)
+
+        self.lon_deg = map['lon']
+        self.lon_rad = math.radians(self.lon_deg)
+
         self.code = map['code']
         self.alt = map.get('alt', 0)
 
     def __str__(self):
-        return f'#AirfieldRecord: {self.code}; lat:{math.degrees(self.lat):.4f}; lon:{math.degrees(self.lon):.4f}; alt:{self.alt}'
+        return f'#AirfieldRecord: {self.code}; lat:{self.lat_deg:.4f}; lon:{self.lon_deg:.4f}; alt:{self.alt}'
 
 
 class Units(Enum):
