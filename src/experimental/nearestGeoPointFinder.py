@@ -2,8 +2,6 @@
 More sophisticated geo-distace finder than the original one ;)
 """
 
-from math import radians
-
 import numpy as np
 from scipy.spatial import KDTree
 
@@ -41,65 +39,56 @@ def chordDistanceToKm(chord_dist, radius=EARTH_RADIUS_KM):
 
 class NearestGeoPointFinder:
     def __init__(self, records: list[AirfieldRecord]):
-        """
-        Initializes the spatial tree using a list of dicts.
-        """
         self.records = records
 
-        # Extract lat/lon arrays for fast vectorization
-        lats = np.array([record.lat for record in records])
-        lons = np.array([record.lon for record in records])
-        alts = [record.alt for record in records]
+        # Extract lat/lon arrays in DEGREES
+        lats = np.array([record.lat_deg for record in records])
+        lons = np.array([record.lon_deg for record in records])
 
-        # Convert dataset to 3D Cartesian points (in meters)
-        self.points_3d = recordToCartesian3d(lats, lons, alts)
+        # Convert dataset to 3D surface Cartesian points
+        self.points_3d = recordToCartesian3d(lats, lons)
         self.tree = KDTree(self.points_3d)
 
     def findNearest(self, lat: float, lon: float, alt: float = 0.0, units: Units = Units.DEG, calcDistance=False):
         """
         Finds the nearest record in the dataset for a given query point.
-        :lat in degrees
-        :lon in degrees
-        :alt im meters
         """
-
-        if units is Units.DEG:
-            lat_rad = radians(lat)
-            lon_rad = radians(lon)
+        # Convert input to DEGREES if passed as RADIANS
+        if units is Units.RAD:
+            lat_deg = np.degrees(lat)
+            lon_deg = np.degrees(lon)
         else:
-            lat_rad = lat
-            lon_rad = lon
+            lat_deg = lat
+            lon_deg = lon
 
-        query3d = recordToCartesian3d(lat_rad, lon_rad, float(alt))
-
+        query3d = recordToCartesian3d(lat_deg, lon_deg)
         _, nearest_idx = self.tree.query(query3d)
 
-        # Calculate true surface ground distance (Haversine) for exact precision
         matchedRecord = self.records[nearest_idx]
 
         distanceKm = None
         if calcDistance:
-            distanceKm = self._haversineKm(lat_rad, lon_rad, matchedRecord.lat, matchedRecord.lon)
+            # Convert both points to radians before calling _haversineKm
+            lat1_rad, lon1_rad = np.radians(lat_deg), np.radians(lon_deg)
+            lat2_rad, lon2_rad = matchedRecord.lat_rad, matchedRecord.lon_rad
+
+            distanceKm = self._haversineKm(lat1_rad, lon1_rad, lat2_rad, lon2_rad)
 
         return matchedRecord, distanceKm
 
     @staticmethod
-    def _haversineKm(lat1, lon1, lat2, lon2):
+    def _haversineKm(lat1_rad, lon1_rad, lat2_rad, lon2_rad):
         """
         Exact great-circle distance on Earth surface in kilometers.
-        :param lat1 in radians
-        :param lon1 in radians
-        :param lat2 in radians
-        :param lon2 in radians
+        Inputs MUST be in radians.
         """
+        dlat = lat2_rad - lat1_rad
+        dlon = lon2_rad - lon1_rad
 
-        dlat = lat2 - lat1
-        dlon = lon2 - lon1
-        a = (np.sin(dlat / 2.0) ** 2 + np.cos(lat1) * np.cos(lat2) * np.sin(dlon / 2.0) ** 2)
+        a = np.sin(dlat / 2.0) ** 2 + np.cos(lat1_rad) * np.cos(lat2_rad) * np.sin(dlon / 2.0) ** 2
+        a_clipped = np.clip(a, 0.0, 1.0)
 
-        a_clipped = np.clip(a, 0.0, 1.0)    # Protect against floating-point inaccuracy resulting in a > 1.0
-
-        return float(round(6371.0 * 2.0 * np.arcsin(np.sqrt(a_clipped)), 3))    # np.float -> float
+        return float(round(EARTH_RADIUS_KM * 2.0 * np.arcsin(np.sqrt(a_clipped)), 3))
 
 
 # if __name__ == '__main__':
@@ -108,7 +97,8 @@ class NearestGeoPointFinder:
 #     finder = NearestGeoPointFinder(records=airfields)
 #
 #     # target_lat, target_lon = 45.4861, -75.0961  # CNF3
-#     target_lat, target_lon = 45.5833,  -74.5544 # CNV4
+#     # target_lat, target_lon = 45.5833,  -74.5544 # CNV4 # hawkesbury WEST
+#     target_lat, target_lon = 45.5828,  -74.5489 # CPG5 # hawkesbury EAST
 #
 #     print("--- Nearest Point ---")
 #     nearest, distance = finder.findNearest(target_lat, target_lon, calcDistance=True)
