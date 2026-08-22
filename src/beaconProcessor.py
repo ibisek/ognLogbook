@@ -130,7 +130,7 @@ class RawWorker(Thread):
             except BrokenPipeError as ex:
                 logging.warning(f"[WARN] in worker: {ex}")
             except Exception as ex:
-                logging.error(f"[ERROR] some other problem: {ex}", ex, exc_info=True)
+                logging.error(f"[ERROR] some other problem: {str(ex)}", ex, exc_info=True)
 
         print(f"[INFO] Worker '{self.id}' terminated.")
 
@@ -292,7 +292,7 @@ class RawWorker(Thread):
 
         lat = beacon.get('latitude') or None  # [deg]
         lon = beacon.get('longitude') or None  # [deg]
-        altitude = int(beacon.get('altitude')) or 0  # [m]
+        altitude = int(beacon.get('altitude') if beacon.get('altitude') else 0) # [m]
         groundSpeed = beacon.get('ground_speed') or 0  # [km/h]
         verticalSpeed = beacon.get('climb_rate') or 0  # [m/s]
         turnRate = beacon.get('turn_rate') or 0  # [deg/s]
