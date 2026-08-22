@@ -34,6 +34,7 @@ from utilsTime import formatDuration
 from translations import gettext
 
 app = flask.Flask(__name__)
+app.logger.setLevel(logging.WARNING)
 app.jinja_env.globals.update(gettext=gettext)
 app.jinja_env.globals.update(formatTsToHHMM=formatTsToHHMM)
 app.jinja_env.globals.update(node=node)
