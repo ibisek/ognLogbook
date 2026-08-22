@@ -130,7 +130,7 @@ class RawWorker(Thread):
             except BrokenPipeError as ex:
                 logging.warning(f"[WARN] in worker: {ex}")
             except Exception as ex:
-                logging.error(f"[ERROR] some other problem: {ex}")
+                logging.error(f"[ERROR] some other problem: {ex}", ex, exc_info=True)
 
         print(f"[INFO] Worker '{self.id}' terminated.")
 
