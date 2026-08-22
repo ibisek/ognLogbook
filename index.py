@@ -7,6 +7,7 @@ import sys
 import math
 from datetime import datetime, timedelta
 from collections import namedtuple
+import logging
 
 # from distutils.log import Log
 from flask import request, send_from_directory, session, jsonify
@@ -612,12 +613,12 @@ def handle_error(error):
     return flask.render_template("error40x.html", code=error.code, message=error.description)
 
 
-# @app.errorhandler(Exception)
-# def unhandled_exception(error):
-#     msg = "Unhandled Exception: {}".format(error)
-#     # logger.error(msg)
-#     # app.logger.error(msg)
-#     return flask.render_template('error40x.html', code=500), 500
+@app.errorhandler(Exception)
+def unhandled_exception(error):
+    msg = "Unhandled Exception: {}".format(error)
+    logging.error(msg)
+    app.logger.error(msg)
+    return flask.render_template('error40x.html', code=500), 500
 
 def _formatRegistration(reg: str):
     if not reg:
