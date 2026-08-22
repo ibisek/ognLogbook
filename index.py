@@ -170,7 +170,7 @@ def filterByIcaoCode(icaoCode, date=None, dateTo=None):
     try:
         _, airfieldsDict = AirfieldManager.loadAirfieldsFromFile()
         ar: AirfieldRecord = airfieldsDict[icaoCode]
-        lat, lon = math.degrees(ar.lat), math.degrees(ar.lon)
+        lat, lon = ar.lat_deg, ar.lon_deg
 
         return flask.render_template('index.html', debugMode=DEBUG, date=date, dateTo=dateTo, icaoCode=icaoCode,
                                      linkPrevDay=linkPrevDay, linkNextDay=linkNextDay,
