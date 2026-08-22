@@ -614,10 +614,10 @@ def handle_error(error):
 
 
 @app.errorhandler(Exception)
-def unhandled_exception(error):
-    msg = "Unhandled Exception: {}".format(error)
-    logging.error(msg)
-    app.logger.error(msg)
+def unhandled_exception(ex):
+    msg = "Unhandled Exception: {}".format(ex)
+    logging.error( msg, ex, exc_info=True)
+    # app.logger.error(msg)
     return flask.render_template('error40x.html', code=500), 500
 
 def _formatRegistration(reg: str):
