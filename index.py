@@ -39,6 +39,10 @@ app.jinja_env.globals.update(formatTsToHHMM=formatTsToHHMM)
 app.jinja_env.globals.update(node=node)
 app.jinja_env.globals.update(eligibleForMapView=eligibleForMapView)
 
+secret_key = 'some random key 0drQ8ComEYbA4h/saDIbfr5mKwBsNjnS2nRp9CU7DRnBj+buFIfwXD7kfOR6qFYk'
+app.config['SECRET_KEY'] = secret_key
+app.secret_key = secret_key
+
 DayRecord = namedtuple('DayRecords', ['date', 'numFlights', 'totalFlightTime', 'departures', 'arrivals', 'flights'])
 ATZMarker = namedtuple('ATZMarker', ['lat', 'lon', 'name'])
 
@@ -708,9 +712,5 @@ if __name__ == '__main__':
     print(f"DEBUG: {DEBUG}")
     if DEBUG:
         app.config['TEMPLATES_AUTO_RELOAD'] = True
-
-    secret_key = 'some random key 0drQ8ComEYbA4h/saDIbfr5mKwBsNjnS2nRp9CU7DRnBj+buFIfwXD7kfOR6qFYk'
-    app.config['SECRET_KEY'] = secret_key
-    app.secret_key = secret_key
 
     app.run(debug=DEBUG)
