@@ -709,6 +709,8 @@ if __name__ == '__main__':
     if DEBUG:
         app.config['TEMPLATES_AUTO_RELOAD'] = True
 
-    app.config['SECRET_KEY'] = 'some random key'
+    secret_key = 'some random key 0drQ8ComEYbA4h/saDIbfr5mKwBsNjnS2nRp9CU7DRnBj+buFIfwXD7kfOR6qFYk'
+    app.config['SECRET_KEY'] = secret_key
+    app.secret_key = secret_key
 
     app.run(debug=DEBUG)
