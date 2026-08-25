@@ -7,6 +7,7 @@ Speeds-up DB inserts by not opening and closing cursors after every statement.
 """
 
 
+import logging
 import time
 import threading
 from queue import Empty, Queue
@@ -17,6 +18,8 @@ import requests
 from influxdb import InfluxDBClient
 from influxdb.resultset import ResultSet
 from influxdb.exceptions import InfluxDBClientError, InfluxDBServerError
+
+log = logging.getLogger(__name__)
 
 
 class InfluxDbThread(threading.Thread):
@@ -36,7 +39,7 @@ class InfluxDbThread(threading.Thread):
             self.doRun = True
 
     def _connect(self):
-        print(f"[INFO] Connecting to influx db '{self.dbName}' at {self.host}:{self.port} ")
+        log.info(f"Connecting to influx db '{self.dbName}' at {self.host}:{self.port} ")
         self.client = InfluxDBClient(host=self.host, port=self.port, database=self.dbName)
 
     def stop(self):
@@ -59,7 +62,7 @@ class InfluxDbThread(threading.Thread):
                         break
 
                     if query:
-                        # print(f"[INFO] influxDbThread sql: {query}")
+                        # log.info(f"influxDbThread sql: {query}")
                         queries.append(query)
 
                     if len(queries) >= 1000:    # batching
@@ -76,18 +79,18 @@ class InfluxDbThread(threading.Thread):
                         queries.clear()
 
                 except InfluxDBClientError as e:
-                    print(f"[ERROR] when executing influx query: '{query}' -> {e}")
+                    log.error(f"Err when executing influx query: '{query}' -> {e}")
                     time.sleep(10)  # give influx some time to recover
 
                 except (requests.exceptions.ConnectionError, InfluxDBServerError) as e:
-                    print(f"[ERROR] when connecting to influx db at {self.host}:{self.port}", str(e))
+                    log.error(f"Err when connecting to influx db at {self.host}:{self.port}", str(e))
                     time.sleep(10)  # give influx some time to recover
                     self._connect()
 
         if self.client:
             self.client.close()
 
-        print("InfluxDbThread terminated")
+        log.info("InfluxDbThread terminated")
 
 
 if __name__ == '__main__':
