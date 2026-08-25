@@ -4,24 +4,27 @@ data filtering. This cronjob is to look up the true take-off location and ts
 by following the path back in time.
 """
 
+import logging
+import tzlocal
+
 from datetime import datetime
 from typing import List
-import tzlocal
-import pytz
 
 from airfieldManager import AirfieldManager
 from configuration import dbConnectionInfo, INFLUX_DB_HOST, INFLUX_DB_NAME
 from dataStructures import LogbookItem, addressPrefixes
 from db.DbSource import DbSource
 from db.InfluxDbThread import InfluxDbThread
-from utils import getGroundSpeedThreshold
+# from utils import getGroundSpeedThreshold
+
+log = logging.getLogger(__name__)
 
 
 class RealTakeoffLookup(object):
     RUN_INTERVAL = 60  # [s]
 
     def __init__(self):
-        print(f"[INFO] RealTakeoffLookup scheduled to run every {self.RUN_INTERVAL}s.")
+        log.info(f"RealTakeoffLookup scheduled to run every {self.RUN_INTERVAL}s.")
 
         self.influxDb = InfluxDbThread(dbName=INFLUX_DB_NAME, host=INFLUX_DB_HOST, startThread=False)
         self.airfieldManager = AirfieldManager()
@@ -65,7 +68,7 @@ class RealTakeoffLookup(object):
             try:
                 rs = self.influxDb.query(q)
             except Exception as ex:
-                print(f"[ERROR] when retrieving data from influx for {addr}:", ex)
+                log.error(f"Err when retrieving data from influx for {addr}: {str(ex)}")
                 continue
 
             if rs:
@@ -113,7 +116,7 @@ class RealTakeoffLookup(object):
                     modifiedTakeoffs += 1
 
         if len(takeoffs) > 0 and modifiedTakeoffs > 0:
-            print(f"[INFO] Num take-off amendments: {modifiedTakeoffs}/{len(takeoffs)}")
+            log.info(f"Num take-off amendments: {modifiedTakeoffs}/{len(takeoffs)}")
 
 
 if __name__ == '__main__':
