@@ -173,8 +173,7 @@ def filterByIcaoCode(icaoCode, date=None, dateTo=None):
 
     # This reloads the entire file every time the page is refreshed (!) However, perhaps still faster then querying and maintaining the DB.
     try:
-        _, airfieldsDict = AirfieldManager.loadAirfieldsFromFile()
-        ar: AirfieldRecord = airfieldsDict[icaoCode]
+        ar: AirfieldRecord = AirfieldManager().airfieldsDict[icaoCode]
         lat, lon = ar.lat_deg, ar.lon_deg
 
         return flask.render_template('index.html', debugMode=DEBUG, date=date, dateTo=dateTo, icaoCode=icaoCode,
