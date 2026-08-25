@@ -1,9 +1,13 @@
 
-from queue import Queue, Empty
+import logging
+
 from datetime import datetime
+from queue import Queue, Empty
 
 from configuration import dbConnectionInfo
 from db.DbSource import DbSource
+
+log = logging.getLogger(__name__)
 
 
 class TowLookup(object):
@@ -13,7 +17,7 @@ class TowLookup(object):
 
     def __init__(self):
         self.queue = Queue()
-        print(f"[INFO] TowLookup scheduled to run every {self.RUN_INTERVAL}s with window "
+        log.info(f"TowLookup scheduled to run every {self.RUN_INTERVAL}s with window "
               f"of {int(self.TOW_TIME_WINDOW/60)} min and detection range of +/- {self.TOW_TIME_RANGE}s.")
 
     def _findTowFor(self, ts, icao):
@@ -50,12 +54,12 @@ class TowLookup(object):
                 towFlightId = self._findTowFor(takeoffTs, takeoffIcao)
 
                 if towFlightId:
-                    print(f"[INFO] Found tow {towFlightId} for glider {gliderFlightId}")
+                    log.info(f"Found tow {towFlightId} for glider {gliderFlightId}")
                     self.queue.put(f"UPDATE logbook_entries set tow_id = {towFlightId} where id = {gliderFlightId};")    # update glider
                     self.queue.put(f"UPDATE logbook_entries set tow_id = {gliderFlightId} where id = {towFlightId};")    # update tow
 
         if self.queue.qsize() > 0:
-            print("[INFO] Num tows discovered: {}".format(int(self.queue.qsize()/2)))    # /2 ~ it's a pair glider-tow plane
+            log.info("Num tows discovered: {}".format(int(self.queue.qsize()/2)))    # /2 ~ it's a pair glider-tow plane
             with DbSource(dbConnectionInfo).getConnection().cursor() as cur:
                 try:
                     for item in iter(self.queue.get_nowait, None):

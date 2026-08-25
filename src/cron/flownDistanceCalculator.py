@@ -2,6 +2,8 @@
 A cron service to calculate real flown distance (point-to-point) for each flight.
 """
 
+import logging
+
 from math import radians
 
 from configuration import dbConnectionInfo, INFLUX_DB_HOST, INFLUX_DB_NAME, INFLUX_DB_NAME_PERMANENT_STORAGE
@@ -11,13 +13,15 @@ from db.InfluxDbThread import InfluxDbThread
 from airfieldManager import AirfieldManager
 from dataStructures import addressPrefixes
 
+log = logging.getLogger(__name__)
+
 
 class FlownDistanceCalculator:
     RUN_INTERVAL = 10  # [s]
     running = False
 
     def __init__(self):
-        print(f"[INFO] FlownDistanceCalculator scheduled to run every {self.RUN_INTERVAL}s.")
+        log.info(f"FlownDistanceCalculator scheduled to run every {self.RUN_INTERVAL}s.")
         self.influxDb = InfluxDbThread(dbName=INFLUX_DB_NAME, host=INFLUX_DB_HOST)
         self.influxDbPs = InfluxDbThread(dbName=INFLUX_DB_NAME_PERMANENT_STORAGE, host=INFLUX_DB_HOST)
 
@@ -72,7 +76,7 @@ class FlownDistanceCalculator:
                     maxAlt = alt
 
         else:
-            print(f"[WARN] No influx data for '{addrWithPrefix}' between {startTs} and {endTs}.")
+            log.warning(f"No influx data for '{addrWithPrefix}' between {startTs} and {endTs}.")
             return 0, 0
 
         return round(totalDist), round(maxAlt)
@@ -100,7 +104,7 @@ class FlownDistanceCalculator:
                 if dist is None or maxAlt is None: # None is result of influx failure, 0 is a valid response (the data is not there)
                     continue
 
-                print(f"[INFO] Flown dist for '{addressPrefixes[addressType]}{address}' is {dist} km with maxAlt of {maxAlt} m")
+                log.info(f"Flown dist for '{addressPrefixes[addressType]}{address}' is {dist} km with maxAlt of {maxAlt} m")
 
                 sql = f"UPDATE logbook_entries SET flown_distance={dist}, max_alt={maxAlt} WHERE id = {entryId};"
                 updateSqls.append(sql)
@@ -109,7 +113,7 @@ class FlownDistanceCalculator:
             with DbSource(dbConnectionInfo).getConnection().cursor() as cur:
                 for sql in updateSqls:
                     cur.execute(sql)
-            print(f"[INFO] Updated {len(updateSqls)} flown distance(s)")
+            log.info(f"Updated {len(updateSqls)} flown distance(s)")
 
         self.running = False
 
