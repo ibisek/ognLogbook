@@ -118,7 +118,7 @@ class RawWorker(Thread):
     #     self.run()
 
     def run(self):
-        print(f"[INFO] Starting worker '{self.id}'")
+        log.info(f"Starting worker '{self.id}'")
         while self.doRun:
             try:
                 raw_message = self.rawQueue.get(block=False)
@@ -134,7 +134,7 @@ class RawWorker(Thread):
             except Exception as ex:
                 log.error(f"Some other problem: {str(ex)}", ex, exc_info=True)
 
-        print(f"[INFO] Worker '{self.id}' terminated.")
+        log.info(f"Worker '{self.id}' terminated.")
 
     def _saveToRedis(self, key: str, value, expire=REDIS_RECORD_EXPIRATION):
         self.redis.set(key, str(value))
@@ -289,7 +289,7 @@ class RawWorker(Thread):
         ts = round(dt.timestamp())  # UTC [s]
         now = datetime.now(tz=pytz.UTC).replace(tzinfo=pytz.UTC)
         if ts - now.timestamp() > 30:  # timestamp from the future? We'll 30s time offset at most..
-            # print(f"[WARN] Timestamp from the future: {dt}, now is {now}")
+            # log.warning(f"Timestamp from the future: {dt}, now is {now}")
             return
 
         lat = beacon.get('latitude') or None  # [deg]
@@ -356,7 +356,7 @@ class RawWorker(Thread):
             try:
                 prevStatus = Status.parse(ps)
             except ValueError as e:
-                print('[ERROR] when parsing prev. status: ', e)
+                log.error('Err when parsing prev. status: ', e)
 
         gsKey = f"{addressTypeStr}{address}-gs"
 
@@ -409,7 +409,7 @@ class RawWorker(Thread):
                 icaoLocation = None
 
             dtStr = dt.strftime('%d-%m-%Y %H:%M:%S')
-            print(f"[INFO] event: {dtStr}; {icaoLocation}; [{addressTypeStr}] {address}; {event}; {flightTime}")
+            log.info(f"event: {dtStr}; {icaoLocation}; [{addressTypeStr}] {address}; {event}; {flightTime}")
 
             # get landing-local timezone date:
             localDate = getLocalTzDate(utcTs=ts, lat=lat, lon=lon)
@@ -474,7 +474,7 @@ class BeaconProcessor(object):
                     break
                 queue.put(item)
                 numRead += 1
-        print(f"[INFO] Loaded {numRead} raw message(s) from redis.")
+        log.info(f"Loaded {numRead} raw message(s) from redis.")
 
         for id, queue, addrType in zip(self.queueIds, self.queues, self.addrTypes):
             rawWorker = RawWorker(id=id, rawQueue=queue, addrType=addrType)
@@ -503,11 +503,11 @@ class BeaconProcessor(object):
         #             self.redis.rpush(key, item)
         #     except Empty:
         #         pass
-        # print(f"[INFO] Flushed {n} rawQueueX items into redis.")
+        # log.info(f"Flushed {n} rawQueueX items into redis.")
 
         self.timer.stop()
 
-        print('[INFO] BeaconProcessor terminated.')
+        log.info('BeaconProcessor terminated.')
 
     startTime = time.time()
     numEnquedTasks = 0
@@ -517,7 +517,7 @@ class BeaconProcessor(object):
         tDiff = now - self.startTime
         numTasksPerMin = self.numEnquedTasks / tDiff * 60
         numQueuedTasks = self.rawQueueOGN.qsize() + self.rawQueueFLR.qsize() + self.rawQueueICA.qsize() + self.rawQueueSKY.qsize()
-        print(f"[INFO] Beacon rate: {numTasksPerMin:.0f}/min, {numQueuedTasks} queued.")
+        log.info(f"Beacon rate: {numTasksPerMin:.0f}/min, {numQueuedTasks} queued.")
 
         traffic = dict()
         for worker in self.workers:
@@ -554,7 +554,7 @@ class BeaconProcessor(object):
         elif prefix == 'SKY':
             self.rawQueueSKY.put(raw_message)
         else:
-            print(f'[WARN] Worker for "{prefix}" not implemented!', raw_message, file=sys.stderr)
+            log.warning(f'Worker for "{prefix}" not implemented!', raw_message, file=sys.stderr)
             return
 
         self.numEnquedTasks += 1
