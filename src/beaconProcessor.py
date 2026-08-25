@@ -272,6 +272,7 @@ class RawWorker(Thread):
         addressTypeStr = ADDRESS_TYPES.get(addressType, 'X')
         aircraftType = beacon.get('aircraft_type', 8)  # icao-crafts are often 'powered aircraft's (8)
 
+        address = None
         if 'address' not in beacon:
             beacon['address_type'] = 1      # 1 = icao
             if len(beacon['name']) == 9:    # with prefix; e.g. OGN123456
@@ -280,8 +281,9 @@ class RawWorker(Thread):
                 address = beacon['comment'][4:10]   # NEMO beacon address may be in comment
         else:
             address = beacon.get('address', None)
-            if not address:
-                return  # no idea the beacon comes from.. bail out
+
+        if not address:
+            return  # no idea the beacon comes from.. bail out
 
         # we are not interested in para, baloons, uavs and other crazy flying stuff:
         if aircraftType not in [1, 2, 6, 8, 9, 10]:
