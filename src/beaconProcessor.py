@@ -276,8 +276,8 @@ class RawWorker(Thread):
             beacon['address_type'] = 1      # 1 = icao
             if len(beacon['name']) == 9:    # with prefix; e.g. OGN123456
                 address = beacon['name'][3:]
-            else:
-                address = beacon['comment'][4:10]   # NEMO beacon address is in comment
+            elif 'comment' in beacon:
+                address = beacon['comment'][4:10]   # NEMO beacon address may be in comment
         else:
             address = beacon['address']
 
@@ -327,8 +327,9 @@ class RawWorker(Thread):
         if temp:
             try:
                 signalStrength = round(float(temp[temp.rfind(' '):].strip()))
-            except ValueError as e:
-                log.warning(f"Cannot parse signal strength from '{temp}'")
+            except ValueError as e: # usually a broken beacon
+                # log.warning(f"Cannot parse signal strength from '{temp}'")
+                pass
 
         # get altitude above ground level (AGL):
         agl = self._getAgl(lat, lon, altitude)  # [m]
