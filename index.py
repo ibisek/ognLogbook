@@ -171,7 +171,6 @@ def filterByIcaoCode(icaoCode, date=None, dateTo=None):
 
     showFlightsOnly = True if request.args.get('flightsOnly') is not None else False     # if present is actually ''
 
-    # This reloads the entire file every time the page is refreshed (!) However, perhaps still faster then querying and maintaining the DB.
     try:
         ar: AirfieldRecord = AirfieldManager().airfieldsDict[icaoCode]
         lat, lon = ar.lat_deg, ar.lon_deg
