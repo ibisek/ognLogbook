@@ -1,4 +1,5 @@
-import sys
+import os.path
+import logging
 import json
 from math import degrees, radians, sin, cos, acos
 
@@ -8,9 +9,12 @@ from typing import Dict, List
 from configuration import AIRFIELDS_FILE
 from dataStructures import AirfieldRecord, Units
 from experimental.nearestGeoPointFinder import NearestGeoPointFinder
+from singleton import ThreadSafeSingleton
+
+log = logging.getLogger(__name__)
 
 
-class AirfieldManager(object):  # , metaclass=Singleton
+class AirfieldManager(ThreadSafeSingleton):
 
     MIN_DIST_FROM_AIRFIELD = 5
 
@@ -22,7 +26,7 @@ class AirfieldManager(object):  # , metaclass=Singleton
         self.finder = NearestGeoPointFinder(records=deepcopy(self.airfields))
 
         # self.airfields.sort(key=lambda af: af.lat_deg)    # sort airfields by latitude
-        self.airfields.sort(key=lambda af: af.lon_deg)      # ordering by lon gives better & faster results
+        self.airfields.sort(key=lambda af: af.lon_deg)  # ordering by lon gives better & faster results
         # get airfields country codes:
         self.afCountryCodes = self._getCountryCodes(self.airfields)
         # extract all airfields codes:
@@ -42,7 +46,7 @@ class AirfieldManager(object):  # , metaclass=Singleton
                 airfields.append(ar)
                 airfieldsDict[ar.code] = ar
 
-        print(f"[INFO] num airfields: {len(airfields)}")
+        log.info(f"Num airfields: {len(airfields)}")
 
         return airfields, airfieldsDict
 
