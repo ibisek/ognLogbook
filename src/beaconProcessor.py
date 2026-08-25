@@ -37,6 +37,8 @@ from cron.eventWatcher.eventWatcher import EventWatcher
 from dao.stats import Stats
 from utilsTime import getLocalTzDate
 
+log = logging.getLogger(__name__)
+
 
 class RawWorker(Thread):
 
@@ -128,9 +130,9 @@ class RawWorker(Thread):
                 except KeyboardInterrupt:
                     self.stop()
             except BrokenPipeError as ex:
-                logging.warning(f"[WARN] in worker: {ex}")
+                log.warning(f"BrokenPipeError in worker: {ex}")
             except Exception as ex:
-                logging.error(f"[ERROR] some other problem: {str(ex)}", ex, exc_info=True)
+                log.error(f"Some other problem: {str(ex)}", ex, exc_info=True)
 
         print(f"[INFO] Worker '{self.id}' terminated.")
 
@@ -323,7 +325,10 @@ class RawWorker(Thread):
         signalStrength = 0
         temp = raw_message[:raw_message.index('dB')] if 'dB' in raw_message else None
         if temp:
-            signalStrength = round(float(temp[temp.rfind(' '):].strip()))
+            try:
+                signalStrength = round(float(temp[temp.rfind(' '):].strip()))
+            except ValueError as e:
+                log.warning(f"Cannot parse signal strength from '{temp}'")
 
         # get altitude above ground level (AGL):
         agl = self._getAgl(lat, lon, altitude)  # [m]
