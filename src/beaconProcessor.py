@@ -279,7 +279,9 @@ class RawWorker(Thread):
             elif 'comment' in beacon:
                 address = beacon['comment'][4:10]   # NEMO beacon address may be in comment
         else:
-            address = beacon['address']
+            address = beacon.get('address', None)
+            if not address:
+                return  # no idea the beacon comes from.. bail out
 
         # we are not interested in para, baloons, uavs and other crazy flying stuff:
         if aircraftType not in [1, 2, 6, 8, 9, 10]:
