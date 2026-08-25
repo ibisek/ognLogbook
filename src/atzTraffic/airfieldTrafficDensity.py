@@ -47,8 +47,8 @@ def boundingBox(lat, lon, diameter):
 def coordsForAirfield(airfieldCode: str):
     af: AirfieldRecord = AirfieldManager().airfieldsDict.get(airfieldCode, None)
     if not af:
-        raise ValueError("No such airfiledCode: ", airfieldCode)
-    return degrees(af.lat), degrees(af.lon)
+        raise ValueError("No such airfieldCode: ", airfieldCode)
+    return af.lat_deg, af.lon_deg
 
 
 def _trafficForCoords(lat: float, lon: float,
