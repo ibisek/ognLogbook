@@ -40,6 +40,8 @@ app.jinja_env.globals.update(formatTsToHHMM=formatTsToHHMM)
 app.jinja_env.globals.update(node=node)
 app.jinja_env.globals.update(eligibleForMapView=eligibleForMapView)
 
+log = logging.getLogger(__name__)
+
 secret_key = 'some random key 0drQ8ComEYbA4h/saDIbfr5mKwBsNjnS2nRp9CU7DRnBj+buFIfwXD7kfOR6qFYk'
 app.config['SECRET_KEY'] = secret_key
 app.secret_key = secret_key
@@ -376,9 +378,9 @@ def _prepareDataForMap(flightRecord) -> (list, list):
 def getMap(flightId: int):
     try:
         flightId = int(sanitise(flightId))
-        print(f"[INFO] MAP: flightId='{flightId} from {getRemoteAddr()}")
+        log.info(f"MAP: flightId='{flightId} from {getRemoteAddr()}")
     except:
-        print(f"[INFO] MAP: invalid flightId='{flightId} from {getRemoteAddr()}'")
+        log.info(f"MAP: invalid flightId='{flightId} from {getRemoteAddr()}'")
         return flask.render_template('error40x.html', code=404, message="Nope :P"), 404
 
     display_tz = _getBrowserTimezone()
@@ -407,9 +409,9 @@ def getMap(flightId: int):
 def getFlightData(flightId: int):
     try:
         flightId = int(sanitise(flightId))
-        print(f"[INFO] FD: flightId='{flightId}'")
+        log.info(f"FD: flightId='{flightId}'")
     except:
-        print(f"[INFO] FD: invalid flightId='{flightId}'")
+        log.info(f"FD: invalid flightId='{flightId}'")
         return flask.render_template('error40x.html', code=404, message="Nope :P"), 404
 
     flight: LogbookItem = getFlight(flightId=flightId, display_tz=_getBrowserTimezone())
@@ -484,9 +486,9 @@ def getIgc(idType: str, flightId: int):
 
     try:
         flightId = int(sanitise(flightId))
-        # print(f"[INFO] IGC: flightId='{flightId}'")
+        # log.info(f"IGC: flightId='{flightId}'")
     except ValueError:
-        print(f"[INFO] IGC: invalid flightId='{flightId}'")
+        log.info(f"log.infoIGC: invalid flightId='{flightId}'")
         return flask.render_template('error40x.html', code=404, message="Nope :P"), 404
 
     userId = 0  # TODO logged user ID
@@ -528,9 +530,9 @@ def getAtzTraffic(airfieldCode: str):
     try:
         airfieldCode = sanitise(airfieldCode)
         lat, lon = coordsForAirfield(airfieldCode)
-        print(f"[INFO] ATZTraf: flightId='{airfieldCode} from {getRemoteAddr()}")
+        log.info(f"ATZTraf: flightId='{airfieldCode} from {getRemoteAddr()}")
     except:
-        print(f"[INFO] ATZTraf: invalid airfieldCode='{airfieldCode} from {getRemoteAddr()}")
+        log.info(f"ATZTraf: invalid airfieldCode='{airfieldCode} from {getRemoteAddr()}")
         return flask.render_template('error40x.html', code=404, message="Nope :P"), 404
 
     tz = _getBrowserTimezone()
@@ -585,7 +587,7 @@ def login():
     if request.method == 'POST':
         email = sanitise(request.form.get('email', None))
         token = sanitise(request.form.get('token', None))
-        print(f"[LOGIN] email: {email}; token: {token}")
+        log.info(f"LOGIN email: {email}; token: {token}")
 
     return flask.render_template('login.html')
 
