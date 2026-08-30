@@ -74,8 +74,9 @@ class AirfieldManager(ThreadSafeSingleton):
         """
         d = {}
         for af in airfields:
-            code = af.code
-            d[code] = True
+            if type(af) is AirfieldRecord:
+                code = af.code
+                d[code] = True
 
         return d
 
