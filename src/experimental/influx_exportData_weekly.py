@@ -155,7 +155,7 @@ if __name__ == '__main__':
     # os.system(cmd)
 
     # cmd = f"xz -9e {outFilePath}"
-    cmd = f"zpaq a {outFilePath}.zpaq {outFilePath} -m5 -t4"
+    cmd = f"zpaq a {outFilePath}.zpaq {outFilePath} -m5 -t1"
     os.system(cmd)
 
     print('KOHEU.')
