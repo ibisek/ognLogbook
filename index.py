@@ -611,8 +611,9 @@ def login():
 
 @app.errorhandler(400)
 @app.errorhandler(404)
-@app.errorhandler(405)  # method not allowed
-@app.errorhandler(413)
+@app.errorhandler(405)  # Method Not Allowed
+@app.errorhandler(413)  # Content Too Large
+@app.errorhandler(429)  # Too Many Requests
 def handle_error(error):
     return flask.render_template("error40x.html", code=error.code, message=error.description)
 
