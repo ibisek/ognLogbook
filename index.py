@@ -174,13 +174,12 @@ def filterByIcaoCode(icaoCode, date=None, dateTo=None):
     showFlightsOnly = True if request.args.get('flightsOnly') is not None else False     # if present is actually ''
 
     try:
-        ar: AirfieldRecord = AirfieldManager().airfieldsDict[icaoCode]
-        lat, lon = ar.lat_deg, ar.lon_deg
+        ar: AirfieldRecord = airfieldManager.airfieldsDict[icaoCode]
 
         return flask.render_template('index.html', debugMode=DEBUG, date=date, dateTo=dateTo, icaoCode=icaoCode,
                                      linkPrevDay=linkPrevDay, linkNextDay=linkNextDay,
                                      dayRecords=dayRecords,
-                                     lat=lat, lon=lon,
+                                     lat=ar.lat_deg, lon=ar.lon_deg,
                                      showDatePicker=True,
                                      flightsOnly=showFlightsOnly)
 
