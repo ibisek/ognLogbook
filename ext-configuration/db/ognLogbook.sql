@@ -23,6 +23,7 @@ CREATE INDEX logbook_events_date ON logbook_events(local_date);
 CREATE INDEX logbook_events_address ON logbook_events(address);
 CREATE INDEX logbook_events_location_icao ON logbook_events(location_icao);
 CREATE INDEX logbook_events_addr_addrtype ON logbook_events(address, address_type);
+CREATE INDEX logbook_events_event_type ON logbook_events(event);
 
 --SHOW INDEXES FROM logbook_events;
 
@@ -271,7 +272,7 @@ CREATE TABLE log_igc_download (
 	user_id BIGINT REFERENCES users.id,
 	rec_type ENUM('f', 't'),  -- 'f' (flight -> refs tab. logbook_entries) or 't' (take-off -> refs tab. logbook_events)
 	rec_id BIGINT,  -- references either logbook_entries or logbook_events based on rec_type
-	remote_addr VARCHAR(15)
+	remote_addr VARCHAR(45)     -- IPv6 / mapped IPv4 addresses might be up to 45 chars long
 );
 
 
