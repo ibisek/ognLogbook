@@ -471,7 +471,7 @@ def listEncounters(flightId: int):
 
 
 @app.route('/api/igc/<idType>/<flightId>', methods=['GET'])
-@limiter.limit("10 per week")
+@limiter.limit("10 per month")
 def getIgc(idType: str, flightId: int):
     """
     :param idType   'f' flight or 't' takeoff id
