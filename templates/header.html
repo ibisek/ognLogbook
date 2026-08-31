@@ -44,9 +44,11 @@
                           <div>
                             <div><a href="/csv/loc/{{icaoCode}}/{{date.strftime('%Y-%m-%d')}}{% if dateTo %}/{{dateTo.strftime('%Y-%m-%d')}}{% endif %}">{{ gettext('header.csvFile') }}</a></div>
                           </div>
+                            {#
                           <div>
                             <div><a href="/atzTraffic/{{icaoCode}}">ATZ traffic</a></div>
                           </div>
+                            #}
                         </div>
                     {% else %}
                             {{icaoCode}}
