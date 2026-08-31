@@ -265,7 +265,7 @@ def search(text=None):
 @app.route('/csv/<type>/<code>', methods=['GET'])
 @app.route('/csv/<type>/<code>/<date>', methods=['GET'])
 @app.route('/csv/<type>/<code>/<date>/<dateTo>', methods=['GET'])
-@limiter.limit("10 per week")
+@limiter.limit("10 per day")
 def getCsv(type: str, code: str, date=None, dateTo=None):
     """
     :param type: loc | reg
