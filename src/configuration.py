@@ -20,7 +20,7 @@ if DEBUG:
     AIRFIELDS_FILE = '/home/ibisek/wqz/prog/python/ognLogbook/data/airfields.json'
     GEOFILE_PATH = '/home/ibisek/data/download/ognLogbook/500m/mosaic-500m.TIF'
 else:
-    AIRFIELDS_FILE = '/home/ibisek/wqz/prog/python/ognLogbook/data/airfields.json'
+    AIRFIELDS_FILE = '/var/www/ognLogbook/data/airfields.json'
     GEOFILE_PATH = '/var/www/ognLogbook-data/mosaic-500m.TIF'
     USE_MULTIPROCESSING_INSTEAD_OF_THREADS = True
 
