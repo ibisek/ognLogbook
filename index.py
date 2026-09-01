@@ -16,7 +16,6 @@ import getopt
 from platform import node
 import pytz
 from flask_limiter import Limiter
-from utils import getRemoteAddr
 
 from atzTraffic.airfieldTrafficDensity import trafficForAirfieldCode, coordsForAirfield
 from configuration import DEBUG, DATA_AVAILABILITY_DAYS, MAX_DAYS_IN_RANGE, INFLUX_DB_HOST, INFLUX_DB_NAME, redisConfig
@@ -28,10 +27,9 @@ from dao.logs import logIgcDownload
 from dao.stats import Stats
 from db.InfluxDbThread import InfluxDbThread
 from igc import flightToIGC
-
-from utils import getDaysLinks, formatTsToHHMM, eligibleForMapView, sanitise, parseDate, limitDateRange
-from utilsTime import formatDuration
 from translations import gettext
+from utils import getDaysLinks, formatTsToHHMM, eligibleForMapView, sanitise, parseDate, limitDateRange, getRemoteAddr
+from utilsTime import formatDuration
 
 app = flask.Flask(__name__)
 app.logger.setLevel(logging.WARNING)
