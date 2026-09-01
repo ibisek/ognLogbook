@@ -1,0 +1,20 @@
+# /etc/systemd/system/ognLogbookUwsgi.service
+#
+# systemctl start ognLogbookUwsgi.service 
+# systemctl enable ognLogbookUwsgi.service
+# systemctl daemon-reload
+# systemctl restart ognLogbookUwsgi.service
+# journalctl -u ognLogbookUwsgi.service -e --no-pager
+
+[Unit]
+Description=uWSGI instance to serve ognLogbook
+After=network.target
+
+[Service]
+User=www-data
+Group=www-data
+WorkingDirectory=/var/www/ognLogbook
+ExecStart= /var/www/ognLogbook/venv/bin/uwsgi --ini uwsgi.ini
+
+[Install]
+WantedBy=multi-user.target
