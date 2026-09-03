@@ -11,6 +11,7 @@ Jinja2==3.1.6
 MarkupSafe==3.0.3
 msgpack==1.1.2
 ogn-client==2.0.0
+psutil==7.2.2
 PyMySQL==1.1.2
 python-dateutil==2.9.0.post0
 python-geohash==0.8.5
