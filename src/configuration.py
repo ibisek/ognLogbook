@@ -1,6 +1,7 @@
 
 import logging
 import os
+import psutil
 import sys
 
 # detect we are in debug/dev mode:
@@ -89,11 +90,11 @@ ADDRESS_TYPE_PREFIX_LETTER = {'S': 'SKY', 'I': 'ICA', 'F': 'FLR', 'O': 'OGN'}
 DATA_AVAILABILITY_DAYS = 10
 MAX_DAYS_IN_RANGE = 14
 
+
+# ---- logging configuration ----
 LOG_ROOT = '/tmp'
 if os.name == 'nt':
     LOG_ROOT = 'e:/wqz/temp'
-
-# ---- logging configuration ----
 
 formatter = logging.Formatter(
     "%(asctime)s [%(levelname)s] [%(filename)s:%(lineno)d] %(message)s"
@@ -106,11 +107,11 @@ root_logger.setLevel(logging.DEBUG)
 console_handler = logging.StreamHandler()
 console_handler.setLevel(logging.INFO)
 console_handler.setFormatter(formatter)
-
-# File: WARNING+
-file_handler = logging.FileHandler(f"{LOG_ROOT}/rawWorker.log")
-file_handler.setLevel(logging.WARNING)
-file_handler.setFormatter(formatter)
-
 root_logger.addHandler(console_handler)
-root_logger.addHandler(file_handler)
+
+parentProc = psutil.Process().parent()
+if parentProc.name() is 'runApp.sh':
+    file_handler = logging.FileHandler(f"{LOG_ROOT}/rawWorker.log")
+    file_handler.setLevel(logging.WARNING)
+    file_handler.setFormatter(formatter)
+    root_logger.addHandler(file_handler)
