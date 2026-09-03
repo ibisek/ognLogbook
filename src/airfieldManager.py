@@ -77,6 +77,8 @@ class AirfieldManager(ThreadSafeSingleton):
             if type(af) is AirfieldRecord:
                 code = af.code
                 d[code] = True
+            else:
+                log.fatal(f"Unexpected type of AF: {type(af)}; '{str(af)}'")
 
         return d
 
