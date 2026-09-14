@@ -20,6 +20,7 @@ from flask_limiter import Limiter
 from atzTraffic.airfieldTrafficDensity import trafficForAirfieldCode, coordsForAirfield
 from configuration import DEBUG, DATA_AVAILABILITY_DAYS, MAX_DAYS_IN_RANGE, INFLUX_DB_HOST, INFLUX_DB_NAME, redisConfig
 from airfieldManager import AirfieldManager, AirfieldRecord
+from experimental.downloadLimiter import DownloadLimiter
 from dataStructures import LogbookItem, addressPrefixes
 from dao.encountersDao import Encounter, listEncountersWithRegistration
 from dao.logbookDao import listDepartures, listArrivals, listFlights, getSums, getFlight, getFlightIdForTakeoffId, getFlightInfoForTakeoff
@@ -59,6 +60,8 @@ limiter = Limiter(
     storage_options={"socket_connect_timeout": 30},
     strategy="fixed-window"     # fixed-window  | moving-window | sliding-window-counter
 )
+
+downloadLimiter = DownloadLimiter()
 
 
 @app.route('/set_timezone', methods=['POST'])
@@ -263,6 +266,7 @@ def search(text=None):
 @app.route('/csv/<type>/<code>', methods=['GET'])
 @app.route('/csv/<type>/<code>/<date>', methods=['GET'])
 @app.route('/csv/<type>/<code>/<date>/<dateTo>', methods=['GET'])
+@downloadLimiter.limit(10)
 @limiter.limit("10 per day")
 def getCsv(type: str, code: str, date=None, dateTo=None):
     """
@@ -468,6 +472,7 @@ def listEncounters(flightId: int):
 
 
 @app.route('/api/igc/<idType>/<flightId>', methods=['GET'])
+@downloadLimiter.limit(10)
 @limiter.limit("10 per month")
 def getIgc(idType: str, flightId: int):
     """
