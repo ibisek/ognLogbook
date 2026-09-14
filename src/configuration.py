@@ -110,7 +110,7 @@ console_handler.setFormatter(formatter)
 root_logger.addHandler(console_handler)
 
 parentProc = psutil.Process().parent()
-if parentProc.name() is 'runApp.sh':
+if parentProc.name() == 'runApp.sh':
     file_handler = logging.FileHandler(f"{LOG_ROOT}/rawWorker.log")
     file_handler.setLevel(logging.WARNING)
     file_handler.setFormatter(formatter)
