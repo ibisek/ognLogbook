@@ -13,7 +13,9 @@ if val:
 # APRS_FILTER = 'r/+49.3678/+16.1145/1100'    # 1100 km ~ eastern Romania
 APRS_FILTER = None
 # APRS_SERVER_HOST = None         # use default client settings
+# APRS_SERVER_PORT = None        # default port is 10152 (implicit)
 APRS_SERVER_HOST = '127.0.0.1'  # use line-relay aggregator
+APRS_SERVER_PORT = 10153        # use stream-buffer
 
 USE_MULTIPROCESSING_INSTEAD_OF_THREADS = False
 

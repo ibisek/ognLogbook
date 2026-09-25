@@ -6,7 +6,8 @@ from socket import SHUT_RDWR
 from ogn.client import AprsClient
 from ogn.parser import parse, AprsParseError
 
-from configuration import APRS_FILTER, DEBUG, USE_MULTIPROCESSING_INSTEAD_OF_THREADS, OGN_USERNAME, APRS_SERVER_HOST
+from configuration import APRS_FILTER, DEBUG, USE_MULTIPROCESSING_INSTEAD_OF_THREADS, OGN_USERNAME, \
+    APRS_SERVER_HOST, APRS_SERVER_PORT
 from beaconProcessor import BeaconProcessor
 from cron.cronJobs import CronJobs
 
@@ -16,6 +17,10 @@ doRun = True
 if APRS_SERVER_HOST:
     from ogn.client import settings
     settings.APRS_SERVER_HOST = APRS_SERVER_HOST
+    if APRS_SERVER_PORT:
+        settings.APRS_SERVER_PORT_FULL_FEED = APRS_SERVER_PORT
+        if APRS_FILTER:
+            settings.APRS_SERVER_PORT_CLIENT_DEFINED_FILTERS = APRS_SERVER_PORT
     client: AprsClient = AprsClient(aprs_user=OGN_USERNAME, aprs_filter=APRS_FILTER, settings=settings)
 else:
     client: AprsClient = AprsClient(aprs_user=OGN_USERNAME, aprs_filter=APRS_FILTER)
