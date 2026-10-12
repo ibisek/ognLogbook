@@ -24,24 +24,24 @@ class RequestLimiter:
 
     def _putOnBlacklist(self):
         key = f"BL_{request.remote_addr}"
-        self.redis.set(key, True)
+        self.redis.set(key, 1)
         self.redis.expire(key, REDIS_RECORD_EXPIRATION)
 
     def _isOnBlacklist(self):
         key = f"BL_{request.remote_addr}"
         res = self._getFromRedis(key, default=False)
-        return res
+        return True if res == '1' else False
 
     def limit(self, maxLimit=0):
         def decorator(f):
             @wraps(f)
             def decorated_function(*args, **kwargs):
-                if request.cookies.get('bot', None) != 'false':
+                if request.cookies.get('bot', None) == 'true':
                     self._putOnBlacklist()
-                    return flask.render_template('error40x.html', code=404, message="Not found :P"), 404
+                    return flask.render_template('error40x.html', code=404, message='Not found.'), 404
 
                 if self._isOnBlacklist():
-                    return flask.render_template('error40x.html', code=404, message="Not found :P"), 404
+                    return flask.render_template('error40x.html', code=404, message='Not found.'), 404
 
                 if maxLimit > 0:
                     key = f"DL_{request.remote_addr}"
