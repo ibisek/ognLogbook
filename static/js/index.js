@@ -70,7 +70,10 @@ function switchTimezone() {
     var newTimezone = browserTimezone;
     if (browserTimezone == cookieTimezone) newTimezone = 'UTC';
 
-    document.cookie = `browser_timezone=${newTimezone};path=/`;
+    var botCookie = '';
+    if(navigator.webdriver) botCookie = "bot=true";
+
+    document.cookie = `browser_timezone=${newTimezone};path=/;{botCookie}`;
     fetch("/set_timezone", {method: 'POST', body: newTimezone})
         .then(function() { location.reload(); });
 }
