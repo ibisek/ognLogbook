@@ -25,6 +25,13 @@
 	  document.cookie = `browser_timezone=${timezone};path=/`;
 	</script>
 	{% endif %}
+
+	{% if 'bot' not in session %}
+	<script type="text/javascript">
+	    if(navigator.webdriver) document.cookie = "bot=true";
+    	else document.cookie = "bot=false";
+	</script>
+	{% endif %}
 </head>
 
 

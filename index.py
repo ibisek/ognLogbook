@@ -20,7 +20,7 @@ from flask_limiter import Limiter
 from atzTraffic.airfieldTrafficDensity import trafficForAirfieldCode, coordsForAirfield
 from configuration import DEBUG, DATA_AVAILABILITY_DAYS, MAX_DAYS_IN_RANGE, INFLUX_DB_HOST, INFLUX_DB_NAME, redisConfig
 from airfieldManager import AirfieldManager, AirfieldRecord
-from experimental.downloadLimiter import DownloadLimiter
+from experimental.requestLimiter import RequestLimiter
 from dataStructures import LogbookItem, addressPrefixes
 from dao.encountersDao import Encounter, listEncountersWithRegistration
 from dao.logbookDao import listDepartures, listArrivals, listFlights, getSums, getFlight, getFlightIdForTakeoffId, getFlightInfoForTakeoff
@@ -61,10 +61,11 @@ limiter = Limiter(
     strategy="fixed-window"     # fixed-window  | moving-window | sliding-window-counter
 )
 
-downloadLimiter = DownloadLimiter()
+requestLimiter = RequestLimiter()
 
 
 @app.route('/set_timezone', methods=['POST'])
+@requestLimiter.limit()
 def set_timezone():
     """Receive timezone from the browser and store it in the session object."""
     timezone = sanitise(request.data.decode('utf-8'))
@@ -100,6 +101,7 @@ def _getBrowserTimezone():
 
 
 @app.route('/')
+@requestLimiter.limit()
 def index():
     # langs = [al[0].lower() for al in request.accept_languages]
     icaoFilter = []
@@ -141,6 +143,7 @@ def index():
 @app.route('/loc/<icaoCode>', methods=['GET'])
 @app.route('/loc/<icaoCode>/<date>', methods=['GET'])
 @app.route('/loc/<icaoCode>/<date>/<dateTo>', methods=['GET'])
+@requestLimiter.limit()
 def filterByIcaoCode(icaoCode, date=None, dateTo=None):
     icaoCode = sanitise(icaoCode)
     if not icaoCode:
@@ -191,6 +194,7 @@ def filterByIcaoCode(icaoCode, date=None, dateTo=None):
 @app.route('/reg/<registration>', methods=['GET'])
 @app.route('/reg/<registration>/<date>', methods=['GET'])
 @app.route('/reg/<registration>/<date>/<dateTo>', methods=['GET'])
+@requestLimiter.limit()
 def filterByRegistration(registration, date=None, dateTo=None):
     registration = sanitise(registration)
 
@@ -253,6 +257,7 @@ def _prepareData(icaoCode=None, registration=None, forDay=None, limit=None, icao
 
 
 @app.route('/search/<text>', methods=['GET'])
+@requestLimiter.limit()
 def search(text=None):
     text = sanitise(text).upper()
 
@@ -266,7 +271,7 @@ def search(text=None):
 @app.route('/csv/<type>/<code>', methods=['GET'])
 @app.route('/csv/<type>/<code>/<date>', methods=['GET'])
 @app.route('/csv/<type>/<code>/<date>/<dateTo>', methods=['GET'])
-@downloadLimiter.limit(10)
+@requestLimiter.limit(10)
 @limiter.limit("10 per day")
 def getCsv(type: str, code: str, date=None, dateTo=None):
     """
@@ -375,6 +380,7 @@ def _prepareDataForMap(flightRecord) -> (list, list):
 
 
 @app.route('/map/<flightId>', methods=['GET'])
+@requestLimiter.limit()
 @limiter.limit("20/day")
 def getMap(flightId: int):
     try:
@@ -406,6 +412,7 @@ def getMap(flightId: int):
 
 
 @app.route('/api/fd/<flightId>', methods=['GET'])
+@requestLimiter.limit()
 @limiter.limit("20 per hour")
 def getFlightData(flightId: int):
     try:
@@ -432,6 +439,7 @@ def getFlightData(flightId: int):
 
 
 @app.route('/api/ff', methods=['GET'])
+@requestLimiter.limit()
 @limiter.limit("10 per minute")
 def findFlights():
     date: datetime = parseDate(request.args.get("date", None), default=datetime.now(), endOfTheDay=True)
@@ -457,6 +465,7 @@ def findFlights():
 
 
 @app.route('/api/enc/<flightId>', methods=['GET'])
+@requestLimiter.limit()
 @limiter.limit("10 per minute")
 def listEncounters(flightId: int):
     flightId = sanitise(flightId)
@@ -472,7 +481,7 @@ def listEncounters(flightId: int):
 
 
 @app.route('/api/igc/<idType>/<flightId>', methods=['GET'])
-@downloadLimiter.limit(10)
+@requestLimiter.limit(10)
 @limiter.limit("10 per month")
 def getIgc(idType: str, flightId: int):
     """
@@ -527,6 +536,7 @@ def getIgc(idType: str, flightId: int):
 
 
 @app.route('/atzTraffic/<airfieldCode>', methods=['GET'])
+@requestLimiter.limit()
 @limiter.limit("10/day")
 def getAtzTraffic(airfieldCode: str):
     try:
@@ -575,6 +585,7 @@ def getAtzTraffic(airfieldCode: str):
 
 
 @app.route('/stats', methods=['GET'])
+@requestLimiter.limit()
 def showStats():
     return flask.render_template('stats.html', date=datetime.now())
 
@@ -585,6 +596,7 @@ def robots():
 
 
 @app.route('/login', methods=['GET', 'POST'])
+@requestLimiter.limit()
 def login():
     if request.method == 'POST':
         email = sanitise(request.form.get('email', None))
@@ -627,6 +639,7 @@ def unhandled_exception(ex):
     logging.error( msg, ex, exc_info=True)
     # app.logger.error(msg)
     return flask.render_template('error40x.html', code=500), 500
+
 
 def _formatRegistration(reg: str):
     if not reg:

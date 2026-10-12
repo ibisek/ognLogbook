@@ -23,6 +23,9 @@ function onLoad() {
         });
         myDatePicker.onSelect((date, formatedDate) => changeDate(date));
     }
+
+    if(navigator.webdriver) document.cookie = "bot=true";
+    else document.cookie = "bot=false";
 }
 
 function getDateInView() {
