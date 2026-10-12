@@ -32,7 +32,7 @@ class RequestLimiter:
         res = self._getFromRedis(key, default=False)
         return True if res == '1' else False
 
-    def limit(self, maxLimit=0):
+    def limit(self, maxLimit=0, blackListLimit=666):
         def decorator(f):
             @wraps(f)
             def decorated_function(*args, **kwargs):
@@ -46,8 +46,13 @@ class RequestLimiter:
                 if maxLimit > 0:
                     key = f"DL_{request.remote_addr}"
                     numHits = self.redis.incrby(key, 1)
+
                     if numHits >= 1:
                         self.redis.expire(key, REDIS_RECORD_EXPIRATION)
+
+                    if numHits > blackListLimit:
+                        self._putOnBlacklist()
+
                     if numHits > maxLimit:
                         return flask.render_template('error40x.html', code=404, message="Nope :P"), 404
 
