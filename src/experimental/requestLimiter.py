@@ -47,8 +47,8 @@ class RequestLimiter:
                     self._putOnBlacklist()
                     return flask.render_template('error40x.html', code=404, message='Not found.'), 404
 
-                # 2. if identified as bot
-                # 3. the UA from the BL
+                # 2. if self-identified as bot
+                # 3. the UA on the BL
                 if request.cookies.get('bot', None) == 'true' \
                         or request.headers.get('User-Agent', None) in self.UA_BLACK_LIST:
                     self._putOnBlacklist()
