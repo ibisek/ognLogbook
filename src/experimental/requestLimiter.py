@@ -7,6 +7,12 @@ from configuration import redisConfig, REDIS_RECORD_EXPIRATION
 
 
 class RequestLimiter:
+    UA_BLACK_LIST = [
+        'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36',
+        'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36',
+    ]
 
     def __init__(self):
         self.redis = StrictRedis(**redisConfig)
@@ -36,6 +42,18 @@ class RequestLimiter:
         def decorator(f):
             @wraps(f)
             def decorated_function(*args, **kwargs):
+                # 1. the cookie should be correctly set by now!
+                if request.path == '/set_timezone' and request.cookies.get('bot', True) != 'false':
+                    self._putOnBlacklist()
+                    return flask.render_template('error40x.html', code=404, message='Not found.'), 404
+
+                # 2. if identified as bot
+                # 3. the UA from the BL
+                if request.cookies.get('bot', None) == 'true' \
+                        or request.headers.get('User-Agent', None) in self.UA_BLACK_LIST:
+                    self._putOnBlacklist()
+                    return flask.render_template('error40x.html', code=404, message='Not found.'), 404
+
                 if request.cookies.get('bot', None) == 'true':
                     self._putOnBlacklist()
                     return flask.render_template('error40x.html', code=404, message='Not found.'), 404

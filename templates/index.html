@@ -18,6 +18,13 @@
 	<link rel="stylesheet" href="/static/css/mc-calendar.min.css">
 	<script type="text/javascript" src="/static/js/mc-calendar.min.js"></script>
 
+	{% if 'bot' not in session %}
+	<script type="text/javascript">
+	    if(navigator.webdriver) document.cookie = "bot=true";
+    	else document.cookie = "bot=false";
+	</script>
+	{% endif %}
+
 	{% if 'browser_timezone' not in session %}
 	<script type="text/javascript">
 	  const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
@@ -26,12 +33,6 @@
 	</script>
 	{% endif %}
 
-	{% if 'bot' not in session %}
-	<script type="text/javascript">
-	    if(navigator.webdriver) document.cookie = "bot=true";
-    	else document.cookie = "bot=false";
-	</script>
-	{% endif %}
 </head>
 
 
