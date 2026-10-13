@@ -54,10 +54,6 @@ class RequestLimiter:
                     self._putOnBlacklist()
                     return flask.render_template('error40x.html', code=404, message='Not found.'), 404
 
-                if request.cookies.get('bot', None) == 'true':
-                    self._putOnBlacklist()
-                    return flask.render_template('error40x.html', code=404, message='Not found.'), 404
-
                 if self._isOnBlacklist():
                     return flask.render_template('error40x.html', code=404, message='Not found.'), 404
 
