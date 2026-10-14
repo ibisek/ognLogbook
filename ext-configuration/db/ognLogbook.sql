@@ -194,7 +194,7 @@ CREATE TABLE ddb (
 	device_type VARCHAR(1),
 	device_id VARCHAR(6),
 	aircraft_type VARCHAR(32) DEFAULT 0,
-	aircraft_registration VARCHAR(8),
+	aircraft_registration VARCHAR(10),
 	aircraft_cn VARCHAR(3),
 	tracked BOOL DEFAULT true,
 	identified BOOL DEFAULT true,
