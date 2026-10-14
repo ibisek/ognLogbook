@@ -14,7 +14,7 @@ if __name__ == '__main__':
     influxDb = InfluxDbThread(dbName=INFLUX_DB_NAME, host=INFLUX_DB_HOST)
     influxDb.start()
 
-    CSV_ROOT = "/home/ibisek/btsync/prac/temp/logbook"
+    CSV_ROOT = "/home/ibisek/btsync/doma/temp/ognData_LKKA_2026"
 
     files = [f for f in listdir(CSV_ROOT) if isfile(join(CSV_ROOT, f)) and f.endswith('.csv')]
     files.sort()
@@ -29,7 +29,7 @@ if __name__ == '__main__':
 
                 try:
                     # ts;addr;alt;gs;lat;lon;tr;vs;ss
-                    ts = int(items[0])
+                    ts = int(items[0]) if len(items[0]) <= 10 else int(items[0][:10])
                     addr = items[1]
                     alt = float(items[2])
                     gs = float(items[3])
