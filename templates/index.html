@@ -20,8 +20,8 @@
 
 	{% if 'bot' not in session %}
 	<script type="text/javascript">
-	    if(navigator.webdriver) document.cookie = "bot=true";
-    	else document.cookie = "bot=false";
+	    if(navigator.webdriver) document.cookie = "bot=true;path=/";
+    	else document.cookie = "bot=false;path=/";
 	</script>
 	{% endif %}
 
