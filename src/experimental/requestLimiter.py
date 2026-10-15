@@ -39,13 +39,15 @@ class RequestLimiter:
 
     def _putOnBlacklist(self):
         key = f"BL_{request.remote_addr}"
-        self.redis.set(key, 1)
+        self.redis.incr(key)
         self.redis.expire(key, REDIS_RECORD_EXPIRATION)
 
     def _isOnBlacklist(self):
         key = f"BL_{request.remote_addr}"
         res = self._getFromRedis(key, default=False)
-        return True if res == '1' else False
+        res = 0 if not res else int(res)
+
+        return True if res >= 10 else False
 
     def limit(self, maxLimit=0, blackListLimit=666):
         def decorator(f):

@@ -31,7 +31,7 @@ var blueIcon = new L.Icon({
   shadowSize: [12, 12]
 });
 
-function addFlightToMap(flightSegments, skipSegments, lineColor='red') {
+function addFlightToMap(flightSegments, skipSegments, lineColor='red', lineOpacity=1, showFixes=false) {
     var lineWhiteWeight = 4;    // default
     var lineColorWeight = 2;
     if (typeof lineWidth != "undefined" && lineWidth == 1) {   // global variable is set.. ehm, somewhere B-)
@@ -40,16 +40,22 @@ function addFlightToMap(flightSegments, skipSegments, lineColor='red') {
     }
     var allPoints = new Array();
     for (var i = 0; i < flightSegments.length; i++) {
-        L.polyline(flightSegments[i], {color: 'white', weight: lineWhiteWeight}).addTo(map);
-        L.polyline(flightSegments[i], {color: lineColor, weight: lineColorWeight}).addTo(map);
+        if(lineWhiteWeight > 0) L.polyline(flightSegments[i], {color: 'white', opacity: lineOpacity, weight: lineWhiteWeight}).addTo(map);
+        L.polyline(flightSegments[i], {color: lineColor, opacity: lineOpacity, weight: lineColorWeight}).addTo(map);
         allPoints = allPoints.concat(flightSegments[i]);
     }
     for (var i = 0; i < skipSegments.length; i++) {
         L.polyline(skipSegments[i], {color: 'blue', weight: '2', dashArray: '4, 4', dashOffset: '0'}).addTo(map)
         allPoints = allPoints.concat(skipSegments[i]);
     }
-    var polyline = L.polyline(allPoints, {color: 'green', weight: 2});
-    map.fitBounds(polyline.getBounds());
+    if(showFixes) {
+        for (var i = 0; i < allPoints.length; i++) {    // render all received fixes
+        L.circle(allPoints[i], {radius: 1, color: 'black'}).addTo(map);
+        }
+    }
+
+    var all = L.polyline(allPoints, {color: 'green', weight: 2}); // this is here just for the zoom to show all rendered lines
+    map.fitBounds(all.getBounds());
 
     if (typeof hideMarkers == "undefined") {   // global variable is not set.. ehm, somewhere B-)
         var takeoffMarker = L.marker(flightSegments[0][0], {icon: greenIcon}).addTo(map);
@@ -71,7 +77,7 @@ function onPageLoad(flightId) {
 
 	L.control.scale().addTo(map);
 
-    addFlightToMap(flightSegments, skipSegments);
+    addFlightToMap(flightSegments, skipSegments);  //, lineColor='red', lineOpacity=0.3
     listEncounters(flightId);
     if (typeof atzMarkers !== 'undefined') { drawAtzMarkers(atzMarkers); }
 }
@@ -178,7 +184,7 @@ function addFoundFlightToMap(flightId) {
                 var flightSegments = flightData.flightSegments;
                 var skipSegments = flightData.skipSegments;
                 var color = colors[(colorIndex < colors.length ? colorIndex++ : colors.length-1)];
-                addFlightToMap(flightSegments, skipSegments, color);
+                addFlightToMap(flightSegments, skipSegments, lineColor=color);
 
                 // change appearance in the search results:
                 var span = document.getElementById(`FL${flightId}`);
