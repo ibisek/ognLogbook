@@ -1,3 +1,5 @@
+import re
+
 import flask
 from functools import wraps
 from flask import request
@@ -13,6 +15,13 @@ class RequestLimiter:
         'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36',
         'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36',
     ]
+
+    # These are false requests shitty bots are trying:
+    FALSE_REQUESTS = re.compile(
+        r'^/(wp-|xmlrpc|@fs|_next|cgi-bin|\.env|\.git|\.ht|server-status|server-info|'
+        r'phpmyadmin|pma\b|actuator|console|manager|vendor/|userfiles|credentials|'
+        r'secrets|settings\.json|dump\b|\.sql$|id\.rsa|\.ssh|\.aws|composer\.|'
+        r'docker-compose|s3\.|sendgrid|HNAP1|boaform|goform|setup\.cgi|shell\.php)')
 
     def __init__(self):
         self.redis = StrictRedis(**redisConfig)
@@ -49,12 +58,14 @@ class RequestLimiter:
 
                 # 2. if self-identified as bot
                 # 3. the UA on the BL
+                # 4. match malicious strings
                 if request.cookies.get('bot', None) == 'true' \
-                        or request.headers.get('User-Agent', None) in self.UA_BLACK_LIST:
+                        or request.headers.get('User-Agent', None) in self.UA_BLACK_LIST\
+                        or self.FALSE_REQUESTS.match(request.path) or request.path.endswith('.php'):
                     self._putOnBlacklist()
                     return flask.render_template('error40x.html', code=404, message='Not found.'), 404
 
-                if self._isOnBlacklist():
+            if self._isOnBlacklist():
                     return flask.render_template('error40x.html', code=404, message='Not found.'), 404
 
                 if maxLimit > 0:
